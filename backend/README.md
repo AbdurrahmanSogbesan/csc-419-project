@@ -34,6 +34,12 @@ $ yarn install
 
 ## Running the app
 
+Before running the app,
+
+- Create a `.env` file in your root directory, duplicating the [example file](.env.example.txt), filling in custom values.
+- Run existing migrations to sync your database with the latest changes - `yarn migrate`
+- Initialize prisma with `yarn generate`
+
 ```bash
 # development
 $ yarn run start
@@ -43,6 +49,26 @@ $ yarn run start:dev
 
 # production mode
 $ yarn run start:prod
+```
+
+## Migrations
+
+Creating Migrations:
+
+- Modify your Prisma schema (`schema.prisma`) to reflect any changes to your data model.
+- Run `npx prisma migrate dev` to create a new migration with a meaningful name.
+
+Deploying Migrations:
+
+- Run `yarn migrate` to deploy the latest migration to your database.
+
+## Seeding the Database
+
+To seed the database with dummy data, run the following command:
+
+```bash
+# seed the database
+$ yarn seed
 ```
 
 ## Test

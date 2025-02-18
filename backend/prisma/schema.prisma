@@ -1,0 +1,106 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  ADMIN
+  LIBRARIAN
+  MEMBER
+}
+
+enum ReservationStatus {
+  PENDING
+  APPROVED
+  CANCELLED
+}
+
+enum FineStatus {
+  UNPAID
+  PAID
+}
+
+enum TransactionType {
+  BORROW
+  RETURN
+  FINE_PAYMENT
+}
+
+model User {
+  id        BigInt   @id @default(autoincrement())
+  uuid      String   @unique @default(uuid())
+  name      String
+  email     String   @unique
+  password  String
+  role      Role     @default(MEMBER)
+  createdAt DateTime @default(now()) @db.Timestamptz(3)
+
+  borrowedBooks BorrowedBook[]
+  reservations  Reservation[]
+  transactions  Transaction[]
+}
+
+model Book {
+  id              BigInt   @id @default(autoincrement())
+  ISBN            String   @unique
+  title           String
+  author          String
+  category        String   @default("")
+  copiesAvailable Int      @default(0)
+  createdAt       DateTime @default(now()) @db.Timestamptz(3)
+
+  borrowedBooks BorrowedBook[]
+  reservations  Reservation[]
+  transactions  Transaction[]
+}
+
+model BorrowedBook {
+  id         BigInt    @id @default(autoincrement())
+  uuid       String    @unique @default(uuid())
+  user       User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId     BigInt
+  book       Book      @relation(fields: [bookId], references: [id], onDelete: Cascade)
+  bookId     BigInt
+  borrowDate DateTime  @default(now()) @db.Timestamptz(3)
+  dueDate    DateTime  @db.Timestamptz(3)
+  returnDate DateTime? @db.Timestamptz(3)
+
+  @@unique([userId, bookId])
+}
+
+model Reservation {
+  id              BigInt            @id @default(autoincrement())
+  uuid            String            @unique @default(uuid())
+  user            User              @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId          BigInt
+  book            Book              @relation(fields: [bookId], references: [id], onDelete: Cascade)
+  bookId          BigInt
+  reservationDate DateTime          @default(now()) @db.Timestamptz(3)
+  status          ReservationStatus @default(PENDING)
+
+  @@unique([userId, bookId])
+}
+
+model Transaction {
+  id         BigInt          @id @default(autoincrement())
+  uuid       String          @unique @default(uuid())
+  userId     BigInt
+  bookId     BigInt?
+  actionType TransactionType
+  timestamp  DateTime        @default(now()) @db.Timestamptz(3)
+  amount     Float? // Used only for fine payments
+  fineStatus FineStatus? // Only used when actionType = FINE_PAYMENT
+
+  user User  @relation(fields: [userId], references: [id], onDelete: Cascade)
+  book Book? @relation(fields: [bookId], references: [id], onDelete: Cascade)
+}
