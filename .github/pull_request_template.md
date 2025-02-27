@@ -1,4 +1,6 @@
-# 🚀 Pull Request Template
+## 🚀 Pull Request Title
+
+The title should explain the changes. For example "Add search functionality to the home page"
 
 ## ✨ Description
 
@@ -10,10 +12,12 @@ Provide a brief summary of the changes. Explain the purpose of this PR.
 - [ ] ✨ New feature (non-breaking change that adds functionality)
 - [ ] ⚠️ Breaking change (fix or feature that would cause existing functionality to not work as expected)
 - [ ] 📖 Documentation update
+- [ ] 🧹 Code refactoring (no functional changes)
+- [ ] ⚡ Performance improvement
 
 ## 🔄 Changes Made
 
-List key changes in this PR
+List key changes in this PR:
 
 -
 
