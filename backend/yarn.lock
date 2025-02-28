@@ -928,6 +928,14 @@
   resolved "https://registry.yarnpkg.com/@pkgr/core/-/core-0.1.1.tgz#1ec17e2edbec25c8306d424ecfbf13c7de1aaa31"
   integrity sha512-cq8o4cWH0ibXh9VGi5P20Tu9XF/0fFXl9EUinr9QfTM7a7p0oTA4iJRCQWppXR1Pg8dSM0UCItCkPwsk9qWWYA==
 
+"@prisma/adapter-neon@^6.4.1":
+  version "6.4.1"
+  resolved "https://registry.yarnpkg.com/@prisma/adapter-neon/-/adapter-neon-6.4.1.tgz#67b794e4b621ecc3c1f31948bb141a0dd8f89123"
+  integrity sha512-9pgh5OR+tJfWCm6VNh6uxtUiBHvSKUBhCfrONMSMKmnYtPiY38bYwb5UXMwR+3CG+f4xmcACv0K7+UHWX8gaSw==
+  dependencies:
+    "@prisma/driver-adapter-utils" "6.4.1"
+    postgres-array "3.0.2"
+
 "@prisma/client@^6.4.0":
   version "6.4.0"
   resolved "https://registry.yarnpkg.com/@prisma/client/-/client-6.4.0.tgz#341f56b747ea7b70e4f1d2d362f0e7cdc2b1bdb4"
@@ -937,6 +945,18 @@
   version "6.4.0"
   resolved "https://registry.yarnpkg.com/@prisma/debug/-/debug-6.4.0.tgz#1cc112f28a11fad609fdb50235b0e4d4369e4694"
   integrity sha512-zXsLpNXLypdThJjItqk0u/3uitcD9+9rNynZPPu4Xp7664yp8VbxCGTVBS696vA0e3kw0Xv/4muR+cNHkxspcw==
+
+"@prisma/debug@6.4.1":
+  version "6.4.1"
+  resolved "https://registry.yarnpkg.com/@prisma/debug/-/debug-6.4.1.tgz#b3b4982e107a456f848ced3386469b3a35bc76f3"
+  integrity sha512-Q9xk6yjEGIThjSD8zZegxd5tBRNHYd13GOIG0nLsanbTXATiPXCLyvlYEfvbR2ft6dlRsziQXfQGxAgv7zcMUA==
+
+"@prisma/driver-adapter-utils@6.4.1":
+  version "6.4.1"
+  resolved "https://registry.yarnpkg.com/@prisma/driver-adapter-utils/-/driver-adapter-utils-6.4.1.tgz#001666772497e14b29c6cbae11ebda27dbb47286"
+  integrity sha512-WIVq6QUzz9HJXNa+6LmyLrW/KHOFQwmXYvpaVVECjwAUaAQXFw4g85i68GFPTYrfozwz5CntdHVVzXxInkk0fA==
+  dependencies:
+    "@prisma/debug" "6.4.1"
 
 "@prisma/engines-version@6.4.0-29.a9055b89e58b4b5bfb59600785423b1db3d0e75d":
   version "6.4.0-29.a9055b89e58b4b5bfb59600785423b1db3d0e75d"
@@ -4461,6 +4481,11 @@ pluralize@8.0.0:
   version "8.0.0"
   resolved "https://registry.yarnpkg.com/pluralize/-/pluralize-8.0.0.tgz#1a6fa16a38d12a1901e0320fa017051c539ce3b1"
   integrity sha512-Nc3IT5yHzflTfbjgqWcCPpo7DaKy4FnpB0l/zCAW0Tc7jxAiuqSxHasntB3D7887LSrA93kDJ9IXovxJYxyLCA==
+
+postgres-array@3.0.2:
+  version "3.0.2"
+  resolved "https://registry.yarnpkg.com/postgres-array/-/postgres-array-3.0.2.tgz#68d6182cb0f7f152a7e60dc6a6889ed74b0a5f98"
+  integrity sha512-6faShkdFugNQCLwucjPcY5ARoW1SlbnrZjmGl0IrrqewpvxvhSLHimCVzqeuULCbG0fQv7Dtk1yDbG3xv7Veog==
 
 prelude-ls@^1.2.1:
   version "1.2.1"
