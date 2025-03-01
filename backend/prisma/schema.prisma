@@ -15,7 +15,6 @@ datasource db {
 
 enum Role {
   ADMIN
-  LIBRARIAN
   MEMBER
 }
 
@@ -58,6 +57,7 @@ model Book {
   author          String
   category        String   @default("")
   copiesAvailable Int      @default(0)
+  publishedYear   Int
   createdAt       DateTime @default(now()) @db.Timestamptz(3)
 
   borrowedBooks BorrowedBook[]

@@ -14,11 +14,12 @@ import { AuthService } from './auth.service';
 import { CreateUserDto } from './dtos/create-user.dto';
 import { Public } from 'src/common/decorators/public.decorator';
 import { LoginUserDto } from './dtos/login-user.dto';
-import { LoginResponse } from './interfaces/users-login.interfaces';
+import { AuthResponse } from './interfaces/users-login.interfaces';
 // import { IsAdminGuard } from 'src/common/guards/is-admin.guard';
 import { Role } from '@prisma/client';
 import { IsMineGuard } from 'src/common/guards/is-mine.guard';
 import { UpdateUserDto } from './dtos/update-user.dto';
+import { IsAdminGuard } from 'src/common/guards/is-admin.guard';
 
 @Controller('auth')
 export class AuthController {
@@ -32,7 +33,7 @@ export class AuthController {
 
   @Public()
   @Post('login')
-  async loginUser(@Body() loginUserDto: LoginUserDto): Promise<LoginResponse> {
+  async loginUser(@Body() loginUserDto: LoginUserDto): Promise<AuthResponse> {
     return await this.authService.loginUser(loginUserDto);
   }
 
@@ -42,7 +43,7 @@ export class AuthController {
   }
 
   @Get()
-  // @UseGuards(IsAdminGuard)
+  @UseGuards(IsAdminGuard)
   async findAll(
     @Query('page') page = 1,
     @Query('limit') limit = 10,
@@ -65,7 +66,7 @@ export class AuthController {
   }
 
   @Get(':id')
-  // @UseGuards(IsAdminGuard)
+  @UseGuards(IsAdminGuard)
   async findOne(@Param('id') id: number) {
     return await this.authService.findOne(+id);
   }

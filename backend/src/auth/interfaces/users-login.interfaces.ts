@@ -5,6 +5,13 @@ export interface UserPayload {
   email: string;
 }
 
-export interface LoginResponse {
+export interface AuthResponse {
+  user: {
+    id: bigint;
+    email: string;
+    name: string;
+    phone?: string;
+    role: string;
+  };
   access_token: string;
 }

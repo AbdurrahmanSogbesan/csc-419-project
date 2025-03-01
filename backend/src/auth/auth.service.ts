@@ -10,10 +10,7 @@ import { PrismaService } from 'src/prisma/prisma.service';
 import * as bcrypt from 'bcrypt';
 import { CreateUserDto } from './dtos/create-user.dto';
 import { hashPassword } from 'src/utils/helpers';
-import {
-  LoginResponse,
-  UserPayload,
-} from './interfaces/users-login.interfaces';
+import { AuthResponse, UserPayload } from './interfaces/users-login.interfaces';
 import { LoginUserDto } from './dtos/login-user.dto';
 import { Prisma } from '@prisma/client';
 import { UpdateUserDto } from './dtos/update-user.dto';
@@ -25,15 +22,54 @@ export class AuthService {
     private jwtService: JwtService,
   ) {}
 
-  // User Registration
-  async registerUser(createUserDto: CreateUserDto) {
+  private getUserSelectFields() {
+    return {
+      id: true,
+      email: true,
+      name: true,
+      role: true,
+      phone: true,
+      createdAt: true,
+
+      // Include related data
+      borrowedBooks: {
+        select: {
+          id: true,
+          book: true,
+          borrowDate: true,
+          returnDate: true,
+        },
+        take: 10, // Limit to recent borrowings
+        orderBy: { borrowDate: 'desc' as const },
+      },
+    };
+  }
+
+  private async generateAuthResponse(user: any): Promise<AuthResponse> {
+    const payload: UserPayload = {
+      sub: user.uuid,
+      userId: user.id.toString(),
+      email: user.email,
+      name: user.name,
+    };
+
+    const access_token = await this.jwtService.signAsync(payload);
+
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const { password, ...userWithoutPassword } = user; // Exclude password if it exists(Unnecessary but standard practice)
+
+    return {
+      user: userWithoutPassword,
+      access_token,
+    };
+  }
+
+  async registerUser(createUserDto: CreateUserDto): Promise<AuthResponse> {
     const { email, password, name, ...userData } = createUserDto;
 
     try {
-      // Step 1: Hash the password
       const hashedPassword = await hashPassword(password);
 
-      // Step 3: Save user with unique slug and hashed password
       const user = await this.prisma.user.create({
         data: {
           email,
@@ -43,6 +79,7 @@ export class AuthService {
         },
         select: {
           id: true,
+          uuid: true,
           email: true,
           name: true,
           phone: true,
@@ -50,7 +87,7 @@ export class AuthService {
         },
       });
 
-      return user;
+      return this.generateAuthResponse(user);
     } catch (error) {
       if (error.code === 'P2002') {
         throw new ConflictException('Email already exists');
@@ -59,19 +96,25 @@ export class AuthService {
     }
   }
 
-  async loginUser(loginUserDto: LoginUserDto): Promise<LoginResponse> {
+  async loginUser(loginUserDto: LoginUserDto): Promise<AuthResponse> {
     try {
-      // Step 1: Find user by email
       const user = await this.prisma.user.findUnique({
         where: { email: loginUserDto.email },
+        select: {
+          id: true,
+          uuid: true,
+          email: true,
+          name: true,
+          phone: true,
+          role: true,
+          password: true,
+        },
       });
 
-      // Step 2: Check if user exists
       if (!user) {
         throw new NotFoundException('User not found');
       }
 
-      // Step 3: Verify password
       const isPasswordValid = await bcrypt.compare(
         loginUserDto.password,
         user.password,
@@ -80,18 +123,7 @@ export class AuthService {
         throw new UnauthorizedException('Invalid credentials');
       }
 
-      // Step 4: Create JWT payload
-      const payload: UserPayload = {
-        sub: user.uuid,
-        userId: user.id.toString(),
-        email: user.email,
-        name: `${user.name}`,
-      };
-
-      // Step 5: Sign and return JWT token
-      return {
-        access_token: await this.jwtService.signAsync(payload),
-      };
+      return this.generateAuthResponse(user);
     } catch (error) {
       throw new HttpException(
         error.message || 'Internal Server Error',
@@ -144,26 +176,7 @@ export class AuthService {
       where: {
         id,
       },
-      select: {
-        id: true,
-        email: true,
-        name: true,
-        role: true,
-        phone: true,
-        createdAt: true,
-
-        //Include related data
-        borrowedBooks: {
-          select: {
-            id: true,
-            book: true,
-            borrowDate: true,
-            returnDate: true,
-          },
-          take: 5, // Limit recent orders
-          orderBy: { borrowDate: 'desc' },
-        },
-      },
+      select: this.getUserSelectFields(),
     });
 
     if (!user) {
@@ -189,12 +202,7 @@ export class AuthService {
           ...updateUserDto,
           password: updatedPassword,
         },
-        select: {
-          id: true,
-          email: true,
-          name: true,
-          role: true,
-        },
+        select: this.getUserSelectFields(),
       });
       return updatedUser;
     } catch (error) {

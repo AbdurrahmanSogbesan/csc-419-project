@@ -4,9 +4,9 @@ import { ValidationPipe } from '@nestjs/common';
 import { BigIntInterceptor } from './interceptors/bigint.interceptor';
 
 async function bootstrap() {
-  const app = await NestFactory.create(AppModule);
+  const app = await NestFactory.create(AppModule, { cors: true });
 
-  app.useGlobalPipes(new ValidationPipe());
+  app.useGlobalPipes(new ValidationPipe({ whitelist: true }));
   app.useGlobalInterceptors(new BigIntInterceptor());
 
   const port = process.env.PORT || 3000;
