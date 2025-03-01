@@ -477,6 +477,11 @@
   resolved "https://registry.yarnpkg.com/@eslint/js/-/js-8.57.1.tgz#de633db3ec2ef6a3c89e2f19038063e8a122e2c2"
   integrity sha512-d9zaMRSTIKDLhctzH12MtXvJKSSUhaHcjV+2Z+GK+EEY7XKpP5yR4x+N3TAcHTcu963nIr+TMcCb4DBCYX1z6Q==
 
+"@faker-js/faker@^9.5.1":
+  version "9.5.1"
+  resolved "https://registry.yarnpkg.com/@faker-js/faker/-/faker-9.5.1.tgz#1f32fb726db5f539415455cadbc93c9fb457e42d"
+  integrity sha512-0fzMEDxkExR2cn731kpDaCCnBGBUOIXEi2S1N5l8Hltp6aPf4soTMJ+g4k8r2sI5oB+rpwIW8Uy/6jkwGpnWPg==
+
 "@humanwhocodes/config-array@^0.13.0":
   version "0.13.0"
   resolved "https://registry.yarnpkg.com/@humanwhocodes/config-array/-/config-array-0.13.0.tgz#fb907624df3256d04b9aa2df50d7aa97ec648748"
@@ -3317,6 +3322,21 @@ isarray@~1.0.0:
   version "1.0.0"
   resolved "https://registry.yarnpkg.com/isarray/-/isarray-1.0.0.tgz#bb935d48582cba168c06834957a54a3e07124f11"
   integrity sha512-VLghIWNM6ELQzo7zwmcg0NmTVyWKYjvIeM83yjp0wRDTmUnrM678fQbcKBo6n2CJEF0szoG//ytg+TKla89ALQ==
+
+isbn-util@^2.0.1:
+  version "2.0.1"
+  resolved "https://registry.yarnpkg.com/isbn-util/-/isbn-util-2.0.1.tgz#3756c847f9836428ce00ef03814e5e65794f4526"
+  integrity sha512-Xt/Fqh86WqoED5NhiZtMBnXp5ohauCNSlrSqNuAzBAkQULlWp6tmg4wkSgPEe8MKPxBE8/qpwsKNQr0fSIQ6xw==
+
+isbn-utils@^1.1.0:
+  version "1.1.0"
+  resolved "https://registry.yarnpkg.com/isbn-utils/-/isbn-utils-1.1.0.tgz#d0d97f302c307d7834e8c4ced5e36495f1f95e02"
+  integrity sha512-IrWfYWHqRficGId19f3d6h0zTdBYp/jToRcg/0LVLtonSR+sIxj+chWb9qdQAN3WYydMmHTtKDvTqeUO4XyzAA==
+
+isbn@^0.4.0:
+  version "0.4.0"
+  resolved "https://registry.yarnpkg.com/isbn/-/isbn-0.4.0.tgz#663ab52ead4be555fda3884461e0252d8c46537b"
+  integrity sha512-WZnnvK24WVj7OFM79gXj4jmtpew1Nj2H/zwnmaGiYTrJvrTSDO8wOh4EqAWnnMO91JS+djvf+tw05lggZO0F5Q==
 
 isexe@^2.0.0:
   version "2.0.0"
