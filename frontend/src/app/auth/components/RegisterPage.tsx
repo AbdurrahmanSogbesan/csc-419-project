@@ -1,6 +1,5 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
-import * as z from "zod";
 import { Link } from "react-router";
 import { Button } from "@/components/ui/button";
 import {
@@ -18,24 +17,12 @@ import {
   CardContent,
   CardFooter,
 } from "@/components/ui/card";
-
-// Form validation schema
-const formSchema = z
-  .object({
-    name: z.string().min(2, "Name must be at least 2 characters"),
-    email: z.string().email("Invalid email address"),
-    phone: z.string().optional(),
-    password: z.string().min(6, "Password must be at least 6 characters"),
-    confirmPassword: z.string(),
-  })
-  .refine((data) => data.password === data.confirmPassword, {
-    message: "Passwords don't match",
-    path: ["confirmPassword"],
-  });
+import { registerSchema, RegisterForm } from "../utils";
+import { useRegister } from "@/hooks/auth";
 
 export default function RegisterPage() {
-  const form = useForm<z.infer<typeof formSchema>>({
-    resolver: zodResolver(formSchema),
+  const form = useForm<RegisterForm>({
+    resolver: zodResolver(registerSchema),
     defaultValues: {
       name: "",
       email: "",
@@ -45,8 +32,10 @@ export default function RegisterPage() {
     },
   });
 
-  function onSubmit(values: z.infer<typeof formSchema>) {
-    console.log("Registration attempt with:", values);
+  const { mutate: register } = useRegister();
+
+  function onSubmit(values: RegisterForm) {
+    register(values);
   }
 
   return (

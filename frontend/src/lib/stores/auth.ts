@@ -6,7 +6,7 @@ interface AuthState {
   user: User | null;
   isAuthenticated: boolean;
   setUser: (user: User) => void;
-  login: (accessToken: string) => void;
+  login: (data: AuthResponse) => void;
   logout: () => void;
   checkAuth: () => boolean;
 }
@@ -19,10 +19,16 @@ export const useAuthStore = create<AuthState>()(
 
       setUser: (user) => set({ user, isAuthenticated: true }),
 
-      login: (accessToken) => {
+      login: (data) => {
+        const { access_token, user } = data;
+
+        if (!access_token || !user) {
+          throw new Error("Invalid data");
+        }
+
         try {
-          tokenManager.setToken(accessToken);
-          set({ isAuthenticated: true });
+          tokenManager.setToken(access_token);
+          set({ isAuthenticated: true, user });
         } catch (error) {
           console.error("Failed to set tokens:", error);
           get().logout();

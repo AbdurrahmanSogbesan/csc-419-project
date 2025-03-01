@@ -22,6 +22,7 @@ api.interceptors.request.use((config) => {
 api.interceptors.response.use(
   (response) => response,
   async (error) => {
+    // todo: may change this
     // Handle 401 Unauthorized errors (expired/invalid token)
     if (error.response?.status === 401) {
       useAuthStore.getState().logout();

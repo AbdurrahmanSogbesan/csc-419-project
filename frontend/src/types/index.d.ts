@@ -5,3 +5,8 @@ type User = {
   lastName: string;
   role: "admin" | "user";
 };
+
+type AuthResponse = {
+  access_token: string;
+  user: User;
+};
