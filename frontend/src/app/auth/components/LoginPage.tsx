@@ -29,7 +29,7 @@ export default function LoginPage() {
     },
   });
 
-  const { mutate: login } = useLogin();
+  const { mutate: login, isPending } = useLogin();
 
   function onSubmit(values: LoginForm) {
     login(values);
@@ -87,7 +87,8 @@ export default function LoginPage() {
             <Button
               type="submit"
               className="w-full"
-              disabled={form.formState.isSubmitting || !form.formState.isValid}
+              disabled={isPending || !form.formState.isValid}
+              loading={isPending}
             >
               Sign In
             </Button>

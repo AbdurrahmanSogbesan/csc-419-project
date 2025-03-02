@@ -17,7 +17,6 @@ export function useRegister() {
       return await apiPost<AuthResponse>("/auth/register", rest);
     },
     onSuccess: async (data) => {
-      console.log("data", data);
       login(data);
       navigate("/");
     },
@@ -38,7 +37,6 @@ export function useLogin() {
       return await apiPost<AuthResponse>("/auth/login", data);
     },
     onSuccess: async (data) => {
-      console.log("data", data);
       login(data);
       navigate("/");
     },

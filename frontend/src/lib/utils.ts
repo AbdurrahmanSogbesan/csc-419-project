@@ -35,3 +35,7 @@ export const tokenManager = {
 
   getToken: () => Cookies.get(TOKEN_CONFIG.accessTokenKey),
 };
+
+export const convertArrayToString = (value: unknown) => {
+  return Array.isArray(value) ? value.join(", ") : value;
+};

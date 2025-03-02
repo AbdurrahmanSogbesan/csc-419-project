@@ -32,7 +32,7 @@ export default function RegisterPage() {
     },
   });
 
-  const { mutate: register } = useRegister();
+  const { mutate: register, isPending } = useRegister();
 
   function onSubmit(values: RegisterForm) {
     register(values);
@@ -138,7 +138,8 @@ export default function RegisterPage() {
             <Button
               type="submit"
               className="w-full"
-              disabled={form.formState.isSubmitting || !form.formState.isValid}
+              disabled={isPending || !form.formState.isValid}
+              loading={isPending}
             >
               Sign Up
             </Button>
