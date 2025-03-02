@@ -17,7 +17,7 @@ const TOKEN_CONFIG: TokenManagerConfig = {
     secure: import.meta.env.NODE_ENV === "production",
     sameSite: "strict",
     path: "/",
-    // todo: Consider adding 'expires' based on your JWT expiration
+    expires: 1, // 1 day
   },
 };
 
@@ -34,4 +34,8 @@ export const tokenManager = {
   },
 
   getToken: () => Cookies.get(TOKEN_CONFIG.accessTokenKey),
+};
+
+export const convertArrayToString = (value: unknown) => {
+  return Array.isArray(value) ? value.join(", ") : value;
 };

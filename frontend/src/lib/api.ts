@@ -1,6 +1,6 @@
-import axios, { Axios } from "axios";
+import axios, { Axios, AxiosError } from "axios";
 import { API_BASE_URL } from "./constants";
-import { tokenManager } from "./utils";
+import { convertArrayToString, tokenManager } from "./utils";
 import { useAuthStore } from "./stores/auth";
 
 const api = axios.create({
@@ -20,16 +20,38 @@ api.interceptors.request.use((config) => {
 });
 
 api.interceptors.response.use(
-  (response) => response,
-  async (error) => {
-    // Handle 401 Unauthorized errors (expired/invalid token)
-    if (error.response?.status === 401) {
-      useAuthStore.getState().logout();
+  (res) => {
+    if (res.data?.errorMessage || (res.status !== 200 && res.data?.message)) {
+      const errorMessage =
+        res.data?.errorMessage || convertArrayToString(res.data?.message);
+      const error = new Error(errorMessage) as AxiosError;
+      error.response = res;
+      throw error;
+    }
+    return res;
+  },
+  (error) => {
+    if (error instanceof AxiosError) {
+      const message =
+        error.response?.data?.errorMessage ||
+        convertArrayToString(error.response?.data?.message) ||
+        error.response?.data?.error ||
+        error.message;
+      error.message = message;
+
+      // Handle authentication errors
+      if (error.response?.status === 401) {
+        handleAuthError();
+      }
     }
 
-    return Promise.reject(error);
+    throw error;
   },
 );
+
+function handleAuthError() {
+  useAuthStore.getState().logout();
+}
 
 export const apiGet = <T = unknown>(...args: Parameters<Axios["get"]>) =>
   api.get<T>(...args).then((r) => r.data);

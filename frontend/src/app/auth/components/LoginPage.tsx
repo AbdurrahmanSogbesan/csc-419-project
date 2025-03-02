@@ -1,83 +1,110 @@
-import { useState } from "react";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useForm } from "react-hook-form";
 import { Link } from "react-router";
+import { Button } from "@/components/ui/button";
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
+import { Input } from "@/components/ui/input";
+import {
+  Card,
+  CardHeader,
+  CardContent,
+  CardFooter,
+} from "@/components/ui/card";
+import { loginSchema, LoginForm } from "../utils";
+import { useLogin } from "@/hooks/auth";
 
 export default function LoginPage() {
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
+  const form = useForm<LoginForm>({
+    resolver: zodResolver(loginSchema),
+    defaultValues: {
+      email: "",
+      password: "",
+    },
+  });
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    // Here you would typically handle the login logic
-    console.log("Login attempt with:", { email, password });
-  };
+  const { mutate: login, isPending } = useLogin();
+
+  function onSubmit(values: LoginForm) {
+    login(values);
+  }
 
   return (
-    <div className="w-full max-w-md space-y-8 rounded-lg bg-white p-8 shadow-md">
-      <div className="text-center">
-        <h1 className="text-2xl font-bold">Login</h1>
-        <p className="mt-2 text-gray-600">
-          Welcome back! Please sign in to your account.
-        </p>
-      </div>
-
-      <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
-        <div>
-          <label
-            htmlFor="email"
-            className="block text-sm font-medium text-gray-700"
-          >
-            Email
-          </label>
-          <input
-            id="email"
-            name="email"
-            type="email"
-            required
-            className="mt-1 w-full rounded-md border border-gray-300 px-3 py-2"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-          />
+    <Card className="w-full max-w-md">
+      <CardHeader>
+        <div className="text-center">
+          <h1 className="text-2xl font-bold">Login</h1>
+          <p className="mt-2 text-gray-600">
+            Welcome back! Please sign in to your account.
+          </p>
         </div>
+      </CardHeader>
+      <CardContent>
+        <Form {...form}>
+          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+            <FormField
+              control={form.control}
+              name="email"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Email</FormLabel>
+                  <FormControl>
+                    <Input
+                      type="email"
+                      placeholder="Enter your email"
+                      {...field}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
 
-        <div>
-          <label
-            htmlFor="password"
-            className="block text-sm font-medium text-gray-700"
-          >
-            Password
-          </label>
-          <input
-            id="password"
-            name="password"
-            type="password"
-            required
-            className="mt-1 w-full rounded-md border border-gray-300 px-3 py-2"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-          />
+            <FormField
+              control={form.control}
+              name="password"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Password</FormLabel>
+                  <FormControl>
+                    <Input
+                      type="password"
+                      placeholder="Enter your password"
+                      {...field}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <Button
+              type="submit"
+              className="w-full"
+              disabled={isPending || !form.formState.isValid}
+              loading={isPending}
+            >
+              Sign In
+            </Button>
+          </form>
+        </Form>
+      </CardContent>
+      <CardFooter>
+        <div className="w-full text-center">
+          <p className="text-sm">
+            Don't have an account?{" "}
+            <Link to="/auth/register" className="underline underline-offset-4">
+              Register here
+            </Link>
+          </p>
         </div>
-
-        <div>
-          <button
-            type="submit"
-            className="w-full rounded-md bg-blue-600 px-4 py-2 text-white hover:bg-blue-700"
-          >
-            Sign In
-          </button>
-        </div>
-      </form>
-
-      <div className="mt-4 text-center">
-        <p className="text-sm text-gray-600">
-          Don't have an account?{" "}
-          <Link
-            to="/auth/register"
-            className="font-medium text-blue-600 hover:text-blue-500"
-          >
-            Register here
-          </Link>
-        </p>
-      </div>
-    </div>
+      </CardFooter>
+    </Card>
   );
 }
