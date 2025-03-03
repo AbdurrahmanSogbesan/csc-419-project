@@ -61,7 +61,7 @@ function AdminRoutes() {
 function MainRoutes() {
   const user = useAuthStore((s) => s.user);
 
-  const isAdmin = user?.role === "admin";
+  const isAdmin = user?.role === "ADMIN";
 
   return (
     <MainLayout>

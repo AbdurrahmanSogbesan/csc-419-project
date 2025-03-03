@@ -3,7 +3,7 @@ type User = {
   email: string;
   firstName: string;
   lastName: string;
-  role: "admin" | "user";
+  role: "ADMIN" | "MEMBER";
 };
 
 type AuthResponse = {

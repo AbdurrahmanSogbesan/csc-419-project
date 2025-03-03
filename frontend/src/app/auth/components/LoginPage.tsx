@@ -11,12 +11,6 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import {
-  Card,
-  CardHeader,
-  CardContent,
-  CardFooter,
-} from "@/components/ui/card";
 import { loginSchema, LoginForm } from "../utils";
 import { useLogin } from "@/hooks/auth";
 
@@ -36,75 +30,63 @@ export default function LoginPage() {
   }
 
   return (
-    <Card className="w-full max-w-md">
-      <CardHeader>
-        <div className="text-center">
-          <h1 className="text-2xl font-bold">Login</h1>
-          <p className="mt-2 text-gray-600">
-            Welcome back! Please sign in to your account.
-          </p>
-        </div>
-      </CardHeader>
-      <CardContent>
-        <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-            <FormField
-              control={form.control}
-              name="email"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Email</FormLabel>
-                  <FormControl>
-                    <Input
-                      type="email"
-                      placeholder="Enter your email"
-                      {...field}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+    <div className="flex flex-col gap-3">
+      <Form {...form}>
+        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+          <FormField
+            control={form.control}
+            name="email"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Email</FormLabel>
+                <FormControl>
+                  <Input
+                    type="email"
+                    placeholder="Enter your email"
+                    {...field}
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
 
-            <FormField
-              control={form.control}
-              name="password"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Password</FormLabel>
-                  <FormControl>
-                    <Input
-                      type="password"
-                      placeholder="Enter your password"
-                      {...field}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+          <FormField
+            control={form.control}
+            name="password"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Password</FormLabel>
+                <FormControl>
+                  <Input
+                    type="password"
+                    placeholder="Enter your password"
+                    {...field}
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
 
-            <Button
-              type="submit"
-              className="w-full"
-              disabled={isPending || !form.formState.isValid}
-              loading={isPending}
-            >
-              Sign In
-            </Button>
-          </form>
-        </Form>
-      </CardContent>
-      <CardFooter>
-        <div className="w-full text-center">
-          <p className="text-sm">
-            Don't have an account?{" "}
-            <Link to="/auth/register" className="underline underline-offset-4">
-              Register here
-            </Link>
-          </p>
-        </div>
-      </CardFooter>
-    </Card>
+          <Button
+            type="submit"
+            className="!mt-8 w-full"
+            disabled={isPending || !form.formState.isValid}
+            loading={isPending}
+          >
+            Login
+          </Button>
+        </form>
+      </Form>
+      <div className="w-full text-center">
+        <p className="text-sm">
+          Don't have an account?{" "}
+          <Link to="/auth/register" className="underline underline-offset-4">
+            Register here
+          </Link>
+        </p>
+      </div>
+    </div>
   );
 }
