@@ -20,7 +20,7 @@ import { useNavigate } from "react-router";
 import { useForm } from "react-hook-form";
 import { useState } from "react";
 import { toast } from "sonner";
-import { Mail } from "lucide-react";
+import { Mail, MoveLeft } from "lucide-react";
 
 export default function ForgotPasswordPage() {
   const navigate = useNavigate();
@@ -186,6 +186,7 @@ export default function ForgotPasswordPage() {
                 disabled={resetPasswordForm.formState.isSubmitting}
                 onClick={() => setInviteSent(false)}
               >
+                <MoveLeft className="size-4" />
                 Back
               </Button>
             </div>
