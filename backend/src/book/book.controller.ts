@@ -57,6 +57,11 @@ export class BookController {
     return this.booksService.getSavedBook(req.user.userId, id);
   }
 
+  @Delete('saved/:bookId')
+  async deleteSavedBook(@Param('bookId') bookId: bigint, @Request() req) {
+    return this.booksService.deleteSavedBook(req.user.userId, bookId);
+  }
+
   @Patch(':id')
   @UseGuards(IsAdminGuard)
   async updateBook(

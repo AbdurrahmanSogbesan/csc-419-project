@@ -412,6 +412,27 @@ export class BookService {
     return savedBook;
   }
 
+  async deleteSavedBook(
+    userId: bigint,
+    bookId: bigint,
+  ): Promise<{ deletedBook: any; message: string }> {
+    const savedBook = await this.prisma.savedBook.findFirst({
+      where: { userId, bookId },
+      include: { book: true },
+    });
+
+    if (!savedBook) {
+      throw new NotFoundException('Saved book not found');
+    }
+
+    await this.prisma.savedBook.delete({ where: { id: savedBook.id } });
+
+    return {
+      deletedBook: savedBook.book,
+      message: 'Saved book deleted successfully',
+    };
+  }
+
   // Revert books not picked up within 7 days (Scheduled Task)
   // async revertUnpickedBooks(): Promise<{ revertedBooks: any[] }> {
   //   const sevenDaysAgo = new Date();
