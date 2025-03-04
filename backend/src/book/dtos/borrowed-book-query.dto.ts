@@ -1,33 +1,91 @@
 import {
-  IsString,
-  IsOptional,
+  IsBoolean,
   IsInt,
+  IsOptional,
+  IsDateString,
+  IsString,
+  IsIn,
   Min,
   Max,
   ValidateIf,
-  IsIn,
 } from 'class-validator';
-import { Transform } from 'class-transformer';
+import { Transform, Type } from 'class-transformer';
 
-export class BookQueryDto {
-  @IsString()
+export class BorrowedBooksQueryDto {
   @IsOptional()
+  @Type(() => Number)
+  @IsInt()
+  userId?: number;
+
+  @IsOptional()
+  @Type(() => Number)
+  @IsInt()
+  bookId?: number;
+
+  @IsOptional()
+  @IsBoolean()
+  @Transform(({ value }) =>
+    value === 'true' || value === true
+      ? true
+      : value === 'false' || value === false
+        ? false
+        : value,
+  )
+  isOverdue?: boolean;
+
+  @IsOptional()
+  @IsBoolean()
+  @Transform(({ value }) =>
+    value === 'true' || value === true
+      ? true
+      : value === 'false' || value === false
+        ? false
+        : value,
+  )
+  isReturned?: boolean;
+
+  @IsOptional()
+  @IsDateString()
+  borrowStartDate?: string;
+
+  @IsOptional()
+  @IsDateString()
+  borrowEndDate?: string;
+
+  @IsOptional()
+  @IsDateString()
+  dueStartDate?: string;
+
+  @IsOptional()
+  @IsDateString()
+  dueEndDate?: string;
+
+  @IsOptional()
+  @IsDateString()
+  returnStartDate?: string;
+
+  @IsOptional()
+  @IsDateString()
+  returnEndDate?: string;
+
+  @IsOptional()
+  @IsString()
   search?: string;
 
-  @IsString()
   @IsOptional()
+  @IsString()
   title?: string;
 
-  @IsString()
   @IsOptional()
+  @IsString()
   author?: string;
 
-  @IsString()
   @IsOptional()
+  @IsString()
   category?: string;
 
-  @IsString()
   @IsOptional()
+  @IsString()
   ISBN?: string;
 
   @IsOptional()

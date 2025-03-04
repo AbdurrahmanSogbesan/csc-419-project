@@ -14,25 +14,31 @@ export class BigIntInterceptor implements NestInterceptor {
       .handle()
       .pipe(
         map((data) =>
-          data !== undefined && data !== null ? this.convertBigInt(data) : data,
+          data !== undefined && data !== null
+            ? this.convertBigIntAndDate(data)
+            : data,
         ),
       );
   }
 
-  private convertBigInt(value: any): any {
+  private convertBigIntAndDate(value: any): any {
     if (typeof value === 'bigint') {
       return value.toString();
     }
 
+    if (value instanceof Date) {
+      return value.toISOString();
+    }
+
     if (Array.isArray(value)) {
-      return value.map((item) => this.convertBigInt(item));
+      return value.map((item) => this.convertBigIntAndDate(item));
     }
 
     if (typeof value === 'object' && value !== null) {
       return Object.fromEntries(
         Object.entries(value).map(([key, val]) => [
           key,
-          this.convertBigInt(val),
+          this.convertBigIntAndDate(val),
         ]),
       );
     }

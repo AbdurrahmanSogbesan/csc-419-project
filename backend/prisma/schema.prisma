@@ -19,9 +19,10 @@ enum Role {
 }
 
 enum ReservationStatus {
-  PENDING
-  APPROVED
-  CANCELLED
+  RESERVED
+  BORROWED
+  RETURNED 
+  OVERDUE
 }
 
 enum FineStatus {
@@ -43,11 +44,13 @@ model User {
   password  String
   phone     String?  
   role      Role     @default(MEMBER)
+  restrictedUntil DateTime? 
   createdAt DateTime @default(now()) @db.Timestamptz(3)
 
   borrowedBooks BorrowedBook[]
   reservations  Reservation[]
   transactions  Transaction[]
+  savedBooks  SavedBook[]
 }
 
 model Book {
@@ -58,11 +61,13 @@ model Book {
   category        String   @default("")
   copiesAvailable Int      @default(0)
   publishedYear   Int
+  imageUrl        String?
   createdAt       DateTime @default(now()) @db.Timestamptz(3)
 
   borrowedBooks BorrowedBook[]
   reservations  Reservation[]
   transactions  Transaction[]
+  savedBooks  SavedBook[]
 }
 
 model BorrowedBook {
@@ -79,6 +84,18 @@ model BorrowedBook {
   @@unique([userId, bookId])
 }
 
+model SavedBook {
+  id        BigInt  @id @default(autoincrement())
+  uuid      String  @unique @default(uuid())
+  user      User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId    BigInt
+  book      Book    @relation(fields: [bookId], references: [id], onDelete: Cascade)
+  bookId    BigInt
+  createdAt DateTime @default(now()) @db.Timestamptz(3)
+
+  @@unique([userId, bookId]) 
+}
+
 model Reservation {
   id              BigInt            @id @default(autoincrement())
   uuid            String            @unique @default(uuid())
@@ -87,7 +104,7 @@ model Reservation {
   book            Book              @relation(fields: [bookId], references: [id], onDelete: Cascade)
   bookId          BigInt
   reservationDate DateTime          @default(now()) @db.Timestamptz(3)
-  status          ReservationStatus @default(PENDING)
+  status          ReservationStatus @default(RESERVED)
 
   @@unique([userId, bookId])
 }
