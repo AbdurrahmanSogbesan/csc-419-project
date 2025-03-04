@@ -2,7 +2,7 @@ import { ReactNode, useEffect } from "react";
 import { Navigate, Route, Routes, useLocation } from "react-router";
 import MainLayout from "./MainLayout";
 import { AuthRoutes } from "@/app/auth";
-import Home from "@/app/home";
+import DashboardPage from "@/app/dashboard";
 import { useAuthStore } from "@/lib/stores/auth";
 
 // Our auth middleware component
@@ -66,7 +66,7 @@ function MainRoutes() {
   return (
     <MainLayout>
       <Routes>
-        <Route index element={<Home />} />
+        <Route index element={<DashboardPage />} />
         <Route path="home" element={<Navigate replace to={"/"} />} />
         <Route path="catalog/*" element={<CatalogRoutes />} />
         <Route path="my-library/*" element={<MyLibraryRoutes />} />

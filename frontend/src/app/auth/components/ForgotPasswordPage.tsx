@@ -31,6 +31,7 @@ export default function ForgotPasswordPage() {
     defaultValues: {
       email: "",
     },
+    mode: "onBlur",
   });
 
   const resetPasswordForm = useForm<ResetPasswordForm>({
@@ -39,6 +40,7 @@ export default function ForgotPasswordPage() {
       password: "",
       confirmPassword: "",
     },
+    mode: "onBlur",
   });
 
   async function onSubmitForgotPasswordForm(values: ForgotPasswordForm) {

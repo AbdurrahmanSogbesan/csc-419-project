@@ -23,6 +23,7 @@ export default function LoginPage() {
       email: "",
       password: "",
     },
+    mode: "onBlur",
   });
 
   const { mutate: login, isPending } = useLogin();

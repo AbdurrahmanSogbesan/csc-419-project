@@ -1,10 +1,14 @@
 import { Outlet } from "react-router";
 import Logo from "@/assets/icons/logo.svg";
+import AuthBackGroundImg from "@/assets/images/auth-background.png";
 
 export default function AuthLayout() {
   return (
     <div className="grid min-h-svh lg:grid-cols-2">
-      <div className="relative hidden bg-[url('/auth.png')] bg-cover bg-center bg-no-repeat lg:flex lg:flex-col lg:items-center lg:justify-center">
+      <div
+        className="relative hidden bg-cover bg-center bg-no-repeat lg:flex lg:flex-col lg:items-center lg:justify-center"
+        style={{ backgroundImage: `url(${AuthBackGroundImg})` }}
+      >
         <p className="relative z-10 max-w-2xl px-6 text-center text-[48px] font-extrabold leading-[48px] tracking-tight text-base-white">
           Welcome to the Computer Science Library
         </p>
