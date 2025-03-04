@@ -9,7 +9,7 @@ import {
   Body,
   Query,
   UseGuards,
-  NotFoundException,
+  Request,
 } from '@nestjs/common';
 import { BookQueryDto } from './dtos/book-query.dto';
 import { IsAdminGuard } from 'src/common/guards/is-admin.guard';
@@ -18,6 +18,7 @@ import { UpdateBookDto } from './dtos/update-book.dto';
 import { BookService } from './book.service';
 import { Public } from 'src/common/decorators/public.decorator';
 import { Book } from '@prisma/client';
+import { BorrowedBooksQueryDto } from './dtos/borrowed-book-query.dto';
 
 @Controller('books')
 export class BookController {
@@ -35,6 +36,32 @@ export class BookController {
     return this.booksService.getAllBooks(query);
   }
 
+  @Get('borrowed')
+  async getBorrowedBooks(
+    @Request() req,
+    @Query() query: BorrowedBooksQueryDto,
+  ) {
+    return await this.booksService.getBorrowedBooks({
+      ...query,
+      userId: req.user.userId,
+    });
+  }
+
+  @Get('saved')
+  async getSavedBooks(@Request() req, @Query() query: BookQueryDto) {
+    return this.booksService.getSavedBooks(query, req.user.userId);
+  }
+
+  @Get('saved/:bookId')
+  async getSavedBook(@Param('bookId') id: number, @Request() req) {
+    return this.booksService.getSavedBook(req.user.userId, id);
+  }
+
+  @Delete('saved/:bookId')
+  async deleteSavedBook(@Param('bookId') bookId: bigint, @Request() req) {
+    return this.booksService.deleteSavedBook(req.user.userId, bookId);
+  }
+
   @Patch(':id')
   @UseGuards(IsAdminGuard)
   async updateBook(
@@ -50,14 +77,6 @@ export class BookController {
     return await this.booksService.deleteBook(id);
   }
 
-  @Public()
-  @Get(':id')
-  async getBookById(@Param('id') id: bigint): Promise<BookResponseDto> {
-    const book = await this.booksService.getBookById(id);
-    if (!book) throw new NotFoundException('Book not found or unavailable');
-    return book;
-  }
-
   @Patch(':id/copies')
   @UseGuards(IsAdminGuard)
   async updateBookCopies(
@@ -65,5 +84,25 @@ export class BookController {
     @Body('change') change: number,
   ): Promise<BookResponseDto> {
     return this.booksService.updateBookCopies(id, change);
+  }
+
+  @Post(':bookId/borrow')
+  async borrowBook(@Request() req, @Param('bookid') id: bigint) {
+    return await this.booksService.borrowBook(req.user.userId, id);
+  }
+
+  @Post(':bookId/return')
+  async returnBook(@Request() req, @Param('bookId') id: bigint) {
+    return await this.booksService.returnBook(req.user.userId, id);
+  }
+
+  @Post(':id/save')
+  async saveBook(@Param('id') id: bigint, @Request() req) {
+    return this.booksService.saveBook(req.user.userId, id);
+  }
+
+  @Get(':id')
+  async getBookById(@Param('id') id: bigint): Promise<BookResponseDto> {
+    return await this.booksService.getBookById(id);
   }
 }
