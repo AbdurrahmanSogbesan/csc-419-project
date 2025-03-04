@@ -28,7 +28,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   const user = useAuthStore((s) => s.user);
   const logout = useAuthStore((s) => s.logout);
 
-  const { state } = useSidebar();
+  const { state, isMobile } = useSidebar();
 
   const data = useMemo(() => {
     return {
@@ -83,11 +83,16 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
 
   return (
     <Sidebar collapsible="icon" {...props}>
-      <SidebarHeader className={state === "expanded" ? "p-6" : ""}>
+      <SidebarHeader
+        className={cn(
+          state === "expanded" && !isMobile && "p-6 pb-0",
+          isMobile && "p-6 pb-0",
+        )}
+      >
         <Logo
           className={cn(
             "transition-all duration-200 ease-in-out",
-            state === "collapsed" ? "size-6" : "size-10",
+            state === "collapsed" && !isMobile ? "size-6" : "size-10",
           )}
         />
       </SidebarHeader>

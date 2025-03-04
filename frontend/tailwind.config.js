@@ -78,6 +78,16 @@ export default {
           white: "#FFFFFF",
           black: "#000000",
         },
+        badge: {
+          blueBg: "#DBEAFE",
+          blueBorder: "#93C5FD",
+          amberBg: "#FEF3C7",
+          amberBorder: "#FCD34D",
+          redBg: "#FEE2E2",
+          redBorder: "#FCA5A5",
+          greenBg: "#DCFCE7",
+          greenBorder: "#86EFAC",
+        },
         sidebar: {
           DEFAULT: "hsl(var(--sidebar-background))",
           foreground: "hsl(var(--sidebar-foreground))",

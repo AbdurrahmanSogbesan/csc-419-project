@@ -26,6 +26,7 @@ export default function RegisterPage() {
       password: "",
       confirmPassword: "",
     },
+    mode: "onBlur",
   });
 
   const { mutate: register, isPending } = useRegister();
