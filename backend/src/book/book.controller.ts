@@ -87,7 +87,7 @@ export class BookController {
   }
 
   @Post(':bookId/borrow')
-  async borrowBook(@Request() req, @Param('bookid') id: bigint) {
+  async borrowBook(@Request() req, @Param('bookId') id: bigint) {
     return await this.booksService.borrowBook(req.user.userId, id);
   }
 

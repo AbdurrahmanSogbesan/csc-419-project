@@ -238,4 +238,36 @@ export class AuthService {
       user: deletedUser,
     };
   }
+
+  async getLibraryStats() {
+    const totalBooks = await this.prisma.book.count();
+
+    const totalLendedBooks = await this.prisma.borrowedBook.count();
+
+    const currentlyLendedBooks = await this.prisma.borrowedBook.count({
+      where: { returnDate: null },
+    });
+
+    const availableBooks = await this.prisma.book.count({
+      where: { copiesAvailable: { gt: 0 } },
+    });
+
+    const totalUsers = await this.prisma.user.count();
+
+    const overdueBooks = await this.prisma.borrowedBook.count({
+      where: {
+        returnDate: null,
+        dueDate: { lt: new Date() },
+      },
+    });
+
+    return {
+      totalBooks,
+      totalLendedBooks,
+      currentlyLendedBooks,
+      availableBooks,
+      totalUsers,
+      overdueBooks,
+    };
+  }
 }

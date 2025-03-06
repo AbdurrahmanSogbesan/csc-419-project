@@ -41,6 +41,12 @@ export class AuthController {
     return req.user;
   }
 
+  @Get('stats')
+  @UseGuards(IsAdminGuard)
+  async getLibraryStats() {
+    return this.authService.getLibraryStats();
+  }
+
   @Get()
   @UseGuards(IsAdminGuard)
   async findAll(@Query() query: GetUsersDto) {

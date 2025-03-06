@@ -10,7 +10,11 @@ export function buildBookFilters(params: {
   publishedYearStart?: number | string;
   publishedYearEnd?: number | string;
   availabilityStatus?: string;
-}): Prisma.BookWhereInput[] {
+  popularBooks?: boolean; // New parameter
+}): {
+  where: Prisma.BookWhereInput;
+  orderBy?: Prisma.BookOrderByWithRelationInput;
+} {
   const {
     search,
     title,
@@ -21,6 +25,7 @@ export function buildBookFilters(params: {
     publishedYearStart,
     publishedYearEnd,
     availabilityStatus,
+    popularBooks,
   } = params;
 
   // Convert string numbers to actual numbers if needed
@@ -30,7 +35,7 @@ export function buildBookFilters(params: {
     : undefined;
   const pubYearEnd = publishedYearEnd ? Number(publishedYearEnd) : undefined;
 
-  // Build filters as an array of conditions for AND
+  // Build filters
   const filters: Prisma.BookWhereInput[] = [];
 
   // Add search filter
@@ -65,16 +70,9 @@ export function buildBookFilters(params: {
 
   // Handle publishedYear and year range filters
   if (pubYear) {
-    // If publishedYear is provided, ignore publishedYearStart and publishedYearEnd
     filters.push({ publishedYear: pubYear });
   } else if (pubYearStart && pubYearEnd) {
-    // If both publishedYearStart and publishedYearEnd are provided, create a range filter
-    filters.push({
-      publishedYear: {
-        gte: pubYearStart,
-        lte: pubYearEnd,
-      },
-    });
+    filters.push({ publishedYear: { gte: pubYearStart, lte: pubYearEnd } });
   }
 
   // Add availability filter
@@ -84,5 +82,13 @@ export function buildBookFilters(params: {
     filters.push({ copiesAvailable: 0 });
   }
 
-  return filters;
+  // Define orderBy using Prisma.SortOrder
+  const orderBy: Prisma.BookOrderByWithRelationInput | undefined = popularBooks
+    ? { borrowCount: Prisma.SortOrder.desc }
+    : undefined;
+
+  return {
+    where: filters.length > 0 ? { AND: filters } : {},
+    orderBy,
+  };
 }
