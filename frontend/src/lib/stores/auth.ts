@@ -3,9 +3,9 @@ import { persist } from "zustand/middleware";
 import { tokenManager } from "../utils";
 
 interface AuthState {
-  user: User | null;
+  user: AuthResponse["user"] | null;
   isAuthenticated: boolean;
-  setUser: (user: User) => void;
+  setUser: (user: AuthResponse["user"]) => void;
   login: (data: AuthResponse) => void;
   logout: () => void;
   checkAuth: () => boolean;
