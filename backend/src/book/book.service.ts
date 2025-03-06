@@ -63,8 +63,15 @@ export class BookService {
     };
 
     return this.prisma.book.findMany({
-      where: combinedWhere,
-      orderBy, // Apply sorting
+      where: {
+        AND: [
+          { copiesAvailable: { gt: 0 } }, // Default filter for books with copies available
+          ...bookFilters,
+        ],
+      },
+      include: {
+        savedBooks: true,
+      },
     });
   }
 
