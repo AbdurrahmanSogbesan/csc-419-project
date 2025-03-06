@@ -6,6 +6,7 @@ import {
   Max,
   ValidateIf,
   IsIn,
+  IsBoolean,
 } from 'class-validator';
 import { Transform } from 'class-transformer';
 
@@ -33,6 +34,17 @@ export class BookQueryDto {
   @IsOptional()
   @IsIn(['available', 'unavailable'])
   availabilityStatus?: 'available' | 'unavailable';
+
+  @IsOptional()
+  @IsBoolean()
+  @Transform(({ value }) =>
+    value === 'true' || value === true
+      ? true
+      : value === 'false' || value === false
+        ? false
+        : value,
+  )
+  popularBooks?: boolean;
 
   @IsInt()
   @Min(1000) // Ensure the year is a valid 4-digit number

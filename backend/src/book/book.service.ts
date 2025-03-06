@@ -52,18 +52,20 @@ export class BookService {
   }
 
   async getAllBooks(query: BookQueryDto): Promise<BookResponseDto[]> {
-    const bookFilters = buildBookFilters(query);
+    const { where, orderBy } = buildBookFilters(query);
+
+    // Properly merge the default filter with the dynamic where conditions
+    const combinedWhere = {
+      AND: [
+        { copiesAvailable: { gt: 0 } }, // Default filter for books with copies available
+        ...(Object.keys(where).length > 0 ? [where] : []),
+      ],
+    };
 
     return this.prisma.book.findMany({
-      where: {
-        AND: [
-          { copiesAvailable: { gt: 0 } }, // Default filter for books with copies available
-          ...bookFilters,
-        ],
-      },
-      include: {
-        savedBooks: true,
-      },
+      where: combinedWhere,
+      orderBy,
+      include: { savedBooks: true }, // Apply sorting
     });
   }
 
@@ -181,7 +183,10 @@ export class BookService {
 
       await tx.book.update({
         where: { id: bookId },
-        data: { copiesAvailable: { decrement: 1 } },
+        data: {
+          copiesAvailable: { decrement: 1 },
+          borrowCount: { increment: 1 },
+        },
       });
 
       return {
@@ -300,39 +305,41 @@ export class BookService {
 
     // Filter by borrowDate range
     if (borrowStartDate || borrowEndDate) {
-      const borrowFilter: Prisma.DateTimeFilter = {};
-      if (borrowStartDate) borrowFilter.gte = new Date(borrowStartDate);
-      if (borrowEndDate) borrowFilter.lte = new Date(borrowEndDate);
-      borrowedFilters.push({ borrowDate: borrowFilter });
+      borrowedFilters.push({
+        borrowDate: {
+          ...(borrowStartDate && { gte: new Date(borrowStartDate) }),
+          ...(borrowEndDate && { lte: new Date(borrowEndDate) }),
+        },
+      });
     }
 
     // Filter by dueDate range
     if (dueStartDate || dueEndDate) {
-      const dueFilter: Prisma.DateTimeFilter = {};
-      if (dueStartDate) dueFilter.gte = new Date(dueStartDate);
-      if (dueEndDate) dueFilter.lte = new Date(dueEndDate);
-      borrowedFilters.push({ dueDate: dueFilter });
+      borrowedFilters.push({
+        dueDate: {
+          ...(dueStartDate && { gte: new Date(dueStartDate) }),
+          ...(dueEndDate && { lte: new Date(dueEndDate) }),
+        },
+      });
     }
 
     // Filter by returnDate range
     if (returnStartDate || returnEndDate) {
-      const returnFilter: Prisma.DateTimeFilter = {};
-      if (returnStartDate) returnFilter.gte = new Date(returnStartDate);
-      if (returnEndDate) returnFilter.lte = new Date(returnEndDate);
-      borrowedFilters.push({ returnDate: returnFilter });
+      borrowedFilters.push({
+        returnDate: {
+          ...(returnStartDate && { gte: new Date(returnStartDate) }),
+          ...(returnEndDate && { lte: new Date(returnEndDate) }),
+        },
+      });
     }
 
-    const bookFilters = buildBookFilters(bookParams);
+    const { where: bookFilters } = buildBookFilters(bookParams);
 
-    const where: Prisma.BorrowedBookWhereInput = {};
-
-    if (borrowedFilters.length > 0) {
-      where.AND = borrowedFilters;
-    }
-
-    if (bookFilters.length > 0) {
-      where.book = { AND: bookFilters };
-    }
+    const where: Prisma.BorrowedBookWhereInput = {
+      ...(borrowedFilters.length > 0 && { AND: borrowedFilters }),
+      ...(Object.keys(bookFilters).length > 0 && { book: { is: bookFilters } }),
+      returnDate: null,
+    };
 
     return await this.prisma.borrowedBook.findMany({
       where,
@@ -353,6 +360,7 @@ export class BookService {
             publishedYear: true,
             copiesAvailable: true,
             imageUrl: true,
+            borrowCount: true,
           },
         },
       },
@@ -386,19 +394,17 @@ export class BookService {
   }
 
   async getSavedBooks(query: BookQueryDto, userId: bigint) {
-    const bookFilters = buildBookFilters(query);
+    const { where: bookFilters, orderBy } = buildBookFilters(query);
 
     const where: Prisma.SavedBookWhereInput = {
       userId,
+      ...(Object.keys(bookFilters).length > 0 && { book: { is: bookFilters } }),
     };
-
-    if (bookFilters.length > 0) {
-      where.book = { AND: bookFilters };
-    }
 
     return this.prisma.savedBook.findMany({
       where,
       include: { book: true },
+      orderBy: orderBy ? { book: orderBy } : undefined,
     });
   }
 
