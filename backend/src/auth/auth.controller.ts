@@ -15,11 +15,10 @@ import { CreateUserDto } from './dtos/create-user.dto';
 import { Public } from 'src/common/decorators/public.decorator';
 import { LoginUserDto } from './dtos/login-user.dto';
 import { AuthResponse } from './interfaces/users-login.interfaces';
-// import { IsAdminGuard } from 'src/common/guards/is-admin.guard';
-import { Role } from '@prisma/client';
 import { IsMineGuard } from 'src/common/guards/is-mine.guard';
 import { UpdateUserDto } from './dtos/update-user.dto';
 import { IsAdminGuard } from 'src/common/guards/is-admin.guard';
+import { GetUsersDto } from './dtos/get-users.dto';
 
 @Controller('auth')
 export class AuthController {
@@ -50,11 +49,8 @@ export class AuthController {
 
   @Get()
   @UseGuards(IsAdminGuard)
-  async findAll(
-    @Query('page') page = 1,
-    @Query('limit') limit = 10,
-    @Query('role') role?: Role,
-  ) {
+  async findAll(@Query() query: GetUsersDto) {
+    const { page, limit, role } = query;
     const skip = (page - 1) * limit;
 
     const where: any = {};

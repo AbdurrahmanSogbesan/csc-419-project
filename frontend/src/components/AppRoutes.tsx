@@ -4,6 +4,7 @@ import MainLayout from "./MainLayout";
 import { AuthRoutes } from "@/app/auth";
 import DashboardPage from "@/app/dashboard";
 import { useAuthStore } from "@/lib/stores/auth";
+import AdminPage from "@/app/admin";
 
 // Our auth middleware component
 function RequireAuth({ children }: { children: ReactNode }) {
@@ -21,42 +22,6 @@ function RequireAuth({ children }: { children: ReactNode }) {
   return children;
 }
 
-// todo: move to its own folder when pages are finalized
-function CatalogRoutes() {
-  return (
-    <Routes>
-      <Route index element={<div>Book Catalog</div>} />
-      <Route path=":id" element={<div>Book Details</div>} />
-    </Routes>
-  );
-}
-
-// todo: move to its own folder when pages are finalized on
-function MyLibraryRoutes() {
-  return (
-    <Routes>
-      <Route index element={<div>My Library Overview</div>} />
-      <Route path="borrowed" element={<div>My Borrowed Books</div>} />
-      <Route path="reservations" element={<div>My Reservations</div>} />
-      <Route path="history" element={<div>My Transaction History</div>} />
-    </Routes>
-  );
-}
-
-// todo: move to its own folder when pages are finalized on
-function AdminRoutes() {
-  return (
-    <Routes>
-      <Route index element={<div>Admin Dashboard</div>} />
-      <Route path="books" element={<div>Manage Books</div>} />
-      <Route path="users" element={<div>Manage Users</div>} />
-      <Route path="borrowed" element={<div>Manage Borrowed Books</div>} />
-      <Route path="reservations" element={<div>Manage Reservations</div>} />
-      <Route path="transactions" element={<div>All Transactions</div>} />
-    </Routes>
-  );
-}
-
 // The main routes of the app
 function MainRoutes() {
   const user = useAuthStore((s) => s.user);
@@ -67,11 +32,12 @@ function MainRoutes() {
     <MainLayout>
       <Routes>
         <Route index element={<DashboardPage />} />
-        <Route path="home" element={<Navigate replace to={"/"} />} />
-        <Route path="catalog/*" element={<CatalogRoutes />} />
-        <Route path="my-library/*" element={<MyLibraryRoutes />} />
-        <Route path="profile" element={<div>My Profile</div>} />
-        {isAdmin && <Route path="admin/*" element={<AdminRoutes />} />}
+        <Route path="dashboard" element={<Navigate replace to={"/"} />} />
+        <Route path="saved-books/*" element={<div>Saved Books</div>} />
+        <Route path="notifications" element={<div>Notifications</div>} />
+        <Route path="history" element={<div>History</div>} />
+        <Route path="settings" element={<div>Settings</div>} />
+        {isAdmin && <Route path="admin" element={<AdminPage />} />}
       </Routes>
     </MainLayout>
   );

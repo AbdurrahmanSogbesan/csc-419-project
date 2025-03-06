@@ -10,17 +10,10 @@ import {
 import { format } from "date-fns";
 import { Status, StatusCell } from "@/components/StatusCell";
 import BookCard from "./components/BookCard";
-import Tabs from "@/components/Tabs";
+import TabsFilter from "@/components/TabsFilter";
 import { useDeleteSavedBook, useGetBooks, useSaveBook } from "@/hooks/books";
 import BookCardSkeleton from "./components/BookCardSkeleton";
 import { useAuthStore } from "@/lib/stores/auth";
-
-const tabs: Tab[] = [
-  { label: "All", count: 15, value: "all" },
-  { label: "Borrowed", count: 10, value: "borrowed" },
-  { label: "Reserved", count: 5, value: "reserved" },
-  { label: "Returned", count: 2, value: "returned" },
-];
 
 const loanedBooks = [
   {
@@ -73,6 +66,13 @@ const loanedBooks = [
   },
 ];
 
+const dummyTabs: Tab[] = [
+  { label: "All", count: 15, value: "all" },
+  { label: "Borrowed", count: 10, value: "borrowed" },
+  { label: "Reserved", count: 5, value: "reserved" },
+  { label: "Returned", count: 2, value: "returned" },
+];
+
 const loanBookHeaders = [
   "Title",
   "Author",
@@ -85,7 +85,7 @@ const loanBookHeaders = [
 export default function DashboardPage() {
   const user = useAuthStore((s) => s.user);
 
-  const [selectedTab, setSelectedTab] = useState(tabs[0].value);
+  const [selectedTab, setSelectedTab] = useState(dummyTabs[0].value);
 
   const { data: books, isLoading } = useGetBooks({
     availabilityStatus: "available",
@@ -119,12 +119,11 @@ export default function DashboardPage() {
                 key={book.id}
                 book={{ ...book, isSaved: isSaved ?? false }}
                 onReserve={() => {}}
-                onSave={() =>
+                onSave={
                   updatingSavedBooks
                     ? undefined
-                    : isSaved
-                      ? deleteSavedBook(book.id)
-                      : saveBook(book.id)
+                    : () =>
+                        isSaved ? deleteSavedBook(book.id) : saveBook(book.id)
                 }
               />
             );
@@ -145,8 +144,8 @@ export default function DashboardPage() {
         </div>
 
         <div className="flex flex-col gap-4">
-          <Tabs
-            tabs={tabs}
+          <TabsFilter
+            tabs={dummyTabs}
             selectedTab={selectedTab}
             onTabClick={setSelectedTab}
           />

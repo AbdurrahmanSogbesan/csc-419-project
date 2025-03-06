@@ -1,14 +1,12 @@
-type User = {
-  id: string;
-  email: string;
-  firstName: string;
-  lastName: string;
-  role: "ADMIN" | "MEMBER";
+type Pagination = {
+  currentPage: number;
+  pageSize: number;
+  totalPages: number;
 };
 
 type AuthResponse = {
   access_token: string;
-  user: User;
+  user: Pick<User, "id" | "uuid" | "email" | "name" | "phone" | "role">;
 };
 
 type Tab = {

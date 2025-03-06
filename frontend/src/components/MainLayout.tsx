@@ -1,15 +1,18 @@
 import { ReactNode } from "react";
-import { useLocation } from "react-router";
+import { useLocation, useNavigate, useSearchParams } from "react-router";
 import Cookies from "js-cookie";
 import { SidebarInset, SidebarProvider, SidebarTrigger } from "./ui/sidebar";
 import { Separator } from "./ui/separator";
 
 import { AppSidebar } from "./AppSidebar";
-import { Input } from "./ui/input";
-import { Search } from "lucide-react";
+import { PlusIcon } from "lucide-react";
+import { Button } from "./ui/button";
+import SearchBar from "./SearchBar";
 
 export default function MainLayout({ children }: { children: ReactNode }) {
   const location = useLocation();
+  const navigate = useNavigate();
+
   const defaultOpen = Cookies.get("sidebar_state") === "true";
 
   const pathSegments =
@@ -17,6 +20,12 @@ export default function MainLayout({ children }: { children: ReactNode }) {
       ? ["dashboard"]
       : location.pathname.split("/").filter(Boolean);
 
+  const isAdminRoute = pathSegments.includes("admin");
+  const [searchParams] = useSearchParams();
+  const isBooksPage = searchParams.get("tab") === "books";
+
+  const shouldHideTitle =
+    pathSegments[0] === "admin" && pathSegments.length > 1;
   return (
     <SidebarProvider defaultOpen={defaultOpen}>
       <AppSidebar />
@@ -25,18 +34,24 @@ export default function MainLayout({ children }: { children: ReactNode }) {
           <div className="flex shrink-0 items-center gap-2">
             <SidebarTrigger className="-ml-1" />
             <Separator orientation="vertical" className="mr-2 h-4" />
-            <p className="text-xl font-semibold capitalize">
-              {pathSegments.pop()?.replace(/-/g, " ")}
-            </p>
+            {!shouldHideTitle && (
+              <p className="text-xl font-semibold capitalize">
+                {pathSegments.pop()?.replace(/-/g, " ")}
+              </p>
+            )}
           </div>
 
-          <div className="relative w-full max-w-xs md:max-w-[min(49%,506px)]">
-            <Input
-              className="pl-8 focus-visible:ring-0"
-              placeholder="Search by title, author, category..."
-            />
-            <Search className="absolute left-2 top-1/2 size-[18px] -translate-y-1/2 text-gray-500" />
-          </div>
+          {isAdminRoute ? (
+            <Button
+              onClick={() => {
+                navigate(`/admin/${isBooksPage ? "books" : "users"}/new`);
+              }}
+            >
+              <PlusIcon /> Add New {isBooksPage ? "Book" : "User"}
+            </Button>
+          ) : (
+            <SearchBar />
+          )}
         </header>
         <div className="flex flex-1 flex-col gap-4 pb-6">
           <div className="mx-auto w-full max-w-[1400px]">{children}</div>
