@@ -1,6 +1,6 @@
 import { cn } from "@/lib/utils";
 
-export default function Tabs({
+export default function TabsFilter({
   selectedTab,
   onTabClick,
   tabs,

@@ -151,10 +151,13 @@ export class AuthService {
       orderBy,
       select: {
         id: true,
+        uuid: true,
         email: true,
         name: true,
         role: true,
         createdAt: true,
+        phone: true,
+        borrowedBooks: true,
       },
     });
 

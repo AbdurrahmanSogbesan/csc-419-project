@@ -71,8 +71,8 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         ...(user?.role === "ADMIN"
           ? [
               {
-                title: "Rate Lecturers",
-                url: "/rate-lecturers",
+                title: "Admin",
+                url: "/admin?tab=users",
                 icon: Bot,
               },
             ]

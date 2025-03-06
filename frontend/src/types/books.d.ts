@@ -32,3 +32,15 @@ type GetBooksQueryParams = {
   publishedYearEnd?: number;
   availabilityStatus?: "available" | "unavailable";
 };
+
+type BorrowedBook = {
+  id: string;
+  uuid: string;
+  borrowDate: string;
+  dueDate: string;
+  returnDate: string | null;
+  userId?: string;
+  user?: User;
+  bookId?: string;
+  book?: Book;
+};
