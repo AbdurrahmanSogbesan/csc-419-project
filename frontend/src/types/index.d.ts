@@ -11,14 +11,6 @@ type AuthResponse = {
   user: User;
 };
 
-type Book = {
-  image: string;
-  title: string;
-  author: string;
-  id?: number;
-  userId?: number;
-};
-
 type Tab = {
   label: string;
   count?: number;

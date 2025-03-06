@@ -11,12 +11,9 @@ import { format } from "date-fns";
 import { Status, StatusCell } from "@/components/StatusCell";
 import BookCard from "./components/BookCard";
 import Tabs from "@/components/Tabs";
-
-const dummyBooks: Book[] = Array.from({ length: 4 }, (_, index) => ({
-  image: `https://placehold.co/100x100`,
-  title: `Book Title ${index}`,
-  author: `Author Name ${index}`,
-}));
+import { useDeleteSavedBook, useGetBooks, useSaveBook } from "@/hooks/books";
+import BookCardSkeleton from "./components/BookCardSkeleton";
+import { useAuthStore } from "@/lib/stores/auth";
 
 const tabs: Tab[] = [
   { label: "All", count: 15, value: "all" },
@@ -86,7 +83,19 @@ const loanBookHeaders = [
 ];
 
 export default function DashboardPage() {
+  const user = useAuthStore((s) => s.user);
+
   const [selectedTab, setSelectedTab] = useState(tabs[0].value);
+
+  const { data: books, isLoading } = useGetBooks({
+    availabilityStatus: "available",
+  });
+
+  const { mutate: saveBook, isPending: isSavingBook } = useSaveBook();
+  const { mutate: deleteSavedBook, isPending: isDeletingSavedBook } =
+    useDeleteSavedBook();
+
+  const updatingSavedBooks = isSavingBook || isDeletingSavedBook;
 
   return (
     <div className="flex flex-col gap-6">
@@ -94,15 +103,37 @@ export default function DashboardPage() {
         Discover a vast collection of books to enhance your computer science
         journey.
       </p>
+
       <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
-        {dummyBooks.map((book) => (
-          <BookCard
-            key={book.id}
-            book={book}
-            onReserve={() => {}}
-            onSave={() => {}}
-          />
-        ))}
+        {isLoading ? (
+          Array.from({ length: 4 }).map((_, index) => (
+            <BookCardSkeleton key={index} />
+          ))
+        ) : books && books.length > 0 ? (
+          books.slice(0, 4).map((book) => {
+            const isSaved = book.savedBooks?.some(
+              (savedBook) => savedBook.userId === user?.id,
+            );
+            return (
+              <BookCard
+                key={book.id}
+                book={{ ...book, isSaved: isSaved ?? false }}
+                onReserve={() => {}}
+                onSave={() =>
+                  updatingSavedBooks
+                    ? undefined
+                    : isSaved
+                      ? deleteSavedBook(book.id)
+                      : saveBook(book.id)
+                }
+              />
+            );
+          })
+        ) : (
+          <p className="col-span-full my-20 text-center text-gray-600">
+            No books found
+          </p>
+        )}
       </div>
 
       <div className="mt-4 flex flex-col gap-6">

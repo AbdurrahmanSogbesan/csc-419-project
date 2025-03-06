@@ -61,6 +61,9 @@ export class BookService {
           ...bookFilters,
         ],
       },
+      include: {
+        savedBooks: true,
+      },
     });
   }
 
