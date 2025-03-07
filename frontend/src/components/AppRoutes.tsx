@@ -7,6 +7,7 @@ import { useAuthStore } from "@/lib/stores/auth";
 import AdminPage from "@/app/admin";
 import { Separator } from "./ui/separator";
 import { Button } from "./ui/button";
+import SavedBooks from "@/app/saved-books";
 
 // Our auth middleware component
 function RequireAuth({ children }: { children: ReactNode }) {
@@ -34,6 +35,15 @@ function DashboardRoutes() {
   );
 }
 
+function SavedBooksRoutes() {
+  return (
+    <Routes>
+      <Route index element={<SavedBooks />} />
+      <Route path=":id" element={<BookDetailsPage />} />
+    </Routes>
+  );
+}
+
 function MainRoutes() {
   const user = useAuthStore((s) => s.user);
 
@@ -44,7 +54,7 @@ function MainRoutes() {
       <Routes>
         <Route path="/" element={<Navigate replace to="dashboard" />} />
         <Route index path="dashboard/*" element={<DashboardRoutes />} />
-        <Route path="saved-books/*" element={<div>Saved Books</div>} />
+        <Route path="saved-books/*" element={<SavedBooksRoutes />} />
         <Route path="notifications" element={<div>Notifications</div>} />
         <Route path="history" element={<div>History</div>} />
         <Route path="settings" element={<div>Settings</div>} />

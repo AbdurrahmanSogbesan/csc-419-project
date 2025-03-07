@@ -95,21 +95,12 @@ export default function BookDetailsPage() {
 
   const { mutate: saveBook, isPending: isSavingBook } = useSaveBook(() => {
     queryClient.invalidateQueries({ queryKey: ["getBookDetails", id] });
-    queryClient.refetchQueries({
-      queryKey: ["getBooks"],
-      exact: false,
-    });
     toast.success("Book saved successfully");
   });
 
   const { mutate: deleteSavedBook, isPending: isDeletingSavedBook } =
     useDeleteSavedBook(() => {
       queryClient.invalidateQueries({ queryKey: ["getBookDetails", id] });
-
-      queryClient.refetchQueries({
-        queryKey: ["getBooks"],
-        exact: false,
-      });
       toast.success("Book removed from saved successfully");
     });
 
