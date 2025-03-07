@@ -1,13 +1,14 @@
 type Book = {
+  id: string;
   ISBN: string;
+  title: string;
   author: string;
   category: string;
   copiesAvailable: number;
-  createdAt: string;
-  id: string;
-  imageUrl: string | null;
   publishedYear: number;
-  title: string;
+  createdAt: string;
+  imageUrl: string | null;
+  borrowCount: number;
   savedBooks?: SavedBook[];
 };
 

@@ -71,7 +71,8 @@ export class BookService {
 
   async getBookById(id: bigint): Promise<BookResponseDto> {
     const book = await this.prisma.book.findFirst({
-      where: { id, copiesAvailable: { gt: 0 } }, // findFirst instead of findUnique
+      where: { id, copiesAvailable: { gt: 0 } },
+      include: { savedBooks: true },
     });
     if (!book) throw new NotFoundException('Book not found or unavailable');
     return book;

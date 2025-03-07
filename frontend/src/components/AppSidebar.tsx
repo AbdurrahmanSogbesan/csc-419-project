@@ -14,7 +14,6 @@ import {
   BookCheck,
   Bot,
   Clock,
-  HelpCircle,
   Inbox,
   LayoutDashboard,
   LogOut,
@@ -35,48 +34,38 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
       navMain: [
         {
           title: "Dashboard",
-          url: "/",
+          url: "/dashboard",
           icon: LayoutDashboard,
-        },
-        {
-          title: "Inbox",
-          // todo: url
-          url: "/inbox",
-          icon: Inbox,
-        },
-        {
-          title: "History",
-          // todo: url
-          url: "/history",
-          icon: Clock,
-        },
-        {
-          title: "Saved",
-          // todo: url
-          url: "/saved",
-          icon: BookCheck,
-        },
-        {
-          title: "Support",
-          // todo: url
-          url: "/support",
-          icon: HelpCircle,
-        },
-        {
-          title: "Profile",
-          // todo: url
-          url: "/settings",
-          icon: User,
         },
         ...(user?.role === "ADMIN"
           ? [
               {
                 title: "Admin",
-                url: "/admin?tab=users",
+                url: "/admin",
                 icon: Bot,
               },
             ]
           : []),
+        {
+          title: "Saved",
+          url: "/saved-books",
+          icon: BookCheck,
+        },
+        {
+          title: "Inbox",
+          url: "/notifications",
+          icon: Inbox,
+        },
+        {
+          title: "History",
+          url: "/history",
+          icon: Clock,
+        },
+        {
+          title: "Profile",
+          url: "/settings",
+          icon: User,
+        },
       ],
     };
   }, [user?.role]);

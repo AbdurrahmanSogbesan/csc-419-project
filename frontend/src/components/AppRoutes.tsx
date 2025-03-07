@@ -1,10 +1,12 @@
 import { ReactNode, useEffect } from "react";
-import { Navigate, Route, Routes, useLocation } from "react-router";
+import { Link, Navigate, Route, Routes, useLocation } from "react-router";
 import MainLayout from "./MainLayout";
 import { AuthRoutes } from "@/app/auth";
-import DashboardPage from "@/app/dashboard";
+import DashboardPage, { BookDetailsPage } from "@/app/dashboard";
 import { useAuthStore } from "@/lib/stores/auth";
 import AdminPage from "@/app/admin";
+import { Separator } from "./ui/separator";
+import { Button } from "./ui/button";
 
 // Our auth middleware component
 function RequireAuth({ children }: { children: ReactNode }) {
@@ -22,7 +24,16 @@ function RequireAuth({ children }: { children: ReactNode }) {
   return children;
 }
 
-// The main routes of the app
+function DashboardRoutes() {
+  return (
+    <Routes>
+      <Route index element={<DashboardPage />} />
+      <Route path="books" element={<div>Books</div>} />
+      <Route path="books/:id" element={<BookDetailsPage />} />
+    </Routes>
+  );
+}
+
 function MainRoutes() {
   const user = useAuthStore((s) => s.user);
 
@@ -31,13 +42,14 @@ function MainRoutes() {
   return (
     <MainLayout>
       <Routes>
-        <Route index element={<DashboardPage />} />
-        <Route path="dashboard" element={<Navigate replace to={"/"} />} />
+        <Route path="/" element={<Navigate replace to="dashboard" />} />
+        <Route index path="dashboard/*" element={<DashboardRoutes />} />
         <Route path="saved-books/*" element={<div>Saved Books</div>} />
         <Route path="notifications" element={<div>Notifications</div>} />
         <Route path="history" element={<div>History</div>} />
         <Route path="settings" element={<div>Settings</div>} />
         {isAdmin && <Route path="admin" element={<AdminPage />} />}
+        <Route path="*" element={<NotFound />} />
       </Routes>
     </MainLayout>
   );
@@ -59,18 +71,18 @@ export default function AppRoutes() {
   );
 }
 
-// function NotFound() {
-//   return (
-//     <div className="flex min-h-screen flex-col items-center justify-center gap-6">
-//       <h1 className="text-6xl font-bold text-foreground">404</h1>
-//       <p className="text-xl text-muted-foreground">Oops! Page not found</p>
-//       <Separator className="my-4 h-1 w-24 rounded bg-primary" />
-//       <p className="mb-6 text-muted-foreground">
-//         The page you're looking for doesn't exist or has been moved.
-//       </p>
-//       <Button asChild size="lg">
-//         <Link to="/">Go Home</Link>
-//       </Button>
-//     </div>
-//   );
-// }
+function NotFound() {
+  return (
+    <div className="flex min-h-screen flex-col items-center justify-center gap-6">
+      <h1 className="text-6xl font-bold text-foreground">404</h1>
+      <p className="text-xl text-muted-foreground">Oops! Page not found</p>
+      <Separator className="my-4 h-1 w-24 rounded bg-primary" />
+      <p className="mb-6 text-muted-foreground">
+        The page you're looking for doesn't exist or has been moved.
+      </p>
+      <Button asChild size="lg">
+        <Link to="/dashboard">Go Home</Link>
+      </Button>
+    </div>
+  );
+}
