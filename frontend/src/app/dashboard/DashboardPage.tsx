@@ -15,7 +15,6 @@ import { useDeleteSavedBook, useGetBooks, useSaveBook } from "@/hooks/books";
 import BookCardSkeleton from "./components/BookCardSkeleton";
 import { useAuthStore } from "@/lib/stores/auth";
 import { useNavigate } from "react-router";
-import { useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 
 const loanedBooks = [
@@ -88,22 +87,20 @@ const loanBookHeaders = [
 export default function DashboardPage() {
   const user = useAuthStore((s) => s.user);
   const navigate = useNavigate();
-  const queryClient = useQueryClient();
 
   const [selectedTab, setSelectedTab] = useState(dummyTabs[0].value);
 
   const { data: books, isLoading } = useGetBooks({
     availabilityStatus: "available",
+    popularBooks: true,
   });
 
   const { mutate: saveBook, isPending: isSavingBook } = useSaveBook(() => {
-    queryClient.invalidateQueries({ queryKey: ["getBooks"] });
     toast.success("Book saved successfully");
   });
 
   const { mutate: deleteSavedBook, isPending: isDeletingSavedBook } =
     useDeleteSavedBook(() => {
-      queryClient.invalidateQueries({ queryKey: ["getBooks"] });
       toast.success("Book removed from saved successfully");
     });
 

@@ -32,6 +32,7 @@ type GetBooksQueryParams = {
   publishedYearStart?: number;
   publishedYearEnd?: number;
   availabilityStatus?: "available" | "unavailable";
+  popularBooks?: boolean;
 };
 
 type BorrowedBook = {
