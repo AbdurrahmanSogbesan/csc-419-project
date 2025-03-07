@@ -124,7 +124,10 @@ export default function BookDetailsPage() {
       <div className="mt-6 flex flex-col gap-6 md:flex-row">
         {isLoading ? (
           <>
-            <BookCardSkeleton className="max-w-[261.7px]" canSave />
+            <BookCardSkeleton
+              className="flex-shrink-0 sm:max-w-[261.7px]"
+              canSave
+            />
             <Skeleton className="w-full flex-1" />
           </>
         ) : book ? (
