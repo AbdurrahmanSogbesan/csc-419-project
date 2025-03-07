@@ -125,10 +125,10 @@ export default function BookDetailsPage() {
         {isLoading ? (
           <>
             <BookCardSkeleton
-              className="flex-shrink-0 sm:max-w-[261.7px]"
+              className="flex-shrink-0 self-center sm:max-w-[261.7px] md:self-start"
               canSave
             />
-            <Skeleton className="w-full flex-1" />
+            <Skeleton className="min-h-[400px] w-full flex-1" />
           </>
         ) : book ? (
           <>
