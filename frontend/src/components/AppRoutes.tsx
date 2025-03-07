@@ -31,6 +31,7 @@ function DashboardRoutes() {
       <Route index element={<DashboardPage />} />
       <Route path="books" element={<div>Books</div>} />
       <Route path="books/:id" element={<BookDetailsPage />} />
+      <Route path="*" element={<Navigate replace to="/dashboard" />} />
     </Routes>
   );
 }
@@ -40,6 +41,7 @@ function SavedBooksRoutes() {
     <Routes>
       <Route index element={<SavedBooks />} />
       <Route path=":id" element={<BookDetailsPage />} />
+      <Route path="*" element={<Navigate replace to="/saved-books" />} />
     </Routes>
   );
 }

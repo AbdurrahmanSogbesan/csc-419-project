@@ -22,9 +22,11 @@ import {
 import Logo from "@/assets/icons/logo.svg";
 import { NavMain } from "./NavMain";
 import { cn } from "@/lib/utils";
+import { useNavigate } from "react-router";
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   const user = useAuthStore((s) => s.user);
+  const navigate = useNavigate();
   const logout = useAuthStore((s) => s.logout);
 
   const { state, isMobile } = useSidebar();
@@ -80,9 +82,10 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
       >
         <Logo
           className={cn(
-            "transition-all duration-200 ease-in-out",
+            "cursor-pointer transition-all duration-200 ease-in-out",
             state === "collapsed" && !isMobile ? "size-6" : "size-10",
           )}
+          onClick={() => navigate("/dashboard")}
         />
       </SidebarHeader>
       <SidebarContent>
