@@ -32,6 +32,11 @@ export default function AdminPage() {
     }
   }, [activeTab]);
 
+  useEffect(() => {
+    // initialize the tab
+    setSearchParams({ tab: activeTab });
+  }, []);
+
   return (
     <div className="flex min-h-full flex-col gap-6">
       <p className="text-sm text-gray-600 md:text-base">

@@ -14,6 +14,9 @@ import TabsFilter from "@/components/TabsFilter";
 import { useDeleteSavedBook, useGetBooks, useSaveBook } from "@/hooks/books";
 import BookCardSkeleton from "./components/BookCardSkeleton";
 import { useAuthStore } from "@/lib/stores/auth";
+import { useNavigate } from "react-router";
+import { useQueryClient } from "@tanstack/react-query";
+import { toast } from "sonner";
 
 const loanedBooks = [
   {
@@ -84,6 +87,8 @@ const loanBookHeaders = [
 
 export default function DashboardPage() {
   const user = useAuthStore((s) => s.user);
+  const navigate = useNavigate();
+  const queryClient = useQueryClient();
 
   const [selectedTab, setSelectedTab] = useState(dummyTabs[0].value);
 
@@ -91,9 +96,16 @@ export default function DashboardPage() {
     availabilityStatus: "available",
   });
 
-  const { mutate: saveBook, isPending: isSavingBook } = useSaveBook();
+  const { mutate: saveBook, isPending: isSavingBook } = useSaveBook(() => {
+    queryClient.invalidateQueries({ queryKey: ["getBooks"] });
+    toast.success("Book saved successfully");
+  });
+
   const { mutate: deleteSavedBook, isPending: isDeletingSavedBook } =
-    useDeleteSavedBook();
+    useDeleteSavedBook(() => {
+      queryClient.invalidateQueries({ queryKey: ["getBooks"] });
+      toast.success("Book removed from saved successfully");
+    });
 
   const updatingSavedBooks = isSavingBook || isDeletingSavedBook;
 
@@ -119,11 +131,16 @@ export default function DashboardPage() {
                 key={book.id}
                 book={{ ...book, isSaved: isSaved ?? false }}
                 onReserve={() => {}}
-                onSave={
+                onSave={() =>
+                  isSaved ? deleteSavedBook(book.id) : saveBook(book.id)
+                }
+                disabled={updatingSavedBooks}
+                onCardClick={
                   updatingSavedBooks
                     ? undefined
-                    : () =>
-                        isSaved ? deleteSavedBook(book.id) : saveBook(book.id)
+                    : () => {
+                        navigate(`/dashboard/books/${book.id}`);
+                      }
                 }
               />
             );

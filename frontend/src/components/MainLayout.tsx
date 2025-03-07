@@ -5,7 +5,7 @@ import { SidebarInset, SidebarProvider, SidebarTrigger } from "./ui/sidebar";
 import { Separator } from "./ui/separator";
 
 import { AppSidebar } from "./AppSidebar";
-import { PlusIcon } from "lucide-react";
+import { MoveLeft, PlusIcon } from "lucide-react";
 import { Button } from "./ui/button";
 import SearchBar from "./SearchBar";
 
@@ -15,17 +15,15 @@ export default function MainLayout({ children }: { children: ReactNode }) {
 
   const defaultOpen = Cookies.get("sidebar_state") === "true";
 
-  const pathSegments =
-    location.pathname === "/"
-      ? ["dashboard"]
-      : location.pathname.split("/").filter(Boolean);
+  const pathSegments = location.pathname.split("/").filter(Boolean);
 
   const isAdminRoute = pathSegments.includes("admin");
   const [searchParams] = useSearchParams();
+
   const isBooksPage = searchParams.get("tab") === "books";
 
-  const shouldHideTitle =
-    pathSegments[0] === "admin" && pathSegments.length > 1;
+  const isInnerPage = pathSegments.length > 1;
+
   return (
     <SidebarProvider defaultOpen={defaultOpen}>
       <AppSidebar />
@@ -34,7 +32,16 @@ export default function MainLayout({ children }: { children: ReactNode }) {
           <div className="flex shrink-0 items-center gap-2">
             <SidebarTrigger className="-ml-1" />
             <Separator orientation="vertical" className="mr-2 h-4" />
-            {!shouldHideTitle && (
+            {isInnerPage ? (
+              <Button
+                variant="ghost"
+                className="p-0"
+                // todo: needs testing w other inner pages
+                onClick={() => navigate(`/${pathSegments[0]}`)}
+              >
+                <MoveLeft size={24} color="black" />
+              </Button>
+            ) : (
               <p className="text-xl font-semibold capitalize">
                 {pathSegments.pop()?.replace(/-/g, " ")}
               </p>

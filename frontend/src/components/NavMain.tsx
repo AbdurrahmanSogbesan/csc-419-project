@@ -28,7 +28,7 @@ export function NavMain({
           <SidebarGroupContent key={item.title}>
             <SidebarMenuItem>
               <SidebarMenuButton
-                isActive={pathname === item.url}
+                isActive={pathname.startsWith(item.url)}
                 tooltip={item.title}
                 asChild
                 className="text-base"
