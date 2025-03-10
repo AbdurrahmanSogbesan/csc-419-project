@@ -1,8 +1,6 @@
 // src/books/books.service.ts
 import {
-  BadRequestException,
   ConflictException,
-  ForbiddenException,
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
@@ -22,7 +20,13 @@ export class BookService {
   async createBook(dto: CreateBooksDto): Promise<BookResponseDto[]> {
     const booksData = dto.books.map((book) => ({
       ...book,
-      copiesAvailable: book.copiesAvailable ?? 1, // Default to 1 if not provided
+      copiesAvailable: book.copiesAvailable ?? 1,
+      copiesBorrowed: book.copiesBorrowed ?? 0,
+      category: Array.isArray(book.category)
+        ? book.category
+        : book.category
+          ? [book.category]
+          : [],
     }));
 
     await this.prisma.book.createMany({
@@ -41,7 +45,15 @@ export class BookService {
     const existingBook = await this.prisma.book.findUnique({ where: { id } });
     if (!existingBook) throw new NotFoundException('Book not found');
 
-    return this.prisma.book.update({ where: { id }, data: dto });
+    return this.prisma.book.update({
+      where: { id },
+      data: {
+        ...dto,
+        category: dto.category
+          ? { set: Array.isArray(dto.category) ? dto.category : [dto.category] }
+          : undefined,
+      },
+    });
   }
 
   async deleteBook(id: bigint): Promise<Book> {
@@ -88,186 +100,6 @@ export class BookService {
     return this.prisma.book.update({
       where: { id: bookId },
       data: { copiesAvailable: { increment: change } },
-    });
-  }
-
-  // Borrow a book
-  async borrowBook(
-    userId: bigint,
-    bookId: bigint,
-  ): Promise<{ borrowedBook: any; message: string }> {
-    return this.prisma.$transaction(async (tx) => {
-      // Fetch user and check if they are restricted from borrowing
-      const user = await tx.user.findUnique({ where: { id: userId } });
-
-      if (user.restrictedUntil && user.restrictedUntil > new Date()) {
-        throw new ForbiddenException(
-          `You are restricted from borrowing until ${user.restrictedUntil}`,
-        );
-      }
-
-      // Fetch book and check availability
-      const book = await tx.book.findUnique({
-        where: { id: bookId },
-      });
-
-      if (!book) throw new NotFoundException('Book not found');
-      if (book.copiesAvailable <= 0)
-        throw new BadRequestException('No copies available');
-
-      // Check if user already has this book
-      const alreadyBorrowed = await tx.borrowedBook.findFirst({
-        where: { userId, bookId, returnDate: null },
-      });
-
-      if (alreadyBorrowed) {
-        throw new BadRequestException('You already have this book checked out');
-      }
-
-      const hasOverdue = await tx.borrowedBook.findFirst({
-        where: { userId, returnDate: null, dueDate: { lt: new Date() } },
-      });
-
-      if (hasOverdue) {
-        throw new ForbiddenException(
-          'You have overdue books. Borrowing restricted for 1 month.',
-        );
-      }
-
-      // Check borrow limit (5 books per week)
-      const oneWeekAgo = new Date();
-      oneWeekAgo.setDate(oneWeekAgo.getDate() - 7);
-
-      const borrowCount = await tx.borrowedBook.count({
-        where: {
-          userId,
-          borrowDate: { gte: oneWeekAgo },
-        },
-      });
-
-      if (borrowCount >= 5) {
-        throw new ForbiddenException(
-          'Borrow limit reached (5 books per week).',
-        );
-      }
-
-      // Calculate due date (14-day return policy)
-      const dueDate = new Date();
-      dueDate.setDate(dueDate.getDate() + 14);
-
-      // Borrow book and select the book data and dueDate
-      const borrowedBook = await tx.borrowedBook.create({
-        data: {
-          userId,
-          bookId,
-          dueDate,
-        },
-        include: {
-          book: {
-            select: {
-              author: true,
-              category: true,
-              title: true,
-              copiesAvailable: true,
-              imageUrl: true,
-            },
-          },
-          user: {
-            select: {
-              id: true,
-              name: true,
-              email: true,
-            },
-          },
-        },
-      });
-
-      await tx.book.update({
-        where: { id: bookId },
-        data: {
-          copiesAvailable: { decrement: 1 },
-          borrowCount: { increment: 1 },
-        },
-      });
-
-      return {
-        borrowedBook,
-        message: `Book "${book.title}" borrowed successfully. Due date: ${dueDate.toLocaleDateString()}`,
-      };
-    });
-  }
-
-  async returnBook(
-    userId: bigint,
-    bookId: bigint,
-  ): Promise<{ returnedBook: any; message: string }> {
-    return this.prisma.$transaction(async (tx) => {
-      const borrowedBook = await tx.borrowedBook.findFirst({
-        where: { userId, bookId, returnDate: null },
-        include: {
-          book: { select: { title: true, author: true } },
-          user: { select: { id: true, name: true, email: true } },
-        },
-      });
-
-      if (!borrowedBook) {
-        throw new NotFoundException('You have not borrowed this book');
-      }
-
-      const isOverdue = new Date() > borrowedBook.dueDate;
-      const now = new Date();
-
-      // Mark book as returned
-      const returnedBook = await tx.borrowedBook.update({
-        where: { id: borrowedBook.id },
-        data: { returnDate: now },
-        include: {
-          book: {
-            select: {
-              author: true,
-              category: true,
-              title: true,
-              copiesAvailable: true,
-              imageUrl: true,
-            },
-          },
-          user: {
-            select: { id: true, name: true, email: true },
-          },
-        },
-      });
-
-      await tx.book.update({
-        where: { id: bookId },
-        data: { copiesAvailable: { increment: 1 } },
-      });
-
-      const message = `Book "${borrowedBook.book.title}" returned successfully.`;
-
-      if (isOverdue) {
-        const daysOverdue = Math.floor(
-          (new Date().getTime() - borrowedBook.dueDate.getTime()) /
-            (1000 * 60 * 60 * 24),
-        );
-
-        const restrictionDays =
-          daysOverdue <= 7 ? 7 : daysOverdue <= 30 ? 30 : 90;
-        const restrictedUntil = new Date();
-        restrictedUntil.setDate(restrictedUntil.getDate() + restrictionDays);
-
-        await tx.user.update({
-          where: { id: userId },
-          data: { restrictedUntil },
-        });
-
-        // Process any pending reservations for this book
-        // await this.processBookReservations(bookId);
-
-        return { returnedBook, message };
-      }
-
-      // Ensure a response is always returned
-      return { returnedBook, message };
     });
   }
 
@@ -442,60 +274,4 @@ export class BookService {
       message: 'Saved book deleted successfully',
     };
   }
-
-  // Revert books not picked up within 7 days (Scheduled Task)
-  // async revertUnpickedBooks(): Promise<{ revertedBooks: any[] }> {
-  //   const sevenDaysAgo = new Date();
-  //   sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
-
-  //   const unpickedBooks = await this.prisma.borrowedBook.findMany({
-  //     where: { borrowDate: { lt: sevenDaysAgo }, returnDate: null },
-  //   });
-
-  //   const revertedBooks = [];
-
-  //   for (const book of unpickedBooks) {
-  //     await this.prisma.$transaction([
-  //       this.prisma.book.update({
-  //         where: { id: book.bookId },
-  //         data: { copiesAvailable: { increment: 1 } },
-  //       }),
-  //       this.prisma.borrowedBook.delete({ where: { id: book.id } }),
-  //     ]);
-
-  //     revertedBooks.push(book);
-  //   }
-
-  //   return { revertedBooks };
-  // }
-
-  // // Check for overdue books and notify users (Scheduled Task)
-  // async checkOverdueBooks(): Promise<void> {
-  //   const today = new Date();
-
-  //   const overdueBooks = await this.prisma.borrowedBook.findMany({
-  //     where: {
-  //       returnDate: null,
-  //       dueDate: { lt: today },
-  //     },
-  //     include: {
-  //       user: true,
-  //       book: true,
-  //     },
-  //   });
-
-  //   for (const record of overdueBooks) {
-  //     const daysOverdue = Math.floor(
-  //       (today.getTime() - record.dueDate.getTime()) / (1000 * 60 * 60 * 24),
-  //     );
-
-  //     // Implement notification logic here
-  //     // This is a placeholder for whatever notification system you want to use
-  //     await this.notificationService.sendOverdueNotification(
-  //       record.user.email,
-  //       record.book.title,
-  //       daysOverdue,
-  //     );
-  //   }
-  // }
 }

@@ -8,10 +8,13 @@ import { JwtModule } from '@nestjs/jwt';
 import { APP_GUARD } from '@nestjs/core';
 import { AuthGuard } from './common/guards/auth.guard';
 import { BookModule } from './book/book.module';
+import { ScheduleModule } from '@nestjs/schedule';
+import { ReservationModule } from './reservation/reservation.module';
 
 @Module({
   imports: [
     PrismaModule,
+    ScheduleModule.forRoot(),
     ConfigModule.forRoot({ isGlobal: true }),
     AuthModule,
     JwtModule.register({
@@ -20,6 +23,7 @@ import { BookModule } from './book/book.module';
       signOptions: { expiresIn: process.env.JWT_EXPIRE },
     }),
     BookModule,
+    ReservationModule,
   ],
   controllers: [AppController],
   providers: [

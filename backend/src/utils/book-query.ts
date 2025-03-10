@@ -44,7 +44,7 @@ export function buildBookFilters(params: {
       OR: [
         { title: { contains: search, mode: Prisma.QueryMode.insensitive } },
         { author: { contains: search, mode: Prisma.QueryMode.insensitive } },
-        { category: { contains: search, mode: Prisma.QueryMode.insensitive } },
+        { category: { has: search } },
         { ISBN: { contains: search, mode: Prisma.QueryMode.insensitive } },
       ],
     });
@@ -61,7 +61,7 @@ export function buildBookFilters(params: {
     });
   if (category)
     filters.push({
-      category: { contains: category, mode: Prisma.QueryMode.insensitive },
+      category: { has: category },
     });
   if (ISBN)
     filters.push({

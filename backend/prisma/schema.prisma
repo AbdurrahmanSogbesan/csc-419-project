@@ -23,6 +23,7 @@ enum ReservationStatus {
   BORROWED
   RETURNED 
   OVERDUE
+  CANCELLED
 }
 
 enum FineStatus {
@@ -50,7 +51,8 @@ model User {
   borrowedBooks BorrowedBook[]
   reservations  Reservation[]
   transactions  Transaction[]
-  savedBooks  SavedBook[]
+  savedBooks    SavedBook[]
+  fines         Fine[]
 }
 
 model Book {
@@ -58,10 +60,14 @@ model Book {
   ISBN            String   @unique
   title           String
   author          String
-  category        String   @default("")
+  description     String?
+  pages           Int?
+  category        String[]   @default([])
   copiesAvailable Int      @default(0)
+  copiesBorrowed  Int      @default(0) 
   publishedYear   Int
   imageUrl        String?
+  language        String?
   borrowCount     Int      @default(0)
   createdAt       DateTime @default(now()) @db.Timestamptz(3)
 
@@ -69,6 +75,7 @@ model Book {
   reservations  Reservation[]
   transactions  Transaction[]
   savedBooks  SavedBook[]
+  fines           Fine[]
 }
 
 model BorrowedBook {
@@ -81,8 +88,6 @@ model BorrowedBook {
   borrowDate DateTime  @default(now()) @db.Timestamptz(3)
   dueDate    DateTime  @db.Timestamptz(3)
   returnDate DateTime? @db.Timestamptz(3)
-
-  @@unique([userId, bookId])
 }
 
 model SavedBook {
@@ -105,9 +110,24 @@ model Reservation {
   book            Book              @relation(fields: [bookId], references: [id], onDelete: Cascade)
   bookId          BigInt
   reservationDate DateTime          @default(now()) @db.Timestamptz(3)
-  status          ReservationStatus @default(RESERVED)
+  reservedUntil   DateTime?         // Auto-revert if not borrowed in 7 days
+  status          ReservationStatus @default(RESERVED)      
+  notified        Boolean           @default(false) 
 
   @@unique([userId, bookId])
+}
+
+model Fine {
+  id         BigInt   @id @default(autoincrement())
+  uuid       String   @unique @default(uuid())
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId     BigInt
+  book       Book?    @relation(fields: [bookId], references: [id], onDelete: Cascade)
+  bookId     BigInt?
+  amount     Float    // Fine amount
+  status     FineStatus @default(UNPAID)
+  createdAt  DateTime  @default(now()) @db.Timestamptz(3)
+  paidAt     DateTime? // When the fine was paid
 }
 
 model Transaction {
@@ -117,8 +137,7 @@ model Transaction {
   bookId     BigInt?
   actionType TransactionType
   timestamp  DateTime        @default(now()) @db.Timestamptz(3)
-  amount     Float? // Used only for fine payments
-  fineStatus FineStatus? // Only used when actionType = FINE_PAYMENT
+  amount     Float?          // Used only for fine payments
 
   user User  @relation(fields: [userId], references: [id], onDelete: Cascade)
   book Book? @relation(fields: [bookId], references: [id], onDelete: Cascade)
