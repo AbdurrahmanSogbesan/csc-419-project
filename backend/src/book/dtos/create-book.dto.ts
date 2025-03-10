@@ -21,11 +21,21 @@ class CreateABookDto {
 
   @IsString()
   @IsNotEmpty()
-  author: string;
+  imageUrl?: string;
 
   @IsString()
+  @IsNotEmpty()
+  author: string;
+
+  @IsArray()
+  @IsString({ each: true })
   @IsOptional()
-  category?: string;
+  category?: string[];
+
+  @IsInt()
+  @Min(0)
+  @IsOptional()
+  copiesBorrowed?: number;
 
   @IsInt()
   @Min(0)
@@ -50,8 +60,12 @@ export class BookResponseDto {
   ISBN: string;
   title: string;
   author: string;
-  category: string;
+  description: string;
+  pages: number;
+  category: string[];
+  imageUrl: string;
   copiesAvailable: number;
+  copiesBorrowed: number;
   publishedYear: number;
   createdAt: Date;
 }

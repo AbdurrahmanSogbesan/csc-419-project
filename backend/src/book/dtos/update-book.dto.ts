@@ -1,4 +1,11 @@
-import { IsString, IsOptional, IsInt, Min } from 'class-validator';
+import {
+  IsString,
+  IsOptional,
+  IsInt,
+  Min,
+  IsArray,
+  IsNotEmpty,
+} from 'class-validator';
 
 export class UpdateBookDto {
   @IsString()
@@ -10,8 +17,22 @@ export class UpdateBookDto {
   author?: string;
 
   @IsString()
+  @IsNotEmpty()
   @IsOptional()
-  category?: string;
+  imageUrl?: string;
+
+  @IsArray()
+  @IsString({ each: true })
+  @IsOptional()
+  category?: string[];
+
+  @IsString()
+  @IsOptional()
+  description?: string;
+
+  @IsString()
+  @IsOptional()
+  pages?: number;
 
   @IsInt()
   @Min(0)

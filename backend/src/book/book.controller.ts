@@ -86,16 +86,6 @@ export class BookController {
     return this.booksService.updateBookCopies(id, change);
   }
 
-  @Post(':bookId/borrow')
-  async borrowBook(@Request() req, @Param('bookId') id: bigint) {
-    return await this.booksService.borrowBook(req.user.userId, id);
-  }
-
-  @Post(':bookId/return')
-  async returnBook(@Request() req, @Param('bookId') id: bigint) {
-    return await this.booksService.returnBook(req.user.userId, id);
-  }
-
   @Post(':id/save')
   async saveBook(@Param('id') id: bigint, @Request() req) {
     return this.booksService.saveBook(req.user.userId, id);
