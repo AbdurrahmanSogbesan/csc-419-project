@@ -1,5 +1,5 @@
 import StatSection from "./components/StatSection";
-import { Label, Pie, PieChart } from "recharts";
+import { Label, Pie, PieChart, YAxis } from "recharts";
 import {
   ChartConfig,
   ChartContainer,
@@ -12,37 +12,85 @@ import { CardContent } from "@/components/ui/card";
 import React, { ReactNode, useMemo } from "react";
 import { useGetLibraryStats } from "@/hooks/admin";
 import { Skeleton } from "@/components/ui/skeleton";
-import { cn } from "@/lib/utils";
+import { cn, processDataByMonth } from "@/lib/utils";
+import { useGetUsers } from "@/hooks/users";
+import { Bar, BarChart, CartesianGrid, XAxis } from "recharts";
 
-function ChartSkeleton() {
+type ChartSkeletonProps = {
+  variant?: "pie" | "bar";
+};
+
+function ChartSkeleton({ variant = "pie" }: ChartSkeletonProps) {
+  // Generate random heights for bars between 20px and 200px
+  const barHeights = Array.from({ length: 12 }, () =>
+    Math.floor(Math.random() * 180 + 20),
+  );
+
   return (
     <ChartCard>
       <Skeleton className="h-6 w-32" />
 
-      <div className="flex flex-col items-center gap-8">
-        <div className="relative aspect-square w-full max-w-[250px] p-6">
-          <Skeleton className="h-full w-full rounded-full" />
-          <div className="absolute inset-[20%] rounded-full">
+      {variant === "pie" ? (
+        <div className="flex flex-col items-center gap-8">
+          <div className="relative aspect-square w-full max-w-[250px] p-6">
             <Skeleton className="h-full w-full rounded-full" />
+            <div className="absolute inset-[20%] rounded-full">
+              <Skeleton className="h-full w-full rounded-full" />
+            </div>
+          </div>
+          <div className="flex w-full justify-center gap-4">
+            {Array.from({ length: 3 }).map((_, i) => (
+              <div key={i} className="flex items-center gap-2">
+                <Skeleton className="h-2 w-2" />
+                <Skeleton className="h-4 w-16" />
+              </div>
+            ))}
           </div>
         </div>
-        <div className="flex w-full justify-center gap-4">
-          {Array.from({ length: 3 }).map((_, i) => (
-            <div key={i} className="flex items-center gap-2">
-              <Skeleton className="h-2 w-2" />
-              <Skeleton className="h-4 w-16" />
+      ) : (
+        <div className="p-0 pt-0 md:p-6">
+          <div className="relative h-[250px] w-full">
+            <div className="absolute inset-0 flex items-end justify-between gap-2">
+              {barHeights.map((height, i) => (
+                <Skeleton
+                  key={i}
+                  className="w-full rounded-t-md"
+                  style={{ height: `${height}px` }}
+                />
+              ))}
             </div>
-          ))}
+          </div>
+          <div className="mt-4 flex justify-between gap-2">
+            {Array.from({ length: 12 }).map((_, i) => (
+              <Skeleton key={i} className="h-3 w-10" />
+            ))}
+          </div>
         </div>
-      </div>
+      )}
     </ChartCard>
   );
 }
 
 export default function AdminDashboard() {
   const { isLoading: loadingStats, data: statsData } = useGetLibraryStats();
+  const { isLoading: loadingUsers, data: usersData } = useGetUsers({
+    page: 1,
+    // todo: remove this limit
+    limit: 1000,
+  });
 
-  const chartData = useMemo(
+  const userChartData = useMemo(() => {
+    return processDataByMonth(usersData?.users || [], "users");
+  }, [usersData?.users]);
+
+  const userChartConfig = {
+    users: {
+      label: "Users",
+      color: "#7E22CE",
+    },
+  } satisfies ChartConfig;
+
+  const availableBookChartData = useMemo(
     () => [
       {
         name: "lended",
@@ -63,7 +111,7 @@ export default function AdminDashboard() {
     [statsData],
   );
 
-  const chartConfig = {
+  const availableBookChartConfig = {
     value: {
       label: "Books",
     },
@@ -82,25 +130,71 @@ export default function AdminDashboard() {
   } satisfies ChartConfig;
 
   const totalBooks = React.useMemo(() => {
-    return chartData.reduce((acc, curr) => acc + curr.value, 0);
-  }, [chartData]);
+    return availableBookChartData.reduce((acc, curr) => acc + curr.value, 0);
+  }, [availableBookChartData]);
 
   return (
     <div className="flex flex-col gap-6">
       <StatSection statsData={statsData} loading={loadingStats} />
       <div className="flex flex-col gap-6 lg:flex-row">
-        <ChartCard>
-          <p className="font-medium">No. of Users</p>
-        </ChartCard>
+        {loadingUsers ? (
+          <ChartSkeleton variant="bar" />
+        ) : (
+          <ChartCard>
+            <p className="font-medium">No. of Users</p>
+            <CardContent className="flex-1 p-0 md:p-6">
+              <ChartContainer
+                config={userChartConfig}
+                className="mx-auto h-full max-h-[250px] w-full"
+              >
+                <BarChart
+                  accessibilityLayer
+                  margin={{ left: -25 }}
+                  data={userChartData}
+                >
+                  <CartesianGrid vertical={false} />
+                  <XAxis
+                    dataKey="month"
+                    tickLine={false}
+                    axisLine={false}
+                    tickMargin={8}
+                    tickFormatter={(value) => value.slice(0, 3)}
+                  />
+                  <YAxis
+                    tickLine={false}
+                    axisLine={false}
+                    tickMargin={8}
+                    tickFormatter={(value) => value.toLocaleString()}
+                  />
+                  <ChartTooltip
+                    cursor={false}
+                    content={
+                      <ChartTooltipContent labelFormatter={(label) => label} />
+                    }
+                  />
+                  <Bar
+                    dataKey="users"
+                    fill="var(--color-users)"
+                    radius={[4, 4, 0, 0]}
+                  />
+                  <ChartLegend
+                    content={<ChartLegendContent nameKey="users" />}
+                    className="-translate-y-2 flex-wrap gap-2 [&>*]:basis-1/4 [&>*]:justify-center"
+                  />
+                </BarChart>
+              </ChartContainer>
+            </CardContent>
+          </ChartCard>
+        )}
 
         {loadingStats ? (
-          <ChartSkeleton />
+          <ChartSkeleton variant="pie" />
         ) : (
           <ChartCard>
             <p className="font-medium">Book Availability</p>
-            <CardContent className="flex-1">
+            <CardContent className="flex-1 p-0 md:p-6">
               <ChartContainer
-                config={chartConfig}
+                config={availableBookChartConfig}
                 className="mx-auto aspect-square max-h-[250px]"
               >
                 <PieChart>
@@ -109,7 +203,7 @@ export default function AdminDashboard() {
                     content={<ChartTooltipContent hideLabel />}
                   />
                   <Pie
-                    data={chartData}
+                    data={availableBookChartData}
                     dataKey="value"
                     nameKey="name"
                     innerRadius="60%"

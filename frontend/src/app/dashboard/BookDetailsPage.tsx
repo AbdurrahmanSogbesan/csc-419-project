@@ -147,6 +147,7 @@ export default function BookDetailsPage() {
         <p className="text-3xl font-semibold">Similar books</p>
 
         <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
+          {/* todo: fetch books with category filter and store here */}
           {dummySimilarBooks.slice(0, 4).map((book) => {
             const isSaved = true;
 

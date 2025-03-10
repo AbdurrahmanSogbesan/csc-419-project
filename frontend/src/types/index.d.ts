@@ -23,3 +23,8 @@ type LibraryStats = {
   totalUsers: number;
   overdueBooks: number;
 };
+
+type MonthData = {
+  month: string;
+  [key: string]: string | number;
+};
