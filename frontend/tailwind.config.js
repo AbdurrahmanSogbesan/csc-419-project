@@ -87,6 +87,8 @@ export default {
           redBorder: "#FCA5A5",
           greenBg: "#DCFCE7",
           greenBorder: "#86EFAC",
+          tealBg: "#F0FDFA",
+          tealBorder: "#2DD4BF",
         },
         sidebar: {
           DEFAULT: "hsl(var(--sidebar-background))",

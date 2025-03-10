@@ -14,3 +14,17 @@ type Tab = {
   count?: number;
   value: string;
 };
+
+type LibraryStats = {
+  totalBooks: number;
+  totalLendedBooks: number;
+  currentlyLendedBooks: number;
+  availableBooks: number;
+  totalUsers: number;
+  overdueBooks: number;
+};
+
+type MonthData = {
+  month: string;
+  [key: string]: string | number;
+};

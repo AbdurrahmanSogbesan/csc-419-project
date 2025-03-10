@@ -21,7 +21,7 @@ export default function SearchBar({
       )}
     >
       <Input
-        className="pl-8 focus-visible:ring-0"
+        className="pl-8 ring-offset-0 focus-visible:ring-transparent focus-visible:ring-offset-0"
         placeholder={placeholder}
         onChange={(e) => onChange?.(e.target.value)}
         onKeyDown={(e) => {

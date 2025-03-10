@@ -4,7 +4,7 @@ import MainLayout from "./MainLayout";
 import { AuthRoutes } from "@/app/auth";
 import DashboardPage, { BookDetailsPage } from "@/app/dashboard";
 import { useAuthStore } from "@/lib/stores/auth";
-import AdminPage from "@/app/admin";
+import AdminLayout from "@/app/admin";
 import { Separator } from "./ui/separator";
 import { Button } from "./ui/button";
 import SavedBooks from "@/app/saved-books";
@@ -60,7 +60,7 @@ function MainRoutes() {
         <Route path="notifications" element={<div>Notifications</div>} />
         <Route path="history" element={<div>History</div>} />
         <Route path="settings" element={<div>Settings</div>} />
-        {isAdmin && <Route path="admin" element={<AdminPage />} />}
+        {isAdmin && <Route path="admin" element={<AdminLayout />} />}
         <Route path="*" element={<NotFound />} />
       </Routes>
     </MainLayout>

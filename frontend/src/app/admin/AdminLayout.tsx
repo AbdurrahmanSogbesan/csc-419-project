@@ -1,9 +1,14 @@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useSearchParams } from "react-router";
-import { useRef, useEffect, useState } from "react";
+import { useRef } from "react";
 import UsersPage from "./UsersPage";
+import AdminDashboard from "./AdminDashboard";
 
 const tabsMap = {
+  dashboard: {
+    title: "Dashboard",
+    element: <AdminDashboard />,
+  },
   users: {
     title: "Users Management",
     element: <UsersPage />,
@@ -16,26 +21,12 @@ const tabsMap = {
 
 type TabName = keyof typeof tabsMap;
 
-export default function AdminPage() {
+export default function AdminLayout() {
   const [searchParams, setSearchParams] = useSearchParams();
-  const activeTab = (searchParams.get("tab") as TabName) ?? "users";
-  const [indicatorStyle, setIndicatorStyle] = useState({ left: 0, width: 0 });
+  const activeTab = (searchParams.get("tab") as TabName) ?? "dashboard";
 
   const tabRefs = useRef<Record<string, HTMLButtonElement | null>>({});
   const tabs = Object.entries(tabsMap);
-
-  useEffect(() => {
-    const activeTabElement = tabRefs.current[activeTab];
-    if (activeTabElement) {
-      const { offsetLeft, offsetWidth } = activeTabElement;
-      setIndicatorStyle({ left: offsetLeft, width: offsetWidth });
-    }
-  }, [activeTab]);
-
-  useEffect(() => {
-    // initialize the tab
-    setSearchParams({ tab: activeTab });
-  }, []);
 
   return (
     <div className="flex min-h-full flex-col gap-6">
@@ -43,10 +34,10 @@ export default function AdminPage() {
         Manage users and books in one place.
       </p>
 
-      <Tabs defaultValue={activeTab} className="flex flex-1 flex-col">
+      <Tabs value={activeTab} className="flex flex-1 flex-col">
         <div className="relative w-full">
-          <TabsList className="h-10 w-full justify-start gap-8 rounded-none bg-transparent px-0">
-            {tabs.map(([key]) => (
+          <TabsList className="no-scrollbar h-10 w-full justify-start gap-8 overflow-x-auto rounded-none bg-transparent px-0">
+            {tabs.map(([key, value]) => (
               <TabsTrigger
                 key={key}
                 value={key}
@@ -56,19 +47,12 @@ export default function AdminPage() {
                   }
                 }}
                 onClick={() => setSearchParams({ tab: key })}
-                className="relative h-8 rounded-none border-transparent bg-transparent px-0 text-xl font-normal capitalize text-gray-500 hover:text-gray-900 data-[state=active]:bg-transparent data-[state=active]:text-primary data-[state=active]:shadow-none"
+                className="relative h-8 rounded-none border-transparent bg-transparent px-0 text-xl font-normal capitalize text-gray-500 hover:text-slate-700 data-[state=active]:border-b-2 data-[state=active]:border-slate-900 data-[state=active]:bg-transparent data-[state=active]:text-slate-900 data-[state=active]:shadow-none"
               >
-                {key}
+                {value.title}
               </TabsTrigger>
             ))}
           </TabsList>
-          <div
-            className="absolute bottom-0 h-0.5 bg-primary transition-all duration-300 ease-in-out"
-            style={{
-              left: `${indicatorStyle.left}px`,
-              width: `${indicatorStyle.width}px`,
-            }}
-          />
         </div>
         {tabs.map(([key, value]) => (
           <TabsContent
