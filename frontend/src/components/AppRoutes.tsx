@@ -29,6 +29,7 @@ function DashboardRoutes() {
   return (
     <Routes>
       <Route index element={<DashboardPage />} />
+      <Route path="search" element={<div>Search Books</div>} />
       <Route path="books" element={<div>Books</div>} />
       <Route path="books/:id" element={<BookDetailsPage />} />
       <Route path="*" element={<Navigate replace to="/dashboard" />} />

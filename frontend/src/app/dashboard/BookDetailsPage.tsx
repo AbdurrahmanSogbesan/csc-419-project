@@ -239,9 +239,9 @@ function BookDetails({ book }: { book: Book }) {
           {productDetails.map(({ label, value }) => (
             <div key={label} className="flex items-baseline gap-2">
               <p className="text-gray-600">{label}:</p>
-              <p className="font-medium text-gray-800">
+              <div className="font-medium text-gray-800">
                 {typeof value === "string" ? value : value()}
-              </p>
+              </div>
             </div>
           ))}
         </div>
