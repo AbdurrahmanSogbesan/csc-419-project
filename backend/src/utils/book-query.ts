@@ -4,13 +4,13 @@ export function buildBookFilters(params: {
   search?: string;
   title?: string;
   author?: string;
-  category?: string;
+  category?: string | string[]; // Modified to accept string or string[]
   ISBN?: string;
   publishedYear?: number | string;
   publishedYearStart?: number | string;
   publishedYearEnd?: number | string;
   availabilityStatus?: string;
-  popularBooks?: boolean; // New parameter
+  popularBooks?: boolean;
 }): {
   where: Prisma.BookWhereInput;
   orderBy?: Prisma.BookOrderByWithRelationInput;
@@ -59,10 +59,20 @@ export function buildBookFilters(params: {
     filters.push({
       author: { contains: author, mode: Prisma.QueryMode.insensitive },
     });
-  if (category)
-    filters.push({
-      category: { has: category },
-    });
+
+  // Handle category filtering
+  if (category) {
+    if (Array.isArray(category)) {
+      filters.push({
+        category: { hasSome: category },
+      });
+    } else {
+      filters.push({
+        category: { has: category },
+      });
+    }
+  }
+
   if (ISBN)
     filters.push({
       ISBN: { contains: ISBN, mode: Prisma.QueryMode.insensitive },
