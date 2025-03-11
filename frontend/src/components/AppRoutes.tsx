@@ -8,6 +8,7 @@ import AdminLayout from "@/app/admin";
 import { Separator } from "./ui/separator";
 import { Button } from "./ui/button";
 import SavedBooks from "@/app/saved-books";
+import SearchBooksPage from "@/app/dashboard/SearchBooksPage";
 
 // Our auth middleware component
 function RequireAuth({ children }: { children: ReactNode }) {
@@ -29,8 +30,7 @@ function DashboardRoutes() {
   return (
     <Routes>
       <Route index element={<DashboardPage />} />
-      <Route path="search" element={<div>Search Books</div>} />
-      <Route path="books" element={<div>Books</div>} />
+      <Route path="search" element={<SearchBooksPage />} />
       <Route path="books/:id" element={<BookDetailsPage />} />
       <Route path="*" element={<Navigate replace to="/dashboard" />} />
     </Routes>

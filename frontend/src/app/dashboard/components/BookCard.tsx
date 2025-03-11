@@ -11,6 +11,7 @@ export default function BookCard({
   className,
   canSave,
   disabled,
+  hideBookInfo,
 }: {
   book: Book & { isSaved: boolean };
   onReserve?: VoidFunction;
@@ -19,6 +20,7 @@ export default function BookCard({
   className?: string;
   canSave?: boolean;
   disabled?: boolean;
+  hideBookInfo?: boolean;
 }) {
   return (
     <div className={cn("flex w-full flex-col gap-2", className)}>
@@ -53,14 +55,16 @@ export default function BookCard({
           )}
         </div>
       </div>
-      <div className="flex flex-col gap-[2px]">
-        <p className="truncate text-sm font-semibold text-base-black">
-          {book.title}
-        </p>
-        <p className="truncate text-xs font-medium text-gray-600">
-          {book.author}
-        </p>
-      </div>
+      {!hideBookInfo && (
+        <div className="flex flex-col gap-[2px]">
+          <p className="truncate text-sm font-semibold text-base-black">
+            {book.title}
+          </p>
+          <p className="truncate text-xs font-medium text-gray-600">
+            {book.author}
+          </p>
+        </div>
+      )}
       <div className="flex flex-col gap-2">
         <Button onClick={onReserve} disabled={disabled}>
           Reserve Book

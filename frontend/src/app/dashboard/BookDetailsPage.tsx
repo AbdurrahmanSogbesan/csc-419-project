@@ -10,10 +10,8 @@ import BookCardSkeleton from "./components/BookCardSkeleton";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
-import { BookOpen, Star } from "lucide-react";
-
-const RATING_COUNT = 135;
-const RATING_VALUE = 4;
+import { BookOpen } from "lucide-react";
+import BookRating from "@/components/BookRating";
 
 const dummySimilarBooks = [
   {
@@ -36,6 +34,10 @@ const dummySimilarBooks = [
         createdAt: "2025-03-07T00:03:23.689Z",
       },
     ],
+    copiesBorrowed: 0,
+    pages: null,
+    language: null,
+    description: null,
   },
   {
     id: "2",
@@ -57,6 +59,10 @@ const dummySimilarBooks = [
         createdAt: "2025-03-07T00:53:51.048Z",
       },
     ],
+    copiesBorrowed: 0,
+    pages: null,
+    language: null,
+    description: null,
   },
   {
     id: "3",
@@ -70,6 +76,10 @@ const dummySimilarBooks = [
     borrowCount: 0,
     createdAt: "2025-03-03T17:26:52.648Z",
     savedBooks: [],
+    copiesBorrowed: 0,
+    pages: null,
+    language: null,
+    description: null,
   },
   {
     id: "4",
@@ -83,6 +93,10 @@ const dummySimilarBooks = [
     borrowCount: 0,
     createdAt: "2025-03-03T17:26:52.648Z",
     savedBooks: [],
+    copiesBorrowed: 0,
+    pages: null,
+    language: null,
+    description: null,
   },
 ];
 
@@ -180,34 +194,19 @@ export default function BookDetailsPage() {
   );
 }
 
-const desc =
-  "Introduction to Computer Science introduces students to the fundamentals of computer science by connecting the dots between applications they use every day and the underlying technologies that power them. Throughout, students learn valuable technical skills including how to write simple JavaScript programs, format a webpage with HTML and CSS code, reduce the size of a file, and more.\n\nOpening chapters of the text provide students with historical background, describe the numbering systems that computers operate with, and explain how computers store and convert data such as images and music. Later chapters explore the anatomy of computer hardware such as CPUs and memory, how computers communicate over networks, and the programming languages that allow us to solve problems using computation. The book concludes with chapters dedicated to security and privacy, the structure and function of operating systems, and the world of e-commerce.\n\nAccessible in approach, Introduction to Computer Science is designed to help non-computer science majors learn how technology and computers power the world around them. The text is well suited for introductory courses in computer science.\nPerry Donham is a lecturer of computer science in the College of Arts & Sciences at Boston University. Mr. Donham previously served as a technical consultant and analyst in the financial services and healthcare fields, helping clients, including HP and IBM, solve performance issues, build new systems, and solve tricky computational problems. In 1995, he launched one of the world's first 10,000 websites, which is still running.";
-
 function BookDetails({ book }: { book: Book }) {
   const productDetails = [
     {
-      label: "Publisher",
-      value: "Cognella Academic Publishing(August 9, 2018)",
-    },
-    {
       label: "Language",
-      value: "English",
+      value: book.language || "English",
     },
     {
       label: "Paperback",
-      value: "100 pages",
+      value: book.pages ? `${book.pages} pages` : "N/A",
     },
     {
       label: "ISBN",
-      value: "978-1-305-07287-3",
-    },
-    {
-      label: "Item Weight",
-      value: "1.14 pounds",
-    },
-    {
-      label: "Dimensions",
-      value: "8 x 0.54 x 10 inches",
+      value: book.ISBN,
     },
     {
       label: "Reviews",
@@ -226,55 +225,33 @@ function BookDetails({ book }: { book: Book }) {
           {book.borrowCount} borrowed
         </p>
       </div>
-      <BookRating />
+      <BookRating ratingCount={135} ratingValue={4} />
 
       <p
-        className="whitespace-pre text-wrap text-base text-gray-600"
-        dangerouslySetInnerHTML={{ __html: desc }}
+        className="mt-4 whitespace-pre text-wrap text-base text-gray-600"
+        dangerouslySetInnerHTML={{
+          __html: book.description || "No description available",
+        }}
       ></p>
 
-      <div className="mt-8 flex flex-col gap-4">
+      <div className="mt-6 flex flex-col gap-4">
         <p className="text-lg font-semibold">Product details</p>
         <div className="flex flex-col gap-2">
           {productDetails.map(({ label, value }) => (
             <div key={label} className="flex items-baseline gap-2">
               <p className="text-gray-600">{label}:</p>
               <div className="font-medium text-gray-800">
-                {typeof value === "string" ? value : value()}
+                {typeof value === "string"
+                  ? value
+                  : value({
+                      ratingCount: 135,
+                      ratingValue: 4,
+                    })}
               </div>
             </div>
           ))}
         </div>
       </div>
-    </div>
-  );
-}
-
-function BookRating() {
-  return (
-    <div className="flex items-center gap-3 text-gray-800">
-      <div className="flex items-center gap-2">
-        <p className="text-sm text-gray-600">
-          <span className="text-base font-semibold">
-            {RATING_VALUE.toFixed(1)}
-          </span>
-          /5
-        </p>
-        <div className="flex gap-1">
-          {Array.from({ length: 5 }).map((_, star) =>
-            star + 1 <= Math.floor(RATING_VALUE) ? (
-              <Star
-                key={star}
-                size={16}
-                className="fill-yellow-400 text-yellow-400"
-              />
-            ) : (
-              <Star key={star} size={16} className="text-yellow-400" />
-            ),
-          )}
-        </div>
-      </div>
-      <p className="text-sm text-gray-600">{RATING_COUNT} ratings</p>
     </div>
   );
 }

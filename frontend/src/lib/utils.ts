@@ -85,3 +85,24 @@ export function processDataByMonth<T extends { createdAt: string }>(
 
   return baseData;
 }
+
+export function getDirtyValues(
+  dirtyFields: object | boolean,
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  allValues: Record<string, any>,
+): object {
+  if (dirtyFields === true || Array.isArray(dirtyFields)) return allValues;
+  return Object.fromEntries(
+    Object.keys(dirtyFields as object).map((key) => [
+      key,
+      getDirtyValues(
+        dirtyFields[key as keyof typeof dirtyFields],
+        allValues[key],
+      ),
+    ]),
+  );
+}
+
+export function buildQueryParams(searchParams: URLSearchParams) {
+  return Object.fromEntries(searchParams.entries());
+}

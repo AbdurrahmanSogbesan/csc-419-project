@@ -8,12 +8,14 @@ export default function SearchBar({
   searchValue,
   onSearchValueChange,
   onEnterPressed,
+  onClear,
 }: {
   className?: string;
   placeholder?: string;
   searchValue?: string;
   onSearchValueChange?: (value: string) => void;
   onEnterPressed?: VoidFunction;
+  onClear?: VoidFunction;
 }) {
   return (
     <div
@@ -39,7 +41,10 @@ export default function SearchBar({
       {searchValue && (
         <X
           className="absolute right-2 top-1/2 size-[16px] -translate-y-1/2 cursor-pointer text-gray-500"
-          onClick={() => onSearchValueChange?.("")}
+          onClick={() => {
+            onSearchValueChange?.("");
+            onClear?.();
+          }}
         />
       )}
     </div>
