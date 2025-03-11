@@ -23,9 +23,9 @@ export class BookService {
       copiesAvailable: book.copiesAvailable ?? 1,
       copiesBorrowed: book.copiesBorrowed ?? 0,
       category: Array.isArray(book.category)
-        ? book.category
+        ? book.category.map((cat) => cat.toLowerCase())
         : book.category
-          ? [book.category]
+          ? [(book.category as string).toLowerCase()]
           : [],
     }));
 
@@ -50,7 +50,11 @@ export class BookService {
       data: {
         ...dto,
         category: dto.category
-          ? { set: Array.isArray(dto.category) ? dto.category : [dto.category] }
+          ? {
+              set: Array.isArray(dto.category)
+                ? dto.category.map((cat) => cat.toLowerCase())
+                : [(dto.category as string).toLowerCase()],
+            }
           : undefined,
       },
     });

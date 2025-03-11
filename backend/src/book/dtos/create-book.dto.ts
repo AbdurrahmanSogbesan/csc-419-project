@@ -19,6 +19,7 @@ class CreateABookDto {
   @IsNotEmpty()
   title: string;
 
+  @IsOptional()
   @IsString()
   @IsNotEmpty()
   imageUrl?: string;
