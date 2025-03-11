@@ -81,8 +81,7 @@ export class BorrowedBooksQueryDto {
   author?: string;
 
   @IsOptional()
-  @IsString()
-  category?: string;
+  category?: string | string[];
 
   @IsOptional()
   @IsString()

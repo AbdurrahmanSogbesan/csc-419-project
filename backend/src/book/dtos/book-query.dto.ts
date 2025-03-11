@@ -23,9 +23,8 @@ export class BookQueryDto {
   @IsOptional()
   author?: string;
 
-  @IsString()
   @IsOptional()
-  category?: string;
+  category?: string | string[];
 
   @IsString()
   @IsOptional()

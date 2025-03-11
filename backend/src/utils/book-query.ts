@@ -4,13 +4,13 @@ export function buildBookFilters(params: {
   search?: string;
   title?: string;
   author?: string;
-  category?: string;
+  category?: string | string[]; // Modified to accept string or string[]
   ISBN?: string;
   publishedYear?: number | string;
   publishedYearStart?: number | string;
   publishedYearEnd?: number | string;
   availabilityStatus?: string;
-  popularBooks?: boolean; // New parameter
+  popularBooks?: boolean;
 }): {
   where: Prisma.BookWhereInput;
   orderBy?: Prisma.BookOrderByWithRelationInput;
@@ -44,7 +44,7 @@ export function buildBookFilters(params: {
       OR: [
         { title: { contains: search, mode: Prisma.QueryMode.insensitive } },
         { author: { contains: search, mode: Prisma.QueryMode.insensitive } },
-        { category: { contains: search, mode: Prisma.QueryMode.insensitive } },
+        { category: { has: search } },
         { ISBN: { contains: search, mode: Prisma.QueryMode.insensitive } },
       ],
     });
@@ -59,10 +59,20 @@ export function buildBookFilters(params: {
     filters.push({
       author: { contains: author, mode: Prisma.QueryMode.insensitive },
     });
-  if (category)
-    filters.push({
-      category: { contains: category, mode: Prisma.QueryMode.insensitive },
-    });
+
+  // Handle category filtering
+  if (category) {
+    if (Array.isArray(category)) {
+      filters.push({
+        category: { hasSome: category },
+      });
+    } else {
+      filters.push({
+        category: { has: category },
+      });
+    }
+  }
+
   if (ISBN)
     filters.push({
       ISBN: { contains: ISBN, mode: Prisma.QueryMode.insensitive },
