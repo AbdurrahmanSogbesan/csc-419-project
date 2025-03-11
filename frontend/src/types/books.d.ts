@@ -5,11 +5,15 @@ type Book = {
   author: string;
   category: string;
   copiesAvailable: number;
+  copiesBorrowed: number;
   publishedYear: number;
   createdAt: string;
-  imageUrl: string | null;
+  imageUrl?: string;
   borrowCount: number;
   savedBooks?: SavedBook[];
+  pages?: number;
+  language?: string;
+  description?: string;
 };
 
 type SavedBook = {

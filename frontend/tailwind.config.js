@@ -101,6 +101,9 @@ export default {
           ring: "hsl(var(--sidebar-ring))",
         },
       },
+      boxShadow: {
+        "books-card": "0px 0px 6px 2px #A3A3A317",
+      },
     },
   },
   plugins: [require("tailwindcss-animate")],
