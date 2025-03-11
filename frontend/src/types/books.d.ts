@@ -8,12 +8,12 @@ type Book = {
   copiesBorrowed: number;
   publishedYear: number;
   createdAt: string;
-  imageUrl: string;
+  imageUrl?: string;
   borrowCount: number;
   savedBooks?: SavedBook[];
-  pages: number;
-  language: string;
-  description: string;
+  pages?: number;
+  language?: string;
+  description?: string;
 };
 
 type SavedBook = {

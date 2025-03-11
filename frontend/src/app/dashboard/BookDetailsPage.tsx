@@ -22,7 +22,7 @@ const dummySimilarBooks = [
     category: "Children's Literature",
     copiesAvailable: 6,
     publishedYear: 1950,
-    imageUrl: null,
+    imageUrl: "https://placehold.co/100x100",
     borrowCount: 0,
     createdAt: "2025-03-03T17:26:52.648Z",
     savedBooks: [
@@ -35,9 +35,10 @@ const dummySimilarBooks = [
       },
     ],
     copiesBorrowed: 0,
-    pages: null,
-    language: null,
-    description: null,
+    pages: 12,
+    language: "English",
+    description:
+      "The Brothers Karamazov is a novel by the Russian author Fyodor Dostoevsky. It is the last of his great novels, and the first to feature the philosophical and ethical concerns that would become central to his work.",
   },
   {
     id: "2",
@@ -47,7 +48,7 @@ const dummySimilarBooks = [
     category: "Adventure",
     copiesAvailable: 2,
     publishedYear: 1950,
-    imageUrl: null,
+    imageUrl: "https://placehold.co/100x100",
     borrowCount: 0,
     createdAt: "2025-03-03T17:26:52.648Z",
     savedBooks: [
@@ -60,9 +61,10 @@ const dummySimilarBooks = [
       },
     ],
     copiesBorrowed: 0,
-    pages: null,
-    language: null,
-    description: null,
+    pages: 12,
+    language: "English",
+    description:
+      "The Brothers Karamazov is a novel by the Russian author Fyodor Dostoevsky. It is the last of his great novels, and the first to feature the philosophical and ethical concerns that would become central to his work.",
   },
   {
     id: "3",
@@ -72,14 +74,15 @@ const dummySimilarBooks = [
     category: "Horror",
     copiesAvailable: 4,
     publishedYear: 1950,
-    imageUrl: null,
+    imageUrl: "https://placehold.co/100x100",
     borrowCount: 0,
     createdAt: "2025-03-03T17:26:52.648Z",
     savedBooks: [],
     copiesBorrowed: 0,
-    pages: null,
-    language: null,
-    description: null,
+    pages: 12,
+    language: "English",
+    description:
+      "The Brothers Karamazov is a novel by the Russian author Fyodor Dostoevsky. It is the last of his great novels, and the first to feature the philosophical and ethical concerns that would become central to his work.",
   },
   {
     id: "4",
@@ -89,14 +92,15 @@ const dummySimilarBooks = [
     category: "Biography",
     copiesAvailable: 7,
     publishedYear: 1993,
-    imageUrl: null,
+    imageUrl: "https://placehold.co/100x100",
     borrowCount: 0,
     createdAt: "2025-03-03T17:26:52.648Z",
     savedBooks: [],
     copiesBorrowed: 0,
-    pages: null,
-    language: null,
-    description: null,
+    pages: 12,
+    language: "English",
+    description:
+      "The Brothers Karamazov is a novel by the Russian author Fyodor Dostoevsky. It is the last of his great novels, and the first to feature the philosophical and ethical concerns that would become central to his work.",
   },
 ];
 
