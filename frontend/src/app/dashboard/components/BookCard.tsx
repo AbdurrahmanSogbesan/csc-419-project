@@ -13,7 +13,7 @@ export default function BookCard({
   disabled,
   hideBookInfo,
 }: {
-  book: Book & { isSaved: boolean };
+  book: Book & { isSaved?: boolean; isReserved?: boolean };
   onReserve?: VoidFunction;
   onSave?: VoidFunction;
   onCardClick?: VoidFunction;
@@ -66,8 +66,8 @@ export default function BookCard({
         </div>
       )}
       <div className="flex flex-col gap-2">
-        <Button onClick={onReserve} disabled={disabled}>
-          Reserve Book
+        <Button onClick={onReserve} disabled={disabled || book.isReserved}>
+          {book.isReserved ? "Book Reserved" : "Reserve Book"}
         </Button>
         {canSave && (
           <Button variant="outline" onClick={onSave} disabled={disabled}>

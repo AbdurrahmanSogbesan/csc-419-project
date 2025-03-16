@@ -38,7 +38,7 @@ export class AuthController {
 
   @Get('me')
   async me(@Request() req) {
-    return req.user;
+    return await this.authService.findOne(+req.user.userId);
   }
 
   @Get('stats')

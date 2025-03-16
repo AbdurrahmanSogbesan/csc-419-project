@@ -21,7 +21,11 @@ api.interceptors.request.use((config) => {
 
 api.interceptors.response.use(
   (res) => {
-    if (res.data?.errorMessage || (res.status !== 200 && res.data?.message)) {
+    if (
+      res.data?.errorMessage ||
+      // only show error message if it's not a 2xx status code
+      ((res.status < 200 || res.status >= 300) && res.data?.message)
+    ) {
       const errorMessage =
         res.data?.errorMessage || convertArrayToString(res.data?.message);
       const error = new Error(errorMessage) as AxiosError;

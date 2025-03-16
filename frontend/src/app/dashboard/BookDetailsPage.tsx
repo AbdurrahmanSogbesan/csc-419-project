@@ -12,6 +12,7 @@ import { useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { BookOpen } from "lucide-react";
 import BookRating from "@/components/BookRating";
+import { checkIfBookIsReserved } from "@/lib/utils";
 
 const dummySimilarBooks = [
   {
@@ -122,10 +123,15 @@ export default function BookDetailsPage() {
       toast.success("Book removed from saved successfully");
     });
 
-  const updatingSavedBooks = isSavingBook || isDeletingSavedBook;
+  const updatingBooks = isSavingBook || isDeletingSavedBook;
 
   const isSaved = book?.savedBooks?.some(
     (savedBook) => savedBook.userId === user?.id,
+  );
+
+  const isReserved = checkIfBookIsReserved(
+    book?.reservations ?? [],
+    user?.id as string,
   );
 
   return (
@@ -142,13 +148,13 @@ export default function BookDetailsPage() {
         ) : book ? (
           <>
             <BookCard
-              book={{ ...book, isSaved: isSaved ?? false }}
+              book={{ ...book, isSaved, isReserved }}
               className="flex-shrink-0 self-center sm:max-w-[261.7px] md:self-start"
               canSave
               onSave={() =>
                 isSaved ? deleteSavedBook(book.id) : saveBook(book.id)
               }
-              disabled={updatingSavedBooks}
+              disabled={updatingBooks}
             />
             {/* <div className="flex flex-col md:overflow-y-auto md:pr-4"> */}
             <BookDetails book={book} />
@@ -172,14 +178,14 @@ export default function BookDetailsPage() {
             return (
               <BookCard
                 key={book.id}
-                book={{ ...book, isSaved: isSaved ?? false }}
+                book={{ ...book, isSaved }}
                 onReserve={() => {}}
                 onSave={() =>
                   isSaved ? deleteSavedBook(book.id) : saveBook(book.id)
                 }
-                disabled={updatingSavedBooks}
+                disabled={updatingBooks}
                 onCardClick={
-                  updatingSavedBooks
+                  updatingBooks
                     ? undefined
                     : () => {
                         window.scrollTo({

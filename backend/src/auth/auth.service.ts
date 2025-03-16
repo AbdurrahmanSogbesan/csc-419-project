@@ -31,17 +31,8 @@ export class AuthService {
       phone: true,
       createdAt: true,
 
-      // Include related data
-      borrowedBooks: {
-        select: {
-          id: true,
-          book: true,
-          borrowDate: true,
-          returnDate: true,
-        },
-        take: 10, // Limit to recent borrowings
-        orderBy: { borrowDate: 'desc' as const },
-      },
+      borrowedBooks: true,
+      reservations: true,
     };
   }
 

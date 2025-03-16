@@ -1,4 +1,9 @@
-import { useDeleteSavedBook, useGetBooks, useSaveBook } from "@/hooks/books";
+import {
+  useDeleteSavedBook,
+  useGetBooks,
+  useReserveBook,
+  useSaveBook,
+} from "@/hooks/books";
 import { BookOpen } from "lucide-react";
 import { useNavigate, useSearchParams } from "react-router";
 import BookCard from "./components/BookCard";
@@ -9,7 +14,7 @@ import { useRef, useEffect, useState } from "react";
 import { toast } from "sonner";
 import BookCardSkeleton from "./components/BookCardSkeleton";
 import { Skeleton } from "@/components/ui/skeleton";
-import { buildQueryParams } from "@/lib/utils";
+import { buildQueryParams, checkIfBookIsReserved } from "@/lib/utils";
 import NoResults from "@/components/NoResults";
 
 export default function SearchBooksPage() {
@@ -18,9 +23,10 @@ export default function SearchBooksPage() {
 
   const user = useAuthStore((s) => s.user);
 
-  const { data: books, isLoading: loadingBooks } = useGetBooks(
-    buildQueryParams(searchParams),
-  );
+  const { data: books, isLoading: loadingBooks } = useGetBooks({
+    ...buildQueryParams(searchParams),
+    popularBooks: true,
+  });
 
   const { mutate: saveBook, isPending: isSavingBook } = useSaveBook(() => {
     toast.success("Book saved successfully");
@@ -31,7 +37,10 @@ export default function SearchBooksPage() {
       toast.success("Book removed from saved successfully");
     });
 
-  const updatingSavedBooks = isSavingBook || isDeletingSavedBook;
+  const { mutate: reserveBook, isPending: isReservingBook } = useReserveBook();
+
+  const updatingSavedBooks =
+    isSavingBook || isDeletingSavedBook || isReservingBook;
 
   return (
     <div className="flex flex-1 flex-col gap-4">
@@ -44,15 +53,20 @@ export default function SearchBooksPage() {
           const isSaved = book.savedBooks?.some(
             (savedBook) => savedBook.userId === user?.id,
           );
+          const isReserved = checkIfBookIsReserved(
+            book.reservations ?? [],
+            user?.id as string,
+          );
           return (
             <BookCardItem
               key={book.id}
               book={book}
               isSaved={isSaved}
+              isReserved={isReserved}
               onSave={() =>
                 isSaved ? deleteSavedBook(book.id) : saveBook(book.id)
               }
-              onReserve={() => {}}
+              onReserve={() => reserveBook(book.id)}
               disabled={updatingSavedBooks}
               onCardClick={
                 updatingSavedBooks
@@ -73,7 +87,7 @@ export default function SearchBooksPage() {
 
 function BookCardItemSkeleton() {
   return (
-    <div className="shadow-books-card flex max-h-[unset] flex-col items-center gap-7 rounded-[16px] bg-gray-50 p-4 md:max-h-[400px] md:flex-row md:items-start md:gap-6">
+    <div className="flex max-h-[unset] flex-col items-center gap-7 rounded-[16px] bg-gray-50 p-4 shadow-books-card md:max-h-[400px] md:flex-row md:items-start md:gap-6">
       <BookCardSkeleton hideBookInfo className="max-w-[261.75px]" />
       <div className="flex w-full flex-1 flex-col gap-2 self-start">
         <div className="flex flex-col gap-1">
@@ -91,6 +105,7 @@ function BookCardItemSkeleton() {
 function BookCardItem({
   book,
   isSaved,
+  isReserved,
   onSave,
   onReserve,
   disabled,
@@ -98,6 +113,7 @@ function BookCardItem({
 }: {
   book: Book;
   isSaved?: boolean;
+  isReserved?: boolean;
   onSave: VoidFunction;
   onReserve: VoidFunction;
   disabled: boolean;
@@ -114,9 +130,9 @@ function BookCardItem({
   }, [book.description]);
 
   return (
-    <div className="shadow-books-card flex max-h-[unset] flex-col items-center gap-7 rounded-[16px] bg-gray-50 p-4 md:max-h-[400px] md:flex-row md:items-start md:gap-6">
+    <div className="flex max-h-[unset] flex-col items-center gap-7 rounded-[16px] bg-gray-50 p-4 shadow-books-card md:max-h-[400px] md:flex-row md:items-start md:gap-6">
       <BookCard
-        book={{ ...book, isSaved: isSaved ?? false }}
+        book={{ ...book, isSaved, isReserved }}
         onSave={onSave}
         onReserve={onReserve}
         disabled={disabled}

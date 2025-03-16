@@ -1,6 +1,11 @@
 import { cn } from "@/lib/utils";
 
-export type Status = "returned" | "overdue" | "reserved" | "borrowed";
+export type Status =
+  | "returned"
+  | "overdue"
+  | "reserved"
+  | "borrowed"
+  | "cancelled";
 
 const statusMap: Record<Status, { text: string; style: string }> = {
   reserved: {
@@ -15,6 +20,10 @@ const statusMap: Record<Status, { text: string; style: string }> = {
   returned: {
     text: "Returned",
     style: "bg-badge-greenBg border-badge-greenBorder",
+  },
+  cancelled: {
+    text: "Cancelled",
+    style: "bg-gray-200 border-gray-300",
   },
 };
 
