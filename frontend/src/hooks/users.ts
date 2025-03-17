@@ -7,3 +7,10 @@ export const useGetUsers = (params: GetUsersParams) => {
     queryFn: () => apiGet<GetUsersReponse>("/auth", { params }),
   });
 };
+
+export const useGetAuthUser = () => {
+  return useQuery({
+    queryKey: ["getAuthUser"],
+    queryFn: () => apiGet<User>("/auth/me"),
+  });
+};

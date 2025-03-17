@@ -7,6 +7,7 @@ type User = {
   role: UserRole;
   createdAt: string;
   borrowedBooks?: BorrowedBook[];
+  reservations?: Reservation[];
 };
 
 type UserRole = "ADMIN" | "MEMBER";

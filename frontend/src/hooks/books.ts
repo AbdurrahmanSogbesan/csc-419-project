@@ -19,6 +19,7 @@ export const useGetSavedBooks = (params: GetBooksQueryParams) => {
 export const useSaveBook = (onSuccess?: (data: Book[]) => void) => {
   const queryClient = useQueryClient();
   return useMutation({
+    mutationKey: ["saveBook"],
     mutationFn: (bookId: string) => apiPost<Book[]>(`/books/${bookId}/save`),
     onSuccess: (data) => {
       queryClient.refetchQueries({ queryKey: ["getSavedBooks"] });
@@ -35,6 +36,7 @@ export const useSaveBook = (onSuccess?: (data: Book[]) => void) => {
 export const useDeleteSavedBook = (onSuccess?: (data: Book[]) => void) => {
   const queryClient = useQueryClient();
   return useMutation({
+    mutationKey: ["deleteSavedBook"],
     mutationFn: (bookId: string) => apiDelete<Book[]>(`/books/saved/${bookId}`),
     onSuccess: (data) => {
       queryClient.refetchQueries({ queryKey: ["getSavedBooks"] });
@@ -53,5 +55,28 @@ export const useGetBookDetails = (bookId?: string) => {
     queryKey: ["getBookDetails", bookId],
     queryFn: () => apiGet<Book>(`/books/${bookId}`),
     enabled: !!bookId,
+  });
+};
+
+export const useReserveBook = (
+  onSuccess?: (data: { message: string; reservation: Reservation }) => void,
+) => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationKey: ["reserveBook"],
+    mutationFn: (bookId: string) =>
+      apiPost<{ message: string; reservation: Reservation }>(
+        `/reservation/${bookId}/reserve`,
+      ),
+    onSuccess: (data) => {
+      queryClient.refetchQueries({ queryKey: ["getBooks"] });
+      queryClient.refetchQueries({ queryKey: ["getSavedBooks"] });
+      toast.success(data.message || "Book reserved successfully");
+      onSuccess?.(data);
+    },
+    onError(error) {
+      console.log(error);
+      toast.error("Failed to reserve book");
+    },
   });
 };

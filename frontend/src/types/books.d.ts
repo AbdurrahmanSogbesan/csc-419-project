@@ -14,6 +14,7 @@ type Book = {
   pages?: number;
   language?: string;
   description?: string;
+  reservations?: Reservation[];
 };
 
 type SavedBook = {
@@ -49,4 +50,24 @@ type BorrowedBook = {
   user?: User;
   bookId?: string;
   book?: Book;
+};
+
+type ReservationStatus =
+  | "RESERVED"
+  | "BORROWED"
+  | "RETURNED"
+  | "OVERDUE"
+  | "CANCELLED";
+
+type Reservation = {
+  id: string;
+  uuid: string;
+  userId?: string;
+  user?: User;
+  bookId?: string;
+  book?: Book;
+  reservationDate: string;
+  reservedUntil: string | null;
+  status: ReservationStatus;
+  notified: boolean;
 };

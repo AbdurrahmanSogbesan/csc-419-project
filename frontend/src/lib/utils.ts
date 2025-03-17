@@ -106,3 +106,20 @@ export function getDirtyValues(
 export function buildQueryParams(searchParams: URLSearchParams) {
   return Object.fromEntries(searchParams.entries());
 }
+
+export function checkIfBookIsReserved(
+  reservations: Reservation[],
+  userId: string,
+) {
+  return reservations.some(
+    (reservation) =>
+      reservation.userId === userId && reservation.status === "RESERVED",
+  );
+}
+
+export function getBookCountForStatus(
+  reservations: Reservation[],
+  status: ReservationStatus,
+) {
+  return reservations.filter((book) => book.status === status).length;
+}

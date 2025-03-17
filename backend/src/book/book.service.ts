@@ -71,7 +71,7 @@ export class BookService {
     const { where, orderBy } = buildBookFilters(query);
 
     // Properly merge the default filter with the dynamic where conditions
-    const combinedWhere = {
+    const combinedWhere: Prisma.BookWhereInput = {
       AND: [
         { copiesAvailable: { gt: 0 } }, // Default filter for books with copies available
         ...(Object.keys(where).length > 0 ? [where] : []),
@@ -81,14 +81,14 @@ export class BookService {
     return this.prisma.book.findMany({
       where: combinedWhere,
       orderBy,
-      include: { savedBooks: true }, // Apply sorting
+      include: { savedBooks: true, reservations: true },
     });
   }
 
   async getBookById(id: bigint): Promise<BookResponseDto> {
     const book = await this.prisma.book.findFirst({
       where: { id, copiesAvailable: { gt: 0 } },
-      include: { savedBooks: true },
+      include: { savedBooks: true, reservations: true },
     });
     if (!book) throw new NotFoundException('Book not found or unavailable');
     return book;
@@ -240,7 +240,11 @@ export class BookService {
 
     return this.prisma.savedBook.findMany({
       where,
-      include: { book: true },
+      include: {
+        book: {
+          include: { reservations: true },
+        },
+      },
       orderBy: orderBy ? { book: orderBy } : undefined,
     });
   }

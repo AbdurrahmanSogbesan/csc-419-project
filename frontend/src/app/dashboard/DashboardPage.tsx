@@ -1,23 +1,23 @@
-import { useState } from "react";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
+import { useMemo, useState } from "react";
 import { format } from "date-fns";
 import { Status, StatusCell } from "@/components/StatusCell";
 import BookCard from "./components/BookCard";
 import TabsFilter from "@/components/TabsFilter";
-import { useDeleteSavedBook, useGetBooks, useSaveBook } from "@/hooks/books";
+import {
+  useDeleteSavedBook,
+  useGetBooks,
+  useReserveBook,
+  useSaveBook,
+} from "@/hooks/books";
 import BookCardSkeleton from "./components/BookCardSkeleton";
 import { useAuthStore } from "@/lib/stores/auth";
 import { useNavigate } from "react-router";
 import { toast } from "sonner";
+import { ColumnDef } from "@tanstack/react-table";
+import { DataTable } from "@/components/DataTable";
+import { checkIfBookIsReserved } from "@/lib/utils";
 
-const loanedBooks = [
+const bookReservations = [
   {
     title: "The Great Gatsby",
     author: "F. Scott Fitzgerald",
@@ -73,15 +73,42 @@ const dummyTabs: Tab[] = [
   { label: "Borrowed", count: 10, value: "borrowed" },
   { label: "Reserved", count: 5, value: "reserved" },
   { label: "Returned", count: 2, value: "returned" },
+  { label: "Overdue", count: 2, value: "overdue" },
 ];
 
-const loanBookHeaders = [
-  "Title",
-  "Author",
-  "Date Borrowed",
-  "Date Returned",
-  "Return Date",
-  "Status",
+const reservedBookColumns: ColumnDef<(typeof bookReservations)[number]>[] = [
+  {
+    header: "Title",
+    accessorKey: "title",
+  },
+  {
+    header: "Author",
+    accessorKey: "author",
+  },
+  {
+    header: "Date Borrowed",
+    accessorKey: "borrowedDate",
+    cell: ({ row }) => format(row.original.borrowedDate, "d MMM yyyy"),
+  },
+  {
+    header: "Date Returned",
+    accessorKey: "returnDate",
+    cell: ({ row }) => format(row.original.returnDate, "d MMM yyyy"),
+  },
+  {
+    header: "Return Deadline",
+    accessorKey: "dueDate",
+    cell: ({ row }) => format(row.original.dueDate, "d MMM yyyy"),
+  },
+  {
+    header: "Status",
+    accessorKey: "status",
+    cell: ({ row }) => {
+      return (
+        <StatusCell status={row.original.status.toLowerCase() as Status} />
+      );
+    },
+  },
 ];
 
 export default function DashboardPage() {
@@ -104,7 +131,17 @@ export default function DashboardPage() {
       toast.success("Book removed from saved successfully");
     });
 
-  const updatingSavedBooks = isSavingBook || isDeletingSavedBook;
+  const { mutate: reserveBook, isPending: isReservingBook } = useReserveBook();
+
+  const updatingBooks = isSavingBook || isDeletingSavedBook || isReservingBook;
+
+  const displayedBooks = useMemo(
+    () =>
+      bookReservations.filter((book) =>
+        selectedTab == "all" ? book : book.status.toLowerCase() === selectedTab,
+      ),
+    [selectedTab],
+  );
 
   return (
     <div className="flex flex-col gap-6">
@@ -123,17 +160,21 @@ export default function DashboardPage() {
             const isSaved = book.savedBooks?.some(
               (savedBook) => savedBook.userId === user?.id,
             );
+            const isReserved = checkIfBookIsReserved(
+              book.reservations ?? [],
+              user?.id as string,
+            );
             return (
               <BookCard
                 key={book.id}
-                book={{ ...book, isSaved: isSaved ?? false }}
-                onReserve={() => {}}
+                book={{ ...book, isSaved, isReserved }}
+                onReserve={() => reserveBook(book.id)}
                 onSave={() =>
                   isSaved ? deleteSavedBook(book.id) : saveBook(book.id)
                 }
-                disabled={updatingSavedBooks}
+                disabled={updatingBooks}
                 onCardClick={
-                  updatingSavedBooks
+                  updatingBooks
                     ? undefined
                     : () => {
                         navigate(`/dashboard/books/${book.id}`);
@@ -164,41 +205,11 @@ export default function DashboardPage() {
             onTabClick={setSelectedTab}
           />
 
-          <Table className="border">
-            <TableHeader>
-              <TableRow>
-                {loanBookHeaders.map((header) => (
-                  <TableHead key={header}>{header}</TableHead>
-                ))}
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {loanedBooks
-                .filter((book) =>
-                  selectedTab === "all"
-                    ? book
-                    : book.status.toLowerCase() === selectedTab,
-                )
-                .map((book, index) => (
-                  <TableRow key={index}>
-                    <TableCell>{book.title}</TableCell>
-                    <TableCell>{book.author}</TableCell>
-                    <TableCell>
-                      {format(book.borrowedDate, "d MMM yyyy")}
-                    </TableCell>
-                    <TableCell>{format(book.dueDate, "d MMM yyyy")}</TableCell>
-                    <TableCell>
-                      {format(book.returnDate, "d MMM yyyy")}
-                    </TableCell>
-                    <TableCell>
-                      <StatusCell
-                        status={book.status.toLowerCase() as Status}
-                      />
-                    </TableCell>
-                  </TableRow>
-                ))}
-            </TableBody>
-          </Table>
+          <DataTable
+            columns={reservedBookColumns}
+            data={displayedBooks}
+            pagination
+          />
         </div>
       </div>
     </div>

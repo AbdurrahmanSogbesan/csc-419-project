@@ -1,10 +1,14 @@
-import { useDeleteSavedBook, useGetSavedBooks } from "@/hooks/books";
+import {
+  useDeleteSavedBook,
+  useGetSavedBooks,
+  useReserveBook,
+} from "@/hooks/books";
 
 import { toast } from "sonner";
 import BookCardSkeleton from "../dashboard/components/BookCardSkeleton";
 import BookCard from "../dashboard/components/BookCard";
 import { useNavigate, useSearchParams } from "react-router";
-import { buildQueryParams } from "@/lib/utils";
+import { buildQueryParams, checkIfBookIsReserved } from "@/lib/utils";
 import NoResults from "@/components/NoResults";
 
 export default function SavedBooks() {
@@ -21,7 +25,9 @@ export default function SavedBooks() {
       toast.success("Book removed from saved successfully");
     });
 
-  const updatingSavedBooks = isDeletingSavedBook;
+  const { mutate: reserveBook, isPending: isReservingBook } = useReserveBook();
+
+  const updatingSavedBooks = isDeletingSavedBook || isReservingBook;
   return (
     <div className="flex flex-1 flex-col gap-6">
       <p className="text-sm text-gray-600 md:text-base">
@@ -37,17 +43,29 @@ export default function SavedBooks() {
       ) : savedBooks && savedBooks.length > 0 ? (
         <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
           {savedBooks.map((savedBook) => {
+            const isReserved = checkIfBookIsReserved(
+              savedBook.book?.reservations ?? [],
+              savedBook.userId as string,
+            );
             return (
               <BookCard
                 key={savedBook.id}
-                book={{ ...(savedBook.book as Book), isSaved: true }}
-                onReserve={() => {}}
+                book={{
+                  ...(savedBook.book as Book),
+                  isSaved: true,
+                  isReserved,
+                }}
+                onReserve={() => reserveBook(savedBook.bookId as string)}
                 onSave={() => deleteSavedBook(savedBook.bookId as string)}
                 disabled={updatingSavedBooks}
                 onCardClick={
                   updatingSavedBooks
                     ? undefined
                     : () => {
+                        window.scrollTo({
+                          top: 0,
+                          behavior: "smooth",
+                        });
                         navigate(`/saved-books/${savedBook.bookId}`);
                       }
                 }

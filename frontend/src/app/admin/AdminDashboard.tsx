@@ -143,46 +143,54 @@ export default function AdminDashboard() {
           <ChartCard>
             <p className="font-medium">No. of Users</p>
             <CardContent className="flex-1 p-0 md:p-6">
-              <ChartContainer
-                config={userChartConfig}
-                className="mx-auto h-full max-h-[250px] w-full"
-              >
-                <BarChart
-                  accessibilityLayer
-                  margin={{ left: -25 }}
-                  data={userChartData}
+              {usersData && usersData.users.length > 0 ? (
+                <ChartContainer
+                  config={userChartConfig}
+                  className="mx-auto h-full max-h-[250px] w-full"
                 >
-                  <CartesianGrid vertical={false} />
-                  <XAxis
-                    dataKey="month"
-                    tickLine={false}
-                    axisLine={false}
-                    tickMargin={8}
-                    tickFormatter={(value) => value.slice(0, 3)}
-                  />
-                  <YAxis
-                    tickLine={false}
-                    axisLine={false}
-                    tickMargin={8}
-                    tickFormatter={(value) => value.toLocaleString()}
-                  />
-                  <ChartTooltip
-                    cursor={false}
-                    content={
-                      <ChartTooltipContent labelFormatter={(label) => label} />
-                    }
-                  />
-                  <Bar
-                    dataKey="users"
-                    fill="var(--color-users)"
-                    radius={[4, 4, 0, 0]}
-                  />
-                  <ChartLegend
-                    content={<ChartLegendContent nameKey="users" />}
-                    className="-translate-y-2 flex-wrap gap-2 [&>*]:basis-1/4 [&>*]:justify-center"
-                  />
-                </BarChart>
-              </ChartContainer>
+                  <BarChart
+                    accessibilityLayer
+                    margin={{ left: -25 }}
+                    data={userChartData}
+                  >
+                    <CartesianGrid vertical={false} />
+                    <XAxis
+                      dataKey="month"
+                      tickLine={false}
+                      axisLine={false}
+                      tickMargin={8}
+                      tickFormatter={(value) => value.slice(0, 3)}
+                    />
+                    <YAxis
+                      tickLine={false}
+                      axisLine={false}
+                      tickMargin={8}
+                      tickFormatter={(value) => value.toLocaleString()}
+                    />
+                    <ChartTooltip
+                      cursor={false}
+                      content={
+                        <ChartTooltipContent
+                          labelFormatter={(label) => label}
+                        />
+                      }
+                    />
+                    <Bar
+                      dataKey="users"
+                      fill="var(--color-users)"
+                      radius={[4, 4, 0, 0]}
+                    />
+                    <ChartLegend
+                      content={<ChartLegendContent nameKey="users" />}
+                      className="-translate-y-2 flex-wrap gap-2 [&>*]:basis-1/4 [&>*]:justify-center"
+                    />
+                  </BarChart>
+                </ChartContainer>
+              ) : (
+                <p className="text-center text-sm text-gray-500">
+                  No users found
+                </p>
+              )}
             </CardContent>
           </ChartCard>
         )}
