@@ -13,7 +13,9 @@ export function buildBookFilters(params: {
   popularBooks?: boolean;
 }): {
   where: Prisma.BookWhereInput;
-  orderBy?: Prisma.BookOrderByWithRelationInput;
+  orderBy?:
+    | Prisma.BookOrderByWithRelationInput
+    | Prisma.BookOrderByWithRelationInput[];
 } {
   const {
     search,
@@ -93,9 +95,17 @@ export function buildBookFilters(params: {
   }
 
   // Define orderBy using Prisma.SortOrder
-  const orderBy: Prisma.BookOrderByWithRelationInput | undefined = popularBooks
-    ? { borrowCount: Prisma.SortOrder.desc }
-    : undefined;
+  const orderBy: Prisma.BookOrderByWithRelationInput[] = popularBooks
+    ? [
+        { borrowCount: Prisma.SortOrder.desc },
+        { reservations: { _count: Prisma.SortOrder.desc } }, // Consider reservations for popularity
+        { copiesAvailable: Prisma.SortOrder.desc },
+      ]
+    : [
+        { copiesBorrowed: Prisma.SortOrder.desc },
+        { reservations: { _count: Prisma.SortOrder.desc } }, // Consider reservations
+        { borrowCount: Prisma.SortOrder.desc },
+      ];
 
   return {
     where: filters.length > 0 ? { AND: filters } : {},

@@ -1,10 +1,15 @@
-import { Controller, Param, Post, Request } from '@nestjs/common';
+import { Controller, Get, Param, Post, Query, Request } from '@nestjs/common';
 import { ReservationService } from './reservation.service';
 import { Public } from 'src/common/decorators/public.decorator';
 
 @Controller('reservation')
 export class ReservationController {
   constructor(private readonly reservationService: ReservationService) {}
+
+  @Get()
+  async getAllReservations(@Query() query: any) {
+    return this.reservationService.getReservations(query);
+  }
 
   @Public()
   @Post('trigger-pickup-deadline-check')
