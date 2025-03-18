@@ -25,7 +25,6 @@ export default function SearchBooksPage() {
 
   const { data: books, isLoading: loadingBooks } = useGetBooks({
     ...buildQueryParams(searchParams),
-    popularBooks: true,
   });
 
   const { mutate: saveBook, isPending: isSavingBook } = useSaveBook(() => {

@@ -72,10 +72,7 @@ export class BookService {
 
     // Properly merge the default filter with the dynamic where conditions
     const combinedWhere: Prisma.BookWhereInput = {
-      AND: [
-        { copiesAvailable: { gt: 0 } }, // Default filter for books with copies available
-        ...(Object.keys(where).length > 0 ? [where] : []),
-      ],
+      AND: [...(Object.keys(where).length > 0 ? [where] : [])],
     };
 
     return this.prisma.book.findMany({

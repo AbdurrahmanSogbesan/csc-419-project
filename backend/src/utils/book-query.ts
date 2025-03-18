@@ -87,25 +87,24 @@ export function buildBookFilters(params: {
     filters.push({ publishedYear: { gte: pubYearStart, lte: pubYearEnd } });
   }
 
-  // Add availability filter
-  if (availabilityStatus === 'available') {
-    filters.push({ copiesAvailable: { gt: 0 } });
-  } else if (availabilityStatus === 'unavailable') {
+  // Add unavailability filter
+  if (availabilityStatus === 'unavailable') {
     filters.push({ copiesAvailable: 0 });
   }
 
-  // Define orderBy using Prisma.SortOrder
   const orderBy: Prisma.BookOrderByWithRelationInput[] = popularBooks
     ? [
         { borrowCount: Prisma.SortOrder.desc },
-        { reservations: { _count: Prisma.SortOrder.desc } }, // Consider reservations for popularity
-        { copiesAvailable: Prisma.SortOrder.desc },
-      ]
-    : [
         { copiesBorrowed: Prisma.SortOrder.desc },
-        { reservations: { _count: Prisma.SortOrder.desc } }, // Consider reservations
-        { borrowCount: Prisma.SortOrder.desc },
-      ];
+        { createdAt: Prisma.SortOrder.desc },
+        // may mess with ordering as its static. investigate later
+        { id: Prisma.SortOrder.asc },
+
+        // todo: cant use because it affects book ordering once a reservation is made
+        // { reservations: { _count: Prisma.SortOrder.desc } }, // Consider reservations for popularity
+        // { copiesAvailable: Prisma.SortOrder.desc },
+      ]
+    : [{ createdAt: Prisma.SortOrder.desc }, { title: Prisma.SortOrder.asc }];
 
   return {
     where: filters.length > 0 ? { AND: filters } : {},

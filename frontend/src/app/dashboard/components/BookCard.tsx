@@ -66,8 +66,15 @@ export default function BookCard({
         </div>
       )}
       <div className="flex flex-col gap-2">
-        <Button onClick={onReserve} disabled={disabled || book.isReserved}>
-          {book.isReserved ? "Book Reserved" : "Reserve Book"}
+        <Button
+          onClick={onReserve}
+          disabled={disabled || book.isReserved || book.copiesAvailable === 0}
+        >
+          {book.isReserved
+            ? "Book Reserved"
+            : book.copiesAvailable === 0
+              ? "Out of Stock"
+              : "Reserve Book"}
         </Button>
         {canSave && (
           <Button variant="outline" onClick={onSave} disabled={disabled}>
