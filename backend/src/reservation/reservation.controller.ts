@@ -1,14 +1,18 @@
 import { Controller, Get, Param, Post, Query, Request } from '@nestjs/common';
 import { ReservationService } from './reservation.service';
 import { Public } from 'src/common/decorators/public.decorator';
+import { ReservationQueryDto } from './dtos/reservation-query.dto';
 
 @Controller('reservation')
 export class ReservationController {
   constructor(private readonly reservationService: ReservationService) {}
 
   @Get()
-  async getAllReservations(@Query() query: any) {
-    return this.reservationService.getReservations(query);
+  async getReservations(@Query() query: ReservationQueryDto, @Request() req) {
+    return this.reservationService.getReservations({
+      ...query,
+      userId: req.user.userId,
+    });
   }
 
   @Public()

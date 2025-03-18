@@ -6,8 +6,15 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { Cron, CronExpression } from '@nestjs/schedule';
-import { FineStatus, ReservationStatus, TransactionType } from '@prisma/client';
+import {
+  FineStatus,
+  Prisma,
+  ReservationStatus,
+  TransactionType,
+} from '@prisma/client';
 import { PrismaService } from 'src/prisma/prisma.service';
+import { buildBookFilters } from 'src/utils/book-query';
+import { ReservationQueryDto } from './dtos/reservation-query.dto';
 
 @Injectable()
 export class ReservationService {
@@ -540,31 +547,98 @@ export class ReservationService {
     });
   }
 
-  async getReservations(query: {
-    userId?: string;
-    bookId?: string;
-    status?: ReservationStatus;
-    page?: string;
-    pageSize?: string;
-  }) {
-    const { userId, bookId, status, page = '1', pageSize = '10' } = query;
+  async getReservations(query: ReservationQueryDto) {
+    const {
+      userId,
+      bookId,
+      status,
+      startDate,
+      endDate,
+      notified,
+      reservationId,
+      page = '1',
+      pageSize = '10',
+      ...bookFilterParams
+    } = query;
 
+    // Build reservation-specific filters
     const filters: any = {};
-    if (userId) filters.userId = Number(userId);
-    if (bookId) filters.bookId = Number(bookId);
+
+    if (userId) filters.userId = BigInt(userId);
+    if (bookId) filters.bookId = BigInt(bookId);
     if (status) filters.status = status;
+    if (reservationId) filters.id = BigInt(reservationId);
+
+    // Add date range filters
+    if (startDate || endDate) {
+      filters.reservationDate = {};
+      if (startDate) filters.reservationDate.gte = new Date(startDate);
+      if (endDate) filters.reservationDate.lte = new Date(endDate);
+    }
+
+    // Add notification status filter
+    if (notified !== undefined) {
+      filters.notified = notified === 'true';
+    }
+
+    // Use the utility function for book-related filters
+    const { where: bookFilters, orderBy: bookOrderBy } =
+      buildBookFilters(bookFilterParams);
+
+    if (Object.keys(bookFilters).length > 0) {
+      filters.book = bookFilters;
+    }
 
     const pageNum = Number(page);
     const sizeNum = Number(pageSize);
+
+    let orderByCondition:
+      | Prisma.ReservationOrderByWithRelationInput
+      | Prisma.ReservationOrderByWithRelationInput[];
+
+    if (bookOrderBy) {
+      if (Array.isArray(bookOrderBy)) {
+        // Map array of book orders to reservation orders with nested book property
+        orderByCondition = bookOrderBy.map((order) => ({
+          book: order,
+        })) as Prisma.ReservationOrderByWithRelationInput[];
+      } else {
+        orderByCondition = { book: bookOrderBy };
+      }
+    } else {
+      // Default reservation ordering
+      orderByCondition = { reservationDate: Prisma.SortOrder.desc };
+    }
 
     const reservations = await this.prisma.reservation.findMany({
       where: filters,
       skip: (pageNum - 1) * sizeNum,
       take: sizeNum,
       include: {
-        user: { select: { id: true, name: true, email: true } },
-        book: { select: { id: true, title: true, author: true } },
+        user: {
+          select: { id: true, name: true, email: true },
+        },
+        book: {
+          select: {
+            id: true,
+            title: true,
+            author: true,
+            ISBN: true,
+            imageUrl: true,
+            category: true,
+            publishedYear: true,
+          },
+        },
+        borrowedBook: {
+          select: {
+            id: true,
+            borrowDate: true,
+            dueDate: true,
+            returnDate: true,
+          },
+        },
       },
+      orderBy: orderByCondition,
     });
 
     const totalCount = await this.prisma.reservation.count({ where: filters });
