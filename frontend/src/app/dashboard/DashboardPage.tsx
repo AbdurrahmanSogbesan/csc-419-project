@@ -6,6 +6,7 @@ import TabsFilter from "@/components/TabsFilter";
 import {
   useDeleteSavedBook,
   useGetBooks,
+  useGetReservedBooks,
   useReserveBook,
   useSaveBook,
 } from "@/hooks/books";
@@ -15,90 +16,44 @@ import { useNavigate } from "react-router";
 import { toast } from "sonner";
 import { ColumnDef } from "@tanstack/react-table";
 import { DataTable } from "@/components/DataTable";
-import { checkIfBookIsReserved } from "@/lib/utils";
+import {
+  checkIfBookIsReserved,
+  createHistoryTab,
+  historyTabLabels,
+} from "@/lib/utils";
 
-const bookReservations = [
-  {
-    title: "The Great Gatsby",
-    author: "F. Scott Fitzgerald",
-    borrowedDate: "2022-01-01",
-    dueDate: "2022-01-15",
-    returnDate: "2022-01-10",
-    status: "RETURNED",
-  },
-  {
-    title: "To Kill a Mockingbird",
-    author: "Harper Lee",
-    borrowedDate: "2022-02-01",
-    dueDate: "2022-02-15",
-    returnDate: "2022-02-20",
-    status: "OVERDUE",
-  },
-  {
-    title: "1984",
-    author: "George Orwell",
-    borrowedDate: "2022-03-01",
-    dueDate: "2022-03-15",
-    returnDate: "2022-03-10",
-    status: "RESERVED",
-  },
-  {
-    title: "The Catcher in the Rye",
-    author: "J.D. Salinger",
-    borrowedDate: "2022-04-01",
-    dueDate: "2022-04-15",
-    returnDate: "2022-04-10",
-    status: "RETURNED",
-  },
-  {
-    title: "Pride and Prejudice",
-    author: "Jane Austen",
-    borrowedDate: "2022-05-01",
-    dueDate: "2022-05-15",
-    returnDate: "2022-05-10",
-    status: "BORROWED",
-  },
-  {
-    title: "The Lord of the Rings",
-    author: "J.R.R. Tolkien",
-    borrowedDate: "2022-06-01",
-    dueDate: "2022-06-15",
-    returnDate: "2022-06-10",
-    status: "RETURNED",
-  },
-];
-
-const dummyTabs: Tab[] = [
-  { label: "All", count: 15, value: "all" },
-  { label: "Borrowed", count: 10, value: "borrowed" },
-  { label: "Reserved", count: 5, value: "reserved" },
-  { label: "Returned", count: 2, value: "returned" },
-  { label: "Overdue", count: 2, value: "overdue" },
-];
-
-const reservedBookColumns: ColumnDef<(typeof bookReservations)[number]>[] = [
+const reservedBookColumns: ColumnDef<Reservation>[] = [
   {
     header: "Title",
-    accessorKey: "title",
+    accessorKey: "book.title",
   },
   {
     header: "Author",
-    accessorKey: "author",
+    accessorKey: "book.author",
   },
   {
     header: "Date Borrowed",
-    accessorKey: "borrowedDate",
-    cell: ({ row }) => format(row.original.borrowedDate, "d MMM yyyy"),
+    accessorKey: "borrowedBook.borrowDate",
+    cell: ({ row }) =>
+      row.original.borrowedBook?.borrowDate
+        ? format(row.original.borrowedBook.borrowDate, "d MMM yyyy")
+        : "-",
   },
   {
     header: "Date Returned",
-    accessorKey: "returnDate",
-    cell: ({ row }) => format(row.original.returnDate, "d MMM yyyy"),
+    accessorKey: "borrowedBook.returnDate",
+    cell: ({ row }) =>
+      row.original.borrowedBook?.returnDate
+        ? format(row.original.borrowedBook.returnDate, "d MMM yyyy")
+        : "-",
   },
   {
     header: "Return Deadline",
-    accessorKey: "dueDate",
-    cell: ({ row }) => format(row.original.dueDate, "d MMM yyyy"),
+    accessorKey: "borrowedBook.dueDate",
+    cell: ({ row }) =>
+      row.original.borrowedBook?.dueDate
+        ? format(row.original.borrowedBook.dueDate, "d MMM yyyy")
+        : "-",
   },
   {
     header: "Status",
@@ -111,16 +66,37 @@ const reservedBookColumns: ColumnDef<(typeof bookReservations)[number]>[] = [
   },
 ];
 
+const PAGE_SIZE = 6;
+
 export default function DashboardPage() {
   const user = useAuthStore((s) => s.user);
   const navigate = useNavigate();
+  const [page, setPage] = useState(1);
 
-  const [selectedTab, setSelectedTab] = useState(dummyTabs[0].value);
+  const [selectedTab, setSelectedTab] = useState<Tab["value"]>(
+    historyTabLabels[0].toLowerCase(),
+  );
 
   const { data: books, isLoading } = useGetBooks({
     availabilityStatus: "available",
     popularBooks: true,
   });
+
+  const { data: reservedBooks, isLoading: isLoadingReservedBooks } =
+    useGetReservedBooks({
+      scope: "user",
+      page: 1,
+      // :-((, needed cuz UI constraints
+      pageSize: 1000,
+    });
+
+  const tabs = useMemo(
+    () =>
+      historyTabLabels.map((i) =>
+        createHistoryTab(i, reservedBooks?.data ?? []),
+      ),
+    [reservedBooks?.data],
+  );
 
   const { mutate: saveBook, isPending: isSavingBook } = useSaveBook(() => {
     toast.success("Book saved successfully");
@@ -135,13 +111,16 @@ export default function DashboardPage() {
 
   const updatingBooks = isSavingBook || isDeletingSavedBook || isReservingBook;
 
-  const displayedBooks = useMemo(
-    () =>
-      bookReservations.filter((book) =>
-        selectedTab == "all" ? book : book.status.toLowerCase() === selectedTab,
-      ),
-    [selectedTab],
-  );
+  const displayedBooks =
+    useMemo(
+      () =>
+        selectedTab === "all"
+          ? reservedBooks?.data
+          : reservedBooks?.data?.filter(
+              (book) => book.status.toLowerCase() === selectedTab,
+            ),
+      [reservedBooks, selectedTab],
+    ) ?? [];
 
   return (
     <div className="flex flex-col gap-6">
@@ -200,7 +179,7 @@ export default function DashboardPage() {
 
         <div className="flex flex-col gap-4">
           <TabsFilter
-            tabs={dummyTabs}
+            tabs={tabs}
             selectedTab={selectedTab}
             onTabClick={setSelectedTab}
           />
@@ -208,7 +187,16 @@ export default function DashboardPage() {
           <DataTable
             columns={reservedBookColumns}
             data={displayedBooks}
-            pagination
+            isLoading={isLoadingReservedBooks}
+            paginationProps={{
+              currentPage: page,
+              itemsPerPage: PAGE_SIZE,
+              pagesCount: Math.ceil(
+                (reservedBooks?.data?.length ?? 0) / PAGE_SIZE,
+              ),
+              onNextPageClick: () => setPage(page + 1),
+              onPrevPageClick: () => setPage(page - 1),
+            }}
           />
         </div>
       </div>

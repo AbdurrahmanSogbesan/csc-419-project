@@ -71,6 +71,7 @@ export const useReserveBook = (
     onSuccess: (data) => {
       queryClient.refetchQueries({ queryKey: ["getBooks"] });
       queryClient.refetchQueries({ queryKey: ["getSavedBooks"] });
+      queryClient.refetchQueries({ queryKey: ["getReservedBooks"] });
       toast.success(data.message || "Book reserved successfully");
       onSuccess?.(data);
     },
@@ -78,5 +79,15 @@ export const useReserveBook = (
       console.log(error);
       toast.error("Failed to reserve book");
     },
+  });
+};
+
+export const useGetReservedBooks = (params: GetReservedBooksQueryParams) => {
+  return useQuery({
+    queryKey: ["getReservedBooks", params],
+    queryFn: () =>
+      apiGet<{ data: Reservation[]; pagination: Pagination }>("/reservation", {
+        params,
+      }),
   });
 };

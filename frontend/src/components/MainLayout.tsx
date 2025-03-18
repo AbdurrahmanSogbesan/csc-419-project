@@ -31,8 +31,8 @@ const filterSchema = z.object({
   author: z.string().optional(),
   publishedYearStart: z.string().optional(),
   publishedYearEnd: z.string().optional(),
-  borrowStartDate: z.date().optional(),
-  borrowEndDate: z.date().optional(),
+  startDate: z.date().optional(),
+  endDate: z.date().optional(),
 });
 
 type FilterForm = z.infer<typeof filterSchema>;
@@ -47,11 +47,11 @@ const DEFAULT_FORM_VALUES = {
   author: "",
   publishedYearStart: "",
   publishedYearEnd: "",
-  borrowStartDate: undefined,
-  borrowEndDate: undefined,
+  startDate: undefined,
+  endDate: undefined,
 } as const;
 
-const DATE_FIELDS = ["borrowStartDate", "borrowEndDate"] as const;
+const DATE_FIELDS = ["startDate", "endDate"] as const;
 
 export default function MainLayout({ children }: { children: ReactNode }) {
   const location = useLocation();
@@ -95,8 +95,8 @@ export default function MainLayout({ children }: { children: ReactNode }) {
   }, [searchParams]);
 
   const formValues = form.getValues();
-  const borrowStartDate = form.watch("borrowStartDate");
-  const borrowEndDate = form.watch("borrowEndDate");
+  const startDate = form.watch("startDate");
+  const endDate = form.watch("endDate");
 
   const hasNoFilters = useMemo(
     () => Object.values(formValues).every((value) => !value),
@@ -287,10 +287,10 @@ export default function MainLayout({ children }: { children: ReactNode }) {
                           <div className="flex gap-6">
                             <DatePicker
                               control={form.control}
-                              name="borrowStartDate"
+                              name="startDate"
                               label="From"
                               className="flex-1"
-                              key={borrowStartDate?.toString()}
+                              key={`startDate-${startDate?.toString()}`}
                               calendarProps={{
                                 disabled: (date) => {
                                   return date > new Date();
@@ -299,16 +299,13 @@ export default function MainLayout({ children }: { children: ReactNode }) {
                             />
                             <DatePicker
                               control={form.control}
-                              name="borrowEndDate"
+                              name="endDate"
                               label="To"
                               className="flex-1"
-                              key={borrowEndDate?.toString()}
+                              key={`endDate-${endDate?.toString()}`}
                               calendarProps={{
                                 disabled: (date) => {
-                                  return (
-                                    date > new Date() ||
-                                    date < (borrowStartDate as Date)
-                                  );
+                                  return date < (startDate as Date);
                                 },
                               }}
                             />

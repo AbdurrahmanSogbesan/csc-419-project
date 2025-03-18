@@ -9,6 +9,7 @@ import { Separator } from "./ui/separator";
 import { Button } from "./ui/button";
 import SavedBooks from "@/app/saved-books";
 import SearchBooksPage from "@/app/dashboard/SearchBooksPage";
+import HistoryPage from "@/app/history";
 
 // Our auth middleware component
 function RequireAuth({ children }: { children: ReactNode }) {
@@ -59,7 +60,7 @@ function MainRoutes() {
         <Route index path="dashboard/*" element={<DashboardRoutes />} />
         <Route path="saved-books/*" element={<SavedBooksRoutes />} />
         <Route path="notifications" element={<div>Notifications</div>} />
-        <Route path="history" element={<div>History</div>} />
+        <Route path="history" element={<HistoryPage />} />
         <Route path="settings" element={<div>Settings</div>} />
         {isAdmin && <Route path="admin" element={<AdminLayout />} />}
         <Route path="*" element={<NotFound />} />

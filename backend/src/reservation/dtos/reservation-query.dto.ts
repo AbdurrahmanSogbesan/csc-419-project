@@ -2,7 +2,6 @@ import {
   IsOptional,
   IsString,
   IsEnum,
-  IsNumberString,
   IsBoolean,
   IsInt,
   Min,
@@ -10,18 +9,14 @@ import {
   ValidateIf,
   IsIn,
 } from 'class-validator';
-import { Transform } from 'class-transformer';
+import { Transform, Type } from 'class-transformer';
 import { ReservationStatus } from '@prisma/client';
 
 export class ReservationQueryDto {
-  // Reservation specific filters
   @IsOptional()
-  @IsNumberString()
-  userId?: string;
-
-  @IsOptional()
-  @IsNumberString()
-  bookId?: string;
+  @IsInt()
+  @Type(() => Number)
+  bookId?: number;
 
   @IsOptional()
   @IsEnum(ReservationStatus)
@@ -40,16 +35,21 @@ export class ReservationQueryDto {
   notified?: string;
 
   @IsOptional()
-  @IsNumberString()
-  reservationId?: string;
+  @IsInt()
+  @Type(() => Number)
+  reservationId?: number;
 
   @IsOptional()
-  @IsNumberString()
-  page?: string;
+  @IsInt()
+  @Min(1)
+  @Type(() => Number)
+  page?: number;
 
   @IsOptional()
-  @IsNumberString()
-  pageSize?: string;
+  @IsInt()
+  @Min(1)
+  @Type(() => Number)
+  pageSize?: number;
 
   // Book related filters
   @IsString()
@@ -108,4 +108,8 @@ export class ReservationQueryDto {
   @IsOptional()
   @Transform(({ value }) => (value === '' ? undefined : +value)) // Convert to number
   publishedYearEnd?: number;
+
+  @IsOptional()
+  @IsEnum(['all', 'user'])
+  scope?: 'all' | 'user';
 }

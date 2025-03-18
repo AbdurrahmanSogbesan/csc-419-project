@@ -117,9 +117,23 @@ export function checkIfBookIsReserved(
   );
 }
 
-export function getBookCountForStatus(
-  reservations: Reservation[],
-  status: ReservationStatus,
-) {
-  return reservations.filter((book) => book.status === status).length;
+export const historyTabLabels = [
+  "All",
+  "Borrowed",
+  "Reserved",
+  "Returned",
+  "Cancelled",
+] as const;
+
+export function createHistoryTab(tabItem: string, items: Reservation[]) {
+  return {
+    label: tabItem,
+    count:
+      tabItem === "All"
+        ? items.length
+        : items.filter(
+            (item) => item.status.toLowerCase() === tabItem.toLowerCase(),
+          ).length,
+    value: tabItem.toLowerCase(),
+  };
 }
