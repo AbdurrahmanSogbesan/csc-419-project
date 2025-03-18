@@ -40,6 +40,18 @@ type GetBooksQueryParams = {
   popularBooks?: boolean;
 };
 
+type GetReservedBooksQueryParams = GetBooksQueryParams & {
+  bookId?: number;
+  status?: ReservationStatus;
+  startDate?: string;
+  endDate?: string;
+  notified?: string;
+  reservationId?: number;
+  page?: number;
+  pageSize?: number;
+  scope?: "user" | "all";
+};
+
 type BorrowedBook = {
   id: string;
   uuid: string;
@@ -70,4 +82,5 @@ type Reservation = {
   reservedUntil: string | null;
   status: ReservationStatus;
   notified: boolean;
+  borrowedBook?: BorrowedBook;
 };

@@ -40,8 +40,7 @@ function TabItem({
       )}
       onClick={onClick}
     >
-      {tab.label}
-      {tab.count && <span>{tab.count}</span>}
+      {tab.label} {tab.count && <span>{tab.count}</span>}
     </div>
   );
 }

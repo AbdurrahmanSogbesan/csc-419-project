@@ -547,7 +547,7 @@ export class ReservationService {
     });
   }
 
-  async getReservations(query: ReservationQueryDto) {
+  async getReservations(query: ReservationQueryDto & { userId: number }) {
     const {
       userId,
       bookId,
@@ -556,24 +556,29 @@ export class ReservationService {
       endDate,
       notified,
       reservationId,
-      page = '1',
-      pageSize = '10',
+      page = 1,
+      pageSize = 10,
+      scope,
       ...bookFilterParams
     } = query;
 
     // Build reservation-specific filters
     const filters: any = {};
 
-    if (userId) filters.userId = BigInt(userId);
-    if (bookId) filters.bookId = BigInt(bookId);
+    if (scope === 'user') filters.userId = userId;
+    if (bookId) filters.bookId = Number(bookId);
     if (status) filters.status = status;
-    if (reservationId) filters.id = BigInt(reservationId);
+    if (reservationId) filters.id = Number(reservationId);
 
     // Add date range filters
     if (startDate || endDate) {
       filters.reservationDate = {};
       if (startDate) filters.reservationDate.gte = new Date(startDate);
-      if (endDate) filters.reservationDate.lte = new Date(endDate);
+      if (endDate) {
+        const end = new Date(endDate);
+        end.setHours(23, 59, 59, 999);
+        filters.reservationDate.lte = end;
+      }
     }
 
     // Add notification status filter
@@ -588,9 +593,6 @@ export class ReservationService {
     if (Object.keys(bookFilters).length > 0) {
       filters.book = bookFilters;
     }
-
-    const pageNum = Number(page);
-    const sizeNum = Number(pageSize);
 
     let orderByCondition:
       | Prisma.ReservationOrderByWithRelationInput
@@ -612,8 +614,8 @@ export class ReservationService {
 
     const reservations = await this.prisma.reservation.findMany({
       where: filters,
-      skip: (pageNum - 1) * sizeNum,
-      take: sizeNum,
+      skip: (page - 1) * pageSize,
+      take: pageSize,
       include: {
         user: {
           select: { id: true, name: true, email: true },
@@ -647,9 +649,9 @@ export class ReservationService {
       data: reservations,
       pagination: {
         total: totalCount,
-        page: pageNum,
-        pageSize: sizeNum,
-        totalPages: Math.ceil(totalCount / sizeNum),
+        currentPage: page,
+        pageSize,
+        totalPages: Math.ceil(totalCount / pageSize),
       },
     };
   }

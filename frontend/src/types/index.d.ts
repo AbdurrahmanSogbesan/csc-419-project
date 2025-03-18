@@ -2,6 +2,7 @@ type Pagination = {
   currentPage: number;
   pageSize: number;
   totalPages: number;
+  total?: number;
 };
 
 type AuthResponse = {
