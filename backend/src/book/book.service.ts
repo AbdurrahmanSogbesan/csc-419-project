@@ -80,7 +80,9 @@ export class BookService {
 
     return this.prisma.book.findMany({
       where: combinedWhere,
-      orderBy,
+      ...(orderBy
+        ? { orderBy: Array.isArray(orderBy) ? orderBy : [orderBy] }
+        : {}),
       include: { savedBooks: true, reservations: true },
     });
   }
@@ -245,7 +247,9 @@ export class BookService {
           include: { reservations: true },
         },
       },
-      orderBy: orderBy ? { book: orderBy } : undefined,
+      orderBy: orderBy
+        ? { book: Array.isArray(orderBy) ? orderBy[0] : orderBy }
+        : undefined,
     });
   }
 

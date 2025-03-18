@@ -79,15 +79,17 @@ model Book {
 }
 
 model BorrowedBook {
-  id         BigInt    @id @default(autoincrement())
-  uuid       String    @unique @default(uuid())
-  user       User      @relation(fields: [userId], references: [id], onDelete: Cascade)
-  userId     BigInt
-  book       Book      @relation(fields: [bookId], references: [id], onDelete: Cascade)
-  bookId     BigInt
-  borrowDate DateTime  @default(now()) @db.Timestamptz(3)
-  dueDate    DateTime  @db.Timestamptz(3)
-  returnDate DateTime? @db.Timestamptz(3)
+  id           BigInt     @id @default(autoincrement())
+  uuid         String     @unique @default(uuid())
+  user         User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId       BigInt
+  book         Book       @relation(fields: [bookId], references: [id], onDelete: Cascade)
+  bookId       BigInt
+  borrowDate   DateTime   @default(now()) @db.Timestamptz(3)
+  dueDate      DateTime   @db.Timestamptz(3)
+  returnDate   DateTime?  @db.Timestamptz(3)
+  reservation  Reservation? @relation(fields: [reservationId], references: [id])
+  reservationId BigInt?   @unique  
 }
 
 model SavedBook {
@@ -113,9 +115,9 @@ model Reservation {
   reservedUntil   DateTime?         // Auto-revert if not borrowed in 7 days
   status          ReservationStatus @default(RESERVED)      
   notified        Boolean           @default(false) 
-
-  @@unique([userId, bookId])
+  borrowedBook    BorrowedBook?     // One-to-one relation with BorrowedBook
 }
+
 
 model Fine {
   id         BigInt   @id @default(autoincrement())
