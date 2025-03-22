@@ -53,6 +53,10 @@ const DEFAULT_FORM_VALUES = {
 
 const DATE_FIELDS = ["startDate", "endDate"] as const;
 
+const pageTitlesMap = {
+  "/dashboard": "Recomended",
+};
+
 export default function MainLayout({ children }: { children: ReactNode }) {
   const location = useLocation();
   const navigate = useNavigate();
@@ -189,8 +193,10 @@ export default function MainLayout({ children }: { children: ReactNode }) {
                 <MoveLeft size={24} color="black" />
               </Button>
             ) : (
-              <p className="text-xl font-semibold capitalize">
-                {pathSegments.pop()?.replace(/-/g, " ")}
+              <p className="text-lg font-semibold capitalize sm:text-xl">
+                {pageTitlesMap[
+                  location.pathname as keyof typeof pageTitlesMap
+                ] || pathSegments.pop()?.replace(/-/g, " ")}
               </p>
             )}
           </div>

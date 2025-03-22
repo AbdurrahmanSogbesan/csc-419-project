@@ -23,7 +23,7 @@ function App() {
     <QueryClientProvider client={queryClient}>
       <BrowserRouter basename={import.meta.env.BASE_URL || "/"}>
         <AppRoutes />
-        <Toaster />
+        <Toaster position="top-center" />
       </BrowserRouter>
     </QueryClientProvider>
   );
