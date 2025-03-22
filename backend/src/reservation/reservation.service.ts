@@ -114,7 +114,7 @@ export class ReservationService {
 
           // Apply borrowing restriction to user
           const restrictedUntil = new Date();
-          restrictedUntil.setMonth(restrictedUntil.getMonth() + 1); // Restricted for 1 month
+          restrictedUntil.setDate(restrictedUntil.getDate() + 14); // Restricted for 2 weeks
 
           await tx.user.update({
             where: { id: overdue.userId },
@@ -511,7 +511,7 @@ export class ReservationService {
 
         // Apply restrictions for overdue returns
         const restrictedUntil = new Date();
-        restrictedUntil.setMonth(restrictedUntil.getMonth() + 1); // 1 month restriction
+        restrictedUntil.setDate(restrictedUntil.getDate() + 14); // Restricted for 2 weeks
 
         await tx.user.update({
           where: { id: userId },

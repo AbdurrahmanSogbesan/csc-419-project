@@ -3,7 +3,7 @@ type Book = {
   ISBN: string;
   title: string;
   author: string;
-  category: string;
+  category: string | string[];
   copiesAvailable: number;
   copiesBorrowed: number;
   publishedYear: number;
@@ -31,7 +31,7 @@ type GetBooksQueryParams = {
   search?: string;
   title?: string;
   author?: string;
-  category?: string;
+  category?: string | string[];
   ISBN?: string;
   publishedYear?: number;
   publishedYearStart?: number;
