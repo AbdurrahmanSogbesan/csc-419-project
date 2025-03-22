@@ -1,11 +1,21 @@
 import { apiDelete, apiGet, apiPost } from "@/lib/api";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import {
+  useMutation,
+  useQuery,
+  useQueryClient,
+  UseQueryOptions,
+} from "@tanstack/react-query";
 import { toast } from "sonner";
 
-export const useGetBooks = (params: GetBooksQueryParams) => {
+export const useGetBooks = (
+  params: GetBooksQueryParams,
+  extraQueryKey?: unknown[],
+  options?: Omit<UseQueryOptions<Book[]>, "queryKey" | "queryFn">,
+) => {
   return useQuery({
-    queryKey: ["getBooks", params],
+    queryKey: ["getBooks", params, extraQueryKey],
     queryFn: () => apiGet<Book[]>("/books", { params }),
+    ...options,
   });
 };
 

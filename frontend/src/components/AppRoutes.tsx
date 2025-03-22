@@ -2,14 +2,16 @@ import { ReactNode, useEffect } from "react";
 import { Link, Navigate, Route, Routes, useLocation } from "react-router";
 import MainLayout from "./MainLayout";
 import { AuthRoutes } from "@/app/auth";
-import DashboardPage, { BookDetailsPage } from "@/app/dashboard";
+import DashboardPage, {
+  BookDetailsPage,
+  SearchBooksPage,
+} from "@/app/dashboard";
 import { useAuthStore } from "@/lib/stores/auth";
 import AdminLayout from "@/app/admin";
 import { Separator } from "./ui/separator";
 import { Button } from "./ui/button";
 import SavedBooks from "@/app/saved-books";
-import SearchBooksPage from "@/app/dashboard/SearchBooksPage";
-import HistoryPage from "@/app/history";
+import HistoryPage, { BookHistoryPage } from "@/app/history";
 
 // Our auth middleware component
 function RequireAuth({ children }: { children: ReactNode }) {
@@ -48,6 +50,16 @@ function SavedBooksRoutes() {
   );
 }
 
+function HistoryRoutes() {
+  return (
+    <Routes>
+      <Route index element={<HistoryPage />} />
+      <Route path="/books/:id" element={<BookHistoryPage />} />
+      <Route path="*" element={<Navigate replace to="/history" />} />
+    </Routes>
+  );
+}
+
 function MainRoutes() {
   const user = useAuthStore((s) => s.user);
 
@@ -60,7 +72,7 @@ function MainRoutes() {
         <Route index path="dashboard/*" element={<DashboardRoutes />} />
         <Route path="saved-books/*" element={<SavedBooksRoutes />} />
         <Route path="notifications" element={<div>Notifications</div>} />
-        <Route path="history" element={<HistoryPage />} />
+        <Route path="history/*" element={<HistoryRoutes />} />
         <Route path="settings" element={<div>Settings</div>} />
         {isAdmin && <Route path="admin" element={<AdminLayout />} />}
         <Route path="*" element={<NotFound />} />

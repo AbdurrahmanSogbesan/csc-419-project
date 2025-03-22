@@ -4,7 +4,7 @@ export function buildBookFilters(params: {
   search?: string;
   title?: string;
   author?: string;
-  category?: string | string[]; // Modified to accept string or string[]
+  category?: string | string[];
   ISBN?: string;
   publishedYear?: number | string;
   publishedYearStart?: number | string;

@@ -82,7 +82,7 @@ const reservedBookColumns: ColumnDef<Reservation>[] = [
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
             <DropdownMenuLabel>Actions</DropdownMenuLabel>
-            <Link to={`/history/${row.original.id}`}>
+            <Link to={`/history/books/${row.original.bookId}`}>
               <DropdownMenuItem>View Book History</DropdownMenuItem>
             </Link>
           </DropdownMenuContent>
