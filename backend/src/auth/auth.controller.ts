@@ -41,6 +41,11 @@ export class AuthController {
     return await this.authService.findOne(+req.user.userId);
   }
 
+  @Patch('change-password')
+  async changePassword(@Request() req, @Body() body) {
+    return await this.authService.changePassword(req.user.userId, body);
+  }
+
   @Get('stats')
   @UseGuards(IsAdminGuard)
   async getLibraryStats() {

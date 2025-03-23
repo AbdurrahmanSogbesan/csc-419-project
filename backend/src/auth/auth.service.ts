@@ -9,7 +9,7 @@ import { JwtService } from '@nestjs/jwt';
 import { PrismaService } from 'src/prisma/prisma.service';
 import * as bcrypt from 'bcrypt';
 import { CreateUserDto } from './dtos/create-user.dto';
-import { hashPassword } from 'src/utils/helpers';
+import { comparePasswords, hashPassword } from 'src/utils/helpers';
 import { AuthResponse, UserPayload } from './interfaces/users-login.interfaces';
 import { LoginUserDto } from './dtos/login-user.dto';
 import { Prisma } from '@prisma/client';
@@ -121,6 +121,35 @@ export class AuthService {
         error.status || 500,
       );
     }
+  }
+
+  async changePassword(
+    userId: bigint,
+    data: { currentPassword: string; newPassword: string },
+  ) {
+    const { currentPassword, newPassword } = data;
+    const user = await this.prisma.user.findUnique({ where: { id: userId } });
+
+    if (!user) {
+      throw new NotFoundException('User not found');
+    }
+
+    const isPasswordValid = await comparePasswords(
+      currentPassword,
+      user.password,
+    );
+    if (!isPasswordValid) {
+      throw new UnauthorizedException('Current password is incorrect');
+    }
+
+    const hashedNewPassword = await hashPassword(newPassword);
+
+    await this.prisma.user.update({
+      where: { id: userId },
+      data: { password: hashedNewPassword },
+    });
+
+    return { message: 'Password changed successfully' };
   }
 
   async findAll(
