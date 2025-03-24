@@ -14,6 +14,7 @@ import { AuthResponse, UserPayload } from './interfaces/users-login.interfaces';
 import { LoginUserDto } from './dtos/login-user.dto';
 import { Prisma } from '@prisma/client';
 import { UpdateUserDto } from './dtos/update-user.dto';
+import { GetUsersDto } from './dtos/get-users.dto';
 
 @Injectable()
 export class AuthService {
@@ -152,44 +153,47 @@ export class AuthService {
     return { message: 'Password changed successfully' };
   }
 
-  async findAll(
-    params: {
-      skip?: number;
-      take?: number;
-      cursor?: Prisma.UserWhereUniqueInput;
-      where?: Prisma.UserWhereInput;
-      orderBy?: Prisma.UserOrderByWithRelationInput;
-    } = {},
-  ) {
-    const { skip, take = 10, cursor, where, orderBy } = params;
+  async findAllUsers(query: GetUsersDto) {
+    const { page = 1, pageSize = 10, search, role } = query;
+    const skip = (page - 1) * pageSize;
 
-    const users = await this.prisma.user.findMany({
-      skip,
-      take,
-      cursor,
-      where,
-      orderBy,
-      select: {
-        id: true,
-        uuid: true,
-        email: true,
-        name: true,
-        role: true,
-        createdAt: true,
-        phone: true,
-        borrowedBooks: true,
-      },
-    });
+    const where: Prisma.UserWhereInput = {};
 
-    const total = await this.prisma.user.count({ where });
+    if (role) where.role = role;
+    if (search) {
+      where.OR = [
+        { name: { contains: search, mode: 'insensitive' } },
+        { email: { contains: search, mode: 'insensitive' } },
+      ];
+    }
+
+    const [users, total] = await Promise.all([
+      this.prisma.user.findMany({
+        skip,
+        take: pageSize,
+        where,
+        orderBy: { createdAt: 'desc' },
+        select: {
+          id: true,
+          uuid: true,
+          email: true,
+          name: true,
+          role: true,
+          createdAt: true,
+          phone: true,
+          borrowedBooks: true,
+        },
+      }),
+      this.prisma.user.count({ where }),
+    ]);
 
     return {
-      users,
-      total,
+      data: users,
       pagination: {
-        currentPage: Math.floor((skip || 0) / take) + 1,
-        pageSize: take,
-        totalPages: Math.ceil(total / take),
+        total,
+        currentPage: page,
+        pageSize,
+        totalPages: Math.ceil(total / pageSize),
       },
     };
   }

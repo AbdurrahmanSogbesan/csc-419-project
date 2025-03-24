@@ -55,21 +55,7 @@ export class AuthController {
   @Get()
   @UseGuards(IsAdminGuard)
   async findAll(@Query() query: GetUsersDto) {
-    const { page, limit, role } = query;
-    const skip = (page - 1) * limit;
-
-    const where: any = {};
-
-    if (role) {
-      where.role = role;
-    }
-
-    return await this.authService.findAll({
-      skip,
-      take: limit,
-      where,
-      orderBy: { createdAt: 'desc' },
-    });
+    return this.authService.findAllUsers(query);
   }
 
   @Get(':id')

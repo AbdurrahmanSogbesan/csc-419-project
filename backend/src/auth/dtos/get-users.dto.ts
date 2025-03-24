@@ -1,5 +1,6 @@
+import { Role } from '@prisma/client';
 import { Type } from 'class-transformer';
-import { IsIn, IsInt, IsOptional, IsString, Min } from 'class-validator';
+import { IsEnum, IsInt, IsOptional, IsString, Min } from 'class-validator';
 
 export class GetUsersDto {
   @IsOptional()
@@ -16,10 +17,10 @@ export class GetUsersDto {
   @IsInt()
   @Min(1)
   @Type(() => Number)
-  limit?: number;
+  pageSize?: number;
 
   @IsOptional()
   @IsString()
-  @IsIn(['ADMIN', 'MEMBER'])
-  role?: string;
+  @IsEnum(Role)
+  role?: Role;
 }
