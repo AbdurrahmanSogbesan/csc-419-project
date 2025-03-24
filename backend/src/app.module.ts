@@ -10,6 +10,7 @@ import { AuthGuard } from './common/guards/auth.guard';
 import { BookModule } from './book/book.module';
 import { ScheduleModule } from '@nestjs/schedule';
 import { ReservationModule } from './reservation/reservation.module';
+import { UploadModule } from './upload/upload.module';
 
 @Module({
   imports: [
@@ -24,6 +25,7 @@ import { ReservationModule } from './reservation/reservation.module';
     }),
     BookModule,
     ReservationModule,
+    UploadModule,
   ],
   controllers: [AppController],
   providers: [
