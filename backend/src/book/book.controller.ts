@@ -32,7 +32,9 @@ export class BookController {
 
   @Public()
   @Get()
-  async getAllBooks(@Query() query: BookQueryDto): Promise<BookResponseDto[]> {
+  async getAllBooks(
+    @Query() query: BookQueryDto,
+  ): Promise<{ data: BookResponseDto[]; pagination: any }> {
     return this.booksService.getAllBooks(query);
   }
 

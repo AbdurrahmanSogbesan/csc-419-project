@@ -24,8 +24,6 @@ export class NotificationsController {
     @Request() req,
     @Query() queryParams: QueryNotificationDto,
   ) {
-    console.log('🚀 ~ NotificationsController ~ req:', req.user);
-    console.log('🚀 ~ NotificationsController ~ queryParams:', queryParams);
     return this.notificationsService.getUserNotifications(
       req.user.userId,
       queryParams,

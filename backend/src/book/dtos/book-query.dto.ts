@@ -7,8 +7,9 @@ import {
   ValidateIf,
   IsIn,
   IsBoolean,
+  IsNumber,
 } from 'class-validator';
-import { Transform } from 'class-transformer';
+import { Transform, Type } from 'class-transformer';
 
 export class BookQueryDto {
   @IsString()
@@ -67,4 +68,14 @@ export class BookQueryDto {
   @IsOptional()
   @Transform(({ value }) => (value === '' ? undefined : +value)) // Convert to number
   publishedYearEnd?: number;
+
+  @IsOptional()
+  @IsNumber()
+  @Type(() => Number)
+  page?: number;
+
+  @IsOptional()
+  @IsNumber()
+  @Type(() => Number)
+  pageSize?: number;
 }

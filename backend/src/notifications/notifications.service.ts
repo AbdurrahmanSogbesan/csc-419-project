@@ -86,10 +86,6 @@ export class NotificationsService {
       userId,
       ...(includeRead ? {} : { isRead: false }),
     };
-    console.log(
-      '🚀 ~ NotificationsService ~ getUserNotifications ~ filters:',
-      filters,
-    );
 
     const totalCount = await this.prisma.notification.count({ where: filters });
 
@@ -105,10 +101,6 @@ export class NotificationsService {
           }
         : {},
     });
-    console.log(
-      '🚀 ~ NotificationsService ~ getUserNotifications ~ notifications:',
-      notifications,
-    );
 
     return {
       data: notifications,
