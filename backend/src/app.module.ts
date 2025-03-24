@@ -11,6 +11,7 @@ import { BookModule } from './book/book.module';
 import { ScheduleModule } from '@nestjs/schedule';
 import { ReservationModule } from './reservation/reservation.module';
 import { UploadModule } from './upload/upload.module';
+import { NotificationsModule } from './notifications/notifications.module';
 
 @Module({
   imports: [
@@ -26,6 +27,7 @@ import { UploadModule } from './upload/upload.module';
     BookModule,
     ReservationModule,
     UploadModule,
+    NotificationsModule,
   ],
   controllers: [AppController],
   providers: [
