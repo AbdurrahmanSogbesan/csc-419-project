@@ -25,6 +25,8 @@ export default function SearchBooksPage() {
 
   const { data: books, isLoading: loadingBooks } = useGetBooks({
     ...buildQueryParams(searchParams),
+    // todo: consider changing after impl infinite scroll
+    pageSize: 1000,
   });
 
   const { mutate: saveBook, isPending: isSavingBook } = useSaveBook(() => {
@@ -47,8 +49,8 @@ export default function SearchBooksPage() {
         Array.from({ length: 4 }).map((_, index) => (
           <BookCardItemSkeleton key={index} />
         ))
-      ) : books && books.length > 0 ? (
-        books.map((book) => {
+      ) : books && books.data.length > 0 ? (
+        books.data.map((book) => {
           const isSaved = book.savedBooks?.some(
             (savedBook) => savedBook.userId === user?.id,
           );

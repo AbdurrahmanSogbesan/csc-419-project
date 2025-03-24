@@ -148,7 +148,7 @@ export default function HistoryPage() {
             currentPage: page,
             itemsPerPage: PAGE_SIZE,
             pagesCount: Math.ceil(
-              (reservedBooks?.data?.length ?? 0) / PAGE_SIZE,
+              (reservedBooks?.pagination?.total ?? 0) / PAGE_SIZE,
             ),
             onNextPageClick: () => setPage(page + 1),
             onPrevPageClick: () => setPage(page - 1),

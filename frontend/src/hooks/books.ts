@@ -10,11 +10,11 @@ import { toast } from "sonner";
 export const useGetBooks = (
   params: GetBooksQueryParams,
   extraQueryKey?: unknown[],
-  options?: Omit<UseQueryOptions<Book[]>, "queryKey" | "queryFn">,
+  options?: Omit<UseQueryOptions<GetBooksResponse>, "queryKey" | "queryFn">,
 ) => {
   return useQuery({
     queryKey: ["getBooks", params, extraQueryKey],
-    queryFn: () => apiGet<Book[]>("/books", { params }),
+    queryFn: () => apiGet<GetBooksResponse>("/books", { params }),
     ...options,
   });
 };

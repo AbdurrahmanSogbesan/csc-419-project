@@ -14,6 +14,7 @@ import { useState } from "react";
 
 const userHeaders = ["Name", "Email", "Role", "Created At"];
 
+// todo: use actual tabs (may not be needed tbh cuz filter by what? - maybe restricted and active users)
 const dummyTabs: Tab[] = [
   { label: "All", count: 15, value: "all" },
   { label: "Active", count: 5, value: "active" },
@@ -24,8 +25,8 @@ export default function UsersPage() {
   const [selectedTab, setSelectedTab] = useState(dummyTabs[0].value);
 
   const { data: userData } = useGetUsers({
-    page: 1,
-    limit: 10,
+    // todo: change soon to use dynamic stuff
+    pageSize: 10,
   });
 
   console.log(userData, "users");
@@ -46,12 +47,13 @@ export default function UsersPage() {
         <TableHeader>
           <TableRow>
             {userHeaders.map((header) => (
+              // todo: use data table component
               <TableHead key={header}>{header}</TableHead>
             ))}
           </TableRow>
         </TableHeader>
         <TableBody>
-          {userData?.users
+          {userData?.data
             .filter((user) =>
               selectedTab === "all"
                 ? user

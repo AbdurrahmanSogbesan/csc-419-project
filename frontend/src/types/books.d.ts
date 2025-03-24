@@ -38,6 +38,8 @@ type GetBooksQueryParams = {
   publishedYearEnd?: number;
   availabilityStatus?: "available" | "unavailable";
   popularBooks?: boolean;
+  page?: number;
+  pageSize?: number;
 };
 
 type GetReservedBooksQueryParams = GetBooksQueryParams & {
@@ -47,8 +49,6 @@ type GetReservedBooksQueryParams = GetBooksQueryParams & {
   endDate?: string;
   notified?: string;
   reservationId?: number;
-  page?: number;
-  pageSize?: number;
   scope?: "user" | "all";
 };
 
@@ -83,4 +83,9 @@ type Reservation = {
   status: ReservationStatus;
   notified: boolean;
   borrowedBook?: BorrowedBook;
+};
+
+type GetBooksResponse = {
+  pagination: Pagination;
+  data: Book[];
 };

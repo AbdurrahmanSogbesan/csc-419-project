@@ -13,13 +13,12 @@ type User = {
 type UserRole = "ADMIN" | "MEMBER";
 
 type GetUsersReponse = {
-  users: User[];
-  total: number;
+  data: User[];
   pagination: Pagination;
 };
 
 type GetUsersParams = {
   page?: number;
-  limit?: number;
+  pageSize?: number;
   role?: UserRole;
 };

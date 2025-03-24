@@ -74,14 +74,13 @@ function ChartSkeleton({ variant = "pie" }: ChartSkeletonProps) {
 export default function AdminDashboard() {
   const { isLoading: loadingStats, data: statsData } = useGetLibraryStats();
   const { isLoading: loadingUsers, data: usersData } = useGetUsers({
-    page: 1,
-    // todo: remove this limit
-    limit: 1000,
+    // need all users for aggregated stats
+    pageSize: 1000,
   });
 
   const userChartData = useMemo(() => {
-    return processDataByMonth(usersData?.users || [], "users");
-  }, [usersData?.users]);
+    return processDataByMonth(usersData?.data || [], "users");
+  }, [usersData?.data]);
 
   const userChartConfig = {
     users: {
@@ -143,7 +142,7 @@ export default function AdminDashboard() {
           <ChartCard>
             <p className="font-medium">No. of Users</p>
             <CardContent className="flex-1 p-0 md:p-6">
-              {usersData && usersData.users.length > 0 ? (
+              {usersData && usersData.data.length > 0 ? (
                 <ChartContainer
                   config={userChartConfig}
                   className="mx-auto h-full max-h-[250px] w-full"

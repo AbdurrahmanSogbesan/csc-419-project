@@ -80,6 +80,7 @@ export default function DashboardPage() {
   const { data: books, isLoading } = useGetBooks({
     availabilityStatus: "available",
     popularBooks: true,
+    pageSize: 4,
   });
 
   const { data: reservedBooks, isLoading: isLoadingReservedBooks } =
@@ -134,8 +135,8 @@ export default function DashboardPage() {
           Array.from({ length: 4 }).map((_, index) => (
             <BookCardSkeleton key={index} />
           ))
-        ) : books && books.length > 0 ? (
-          books.slice(0, 4).map((book) => {
+        ) : books && books.data.length > 0 ? (
+          books.data.map((book) => {
             const isSaved = book.savedBooks?.some(
               (savedBook) => savedBook.userId === user?.id,
             );
@@ -192,7 +193,7 @@ export default function DashboardPage() {
               currentPage: page,
               itemsPerPage: PAGE_SIZE,
               pagesCount: Math.ceil(
-                (reservedBooks?.data?.length ?? 0) / PAGE_SIZE,
+                (reservedBooks?.pagination?.total ?? 0) / PAGE_SIZE,
               ),
               onNextPageClick: () => setPage(page + 1),
               onPrevPageClick: () => setPage(page - 1),

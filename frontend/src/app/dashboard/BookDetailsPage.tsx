@@ -23,6 +23,7 @@ export default function BookDetailsPage() {
     {
       category: book?.category,
       availabilityStatus: "available",
+      pageSize: 4,
     },
     [id],
     {
@@ -71,10 +72,9 @@ export default function BookDetailsPage() {
             Array.from({ length: 4 }).map((_, index) => (
               <BookCardSkeleton key={index} />
             ))
-          ) : similarBooks && similarBooks.length > 0 ? (
-            similarBooks
+          ) : similarBooks && similarBooks.data.length > 0 ? (
+            similarBooks.data
               .filter((book) => Number(book.id) !== Number(id))
-              .slice(0, 4)
               .map((book) => {
                 const isSaved = book.savedBooks?.some(
                   (savedBook) => savedBook.userId === user?.id,
