@@ -8,6 +8,7 @@ import {
 import { Cron, CronExpression } from '@nestjs/schedule';
 import {
   FineStatus,
+  NotificationType,
   Prisma,
   ReservationStatus,
   TransactionType,
@@ -15,6 +16,7 @@ import {
 import { PrismaService } from 'src/prisma/prisma.service';
 import { buildBookFilters } from 'src/utils/book-query';
 import { ReservationQueryDto } from './dtos/reservation-query.dto';
+import { getStartAndEndOfDay } from 'src/utils/helpers';
 
 @Injectable()
 export class ReservationService {
@@ -192,6 +194,122 @@ export class ReservationService {
     } catch (error) {
       this.logger.error(`Failed to clean up reservations: ${error.message}`);
     }
+  }
+
+  @Cron(CronExpression.EVERY_DAY_AT_MIDNIGHT)
+  async sendDueSoonNotifications() {
+    try {
+      const { startOfDay, endOfDay } = getStartAndEndOfDay(3);
+      const booksDueSoon = await this.prisma.borrowedBook.findMany({
+        where: {
+          returnDate: null,
+          dueDate: { gte: startOfDay, lte: endOfDay },
+        },
+        select: {
+          userId: true,
+          bookId: true,
+          book: { select: { title: true } },
+          dueDate: true,
+        },
+      });
+
+      const notifications = booksDueSoon.map(({ userId, bookId, book }) => ({
+        userId,
+        type: NotificationType.BOOK_DUE_SOON,
+        title: 'Book due soon',
+        message: `"${book.title}" is due in 3 days. Please return it to avoid fines.`,
+        bookId,
+      }));
+
+      if (!notifications.length) {
+        this.logger.log('No due soon notifications to send');
+        return;
+      }
+
+      await this.prisma.notification.createMany({ data: notifications });
+      this.logger.log(`Sent ${notifications.length} due soon notifications`);
+    } catch (error) {
+      this.logger.error('Error sending due soon notifications', error);
+    }
+  }
+
+  @Cron(CronExpression.EVERY_DAY_AT_MIDNIGHT)
+  async sendOverdueNotifications() {
+    try {
+      const { startOfDay } = getStartAndEndOfDay(0);
+      const overdueBooks = await this.prisma.borrowedBook.findMany({
+        where: { returnDate: null, dueDate: { lt: startOfDay } },
+        select: {
+          userId: true,
+          bookId: true,
+          book: { select: { title: true } },
+          dueDate: true,
+        },
+      });
+
+      const notifications = overdueBooks.map(
+        ({ userId, bookId, book, dueDate }) => {
+          const daysOverdue = Math.ceil(
+            (new Date().getTime() - dueDate.getTime()) / (1000 * 60 * 60 * 24),
+          );
+          return {
+            userId,
+            type: NotificationType.BOOK_OVERDUE,
+            title: 'Book overdue',
+            message: `"${book.title}" is ${daysOverdue} day(s) overdue. Please return it ASAP.`,
+            bookId,
+          };
+        },
+      );
+
+      if (!notifications.length) {
+        this.logger.log('No overdue notifications to send');
+        return;
+      }
+
+      await this.prisma.notification.createMany({ data: notifications });
+      this.logger.log(`Sent ${notifications.length} overdue notifications`);
+    } catch (error) {
+      this.logger.error('Error sending overdue notifications', error);
+    }
+  }
+
+  @Cron(CronExpression.MONDAY_TO_FRIDAY_AT_10AM)
+  async notifyReservationAvailable() {
+    const availableReservations = await this.prisma.reservation.findMany({
+      where: {
+        status: ReservationStatus.RESERVED,
+        reservedUntil: { gte: new Date() },
+        book: {
+          copiesAvailable: { gt: 0 },
+        },
+      },
+      include: {
+        book: true,
+        user: true,
+      },
+    });
+
+    if (!availableReservations.length) {
+      this.logger.log('No available reservations to notify');
+      return;
+    }
+
+    await this.prisma.notification.createMany({
+      data: availableReservations.map((reservation) => ({
+        userId: reservation.user.id,
+        type: NotificationType.RESERVATION_AVAILABLE,
+        title: 'Your reserved book is available',
+        message: `"${reservation.book.title}" is now available for pickup. Please visit the library within 7 days to borrow it.`,
+        bookId: reservation.book.id,
+        reservationId: reservation.id,
+        createdAt: new Date(),
+      })),
+    });
+
+    this.logger.log(
+      `Sent reservation available notifications to ${availableReservations.length} users.`,
+    );
   }
 
   // Reserve Book

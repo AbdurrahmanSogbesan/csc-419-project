@@ -41,6 +41,11 @@ export class AuthController {
     return await this.authService.findOne(+req.user.userId);
   }
 
+  @Patch('change-password')
+  async changePassword(@Request() req, @Body() body) {
+    return await this.authService.changePassword(req.user.userId, body);
+  }
+
   @Get('stats')
   @UseGuards(IsAdminGuard)
   async getLibraryStats() {
@@ -50,21 +55,7 @@ export class AuthController {
   @Get()
   @UseGuards(IsAdminGuard)
   async findAll(@Query() query: GetUsersDto) {
-    const { page, limit, role } = query;
-    const skip = (page - 1) * limit;
-
-    const where: any = {};
-
-    if (role) {
-      where.role = role;
-    }
-
-    return await this.authService.findAll({
-      skip,
-      take: limit,
-      where,
-      orderBy: { createdAt: 'desc' },
-    });
+    return this.authService.findAllUsers(query);
   }
 
   @Get(':id')

@@ -67,21 +67,38 @@ export class BookService {
     return await this.prisma.book.delete({ where: { id } });
   }
 
-  async getAllBooks(query: BookQueryDto): Promise<BookResponseDto[]> {
-    const { where, orderBy } = buildBookFilters(query);
+  async getAllBooks(
+    query: BookQueryDto,
+  ): Promise<{ data: BookResponseDto[]; pagination: any }> {
+    const { page = 1, pageSize = 10, ...rest } = query;
+    const { where, orderBy } = buildBookFilters(rest);
 
     // Properly merge the default filter with the dynamic where conditions
     const combinedWhere: Prisma.BookWhereInput = {
       AND: [...(Object.keys(where).length > 0 ? [where] : [])],
     };
 
-    return this.prisma.book.findMany({
+    const totalCount = await this.prisma.book.count({ where: combinedWhere });
+
+    const books = await this.prisma.book.findMany({
       where: combinedWhere,
+      skip: (page - 1) * pageSize,
+      take: pageSize,
       ...(orderBy
         ? { orderBy: Array.isArray(orderBy) ? orderBy : [orderBy] }
         : {}),
       include: { savedBooks: true, reservations: true },
     });
+
+    return {
+      data: books,
+      pagination: {
+        total: totalCount,
+        currentPage: page,
+        pageSize,
+        totalPages: Math.ceil(totalCount / pageSize),
+      },
+    };
   }
 
   async getBookById(id: bigint): Promise<BookResponseDto> {

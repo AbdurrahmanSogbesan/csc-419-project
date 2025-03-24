@@ -33,6 +33,30 @@ export class ReservationController {
     return this.reservationService.cleanupOldReservations();
   }
 
+  @Public()
+  @Post('trigger-due-soon')
+  async triggerDueSoonNotifications() {
+    await this.reservationService.sendDueSoonNotifications();
+    return { success: true, message: 'Due soon notifications triggered' };
+  }
+
+  @Public()
+  @Post('trigger-overdue')
+  async triggerOverdueNotifications() {
+    await this.reservationService.sendOverdueNotifications();
+    return { success: true, message: 'Overdue notifications triggered' };
+  }
+
+  @Public()
+  @Post('trigger-reservation-available')
+  async triggerReservationAvailableNotifications() {
+    await this.reservationService.notifyReservationAvailable();
+    return {
+      success: true,
+      message: 'Reservation available notifications triggered',
+    };
+  }
+
   @Post(':bookId/reserve')
   async reserveBook(@Request() req, @Param('bookId') id: bigint) {
     return await this.reservationService.reserveBook(req.user.userId, id);
