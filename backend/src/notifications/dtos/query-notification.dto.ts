@@ -5,20 +5,32 @@ export class QueryNotificationDto {
   @IsOptional()
   @IsNumber()
   @Type(() => Number)
-  limit?: number;
+  page?: number;
 
   @IsOptional()
   @IsNumber()
   @Type(() => Number)
-  skip?: number;
+  pageSize?: number;
 
   @IsOptional()
   @IsBoolean()
-  @Transform(({ value }) => value === 'true')
+  @Transform(({ value }) =>
+    value === 'true' || value === true
+      ? true
+      : value === 'false' || value === false
+        ? false
+        : value,
+  )
   includeRead?: boolean;
 
   @IsOptional()
   @IsBoolean()
-  @Transform(({ value }) => value === 'true')
+  @Transform(({ value }) =>
+    value === 'true' || value === true
+      ? true
+      : value === 'false' || value === false
+        ? false
+        : value,
+  )
   includeRelations?: boolean;
 }

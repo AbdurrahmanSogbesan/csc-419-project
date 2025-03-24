@@ -1,7 +1,7 @@
 // src/notifications/notifications.service.ts
 import { Injectable, Logger } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
-import { NotificationType, FineStatus } from '@prisma/client';
+import { NotificationType, FineStatus, Prisma } from '@prisma/client';
 import { CreateNotificationDto } from './dtos/create-notification.dto';
 import { QueryNotificationDto } from './dtos/query-notification.dto';
 
@@ -74,18 +74,30 @@ export class NotificationsService {
     });
   }
 
-  async getUserNotifications(userId: bigint, options?: QueryNotificationDto) {
+  async getUserNotifications(userId: number, options?: QueryNotificationDto) {
     const {
-      limit = 10,
-      skip = 0,
+      page = 1,
+      pageSize = 10,
       includeRead = false,
       includeRelations = true,
     } = options || {};
-    return this.prisma.notification.findMany({
-      where: { userId, ...(includeRead ? {} : { isRead: false }) },
+
+    const filters: Prisma.NotificationWhereInput = {
+      userId,
+      ...(includeRead ? {} : { isRead: false }),
+    };
+    console.log(
+      '🚀 ~ NotificationsService ~ getUserNotifications ~ filters:',
+      filters,
+    );
+
+    const totalCount = await this.prisma.notification.count({ where: filters });
+
+    const notifications = await this.prisma.notification.findMany({
+      where: filters,
       orderBy: { createdAt: 'desc' },
-      take: limit,
-      skip,
+      take: pageSize,
+      skip: (page - 1) * pageSize,
       include: includeRelations
         ? {
             book: { select: { id: true, title: true } },
@@ -93,6 +105,20 @@ export class NotificationsService {
           }
         : {},
     });
+    console.log(
+      '🚀 ~ NotificationsService ~ getUserNotifications ~ notifications:',
+      notifications,
+    );
+
+    return {
+      data: notifications,
+      pagination: {
+        total: totalCount,
+        currentPage: page,
+        pageSize,
+        totalPages: Math.ceil(totalCount / pageSize),
+      },
+    };
   }
 
   async findOne(id: bigint, userId: bigint) {

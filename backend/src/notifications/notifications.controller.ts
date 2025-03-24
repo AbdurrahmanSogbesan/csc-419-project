@@ -24,6 +24,7 @@ export class NotificationsController {
     @Request() req,
     @Query() queryParams: QueryNotificationDto,
   ) {
+    console.log('🚀 ~ NotificationsController ~ req:', req.user);
     console.log('🚀 ~ NotificationsController ~ queryParams:', queryParams);
     return this.notificationsService.getUserNotifications(
       req.user.userId,
@@ -33,10 +34,6 @@ export class NotificationsController {
 
   @Post()
   async createNotification(@Body() createDto: CreateNotificationDto) {
-    console.log(
-      '🚀 ~ NotificationsController ~ createNotification ~ CreateNotificationDto:',
-      CreateNotificationDto,
-    );
     return this.notificationsService.createNotification(createDto);
   }
 
