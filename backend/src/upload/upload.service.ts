@@ -1,9 +1,10 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import { UTApi } from 'uploadthing/server';
 import { Express } from 'express';
 
 @Injectable()
 export class UploadService {
+  private logger = new Logger(UploadService.name);
   private utapi: UTApi;
 
   constructor() {
@@ -18,7 +19,9 @@ export class UploadService {
       throw new Error('No file uploaded');
     }
 
-    console.log('File received:', file);
+    this.logger.log(
+      `Received file: ${file.originalname}, Size: ${file.size} bytes, Type: ${file.mimetype}`,
+    );
 
     // Convert to File object
     const fileObject = new File([file.buffer], file.originalname, {
