@@ -439,6 +439,19 @@ export class ReservationService {
         },
       });
 
+      // Send Notification
+      await tx.notification.create({
+        data: {
+          userId,
+          type: NotificationType.BOOK_RESERVED,
+          title: `Reservation made.`,
+          message: `Your reservation; ${book.title} has been made. Please ensure to pick up before the deadline(${reservedUntil.toLocaleDateString()}) is up`,
+          bookId: bookId,
+          reservationId: reservation.id,
+          createdAt: new Date(),
+        },
+      });
+
       return {
         reservation,
         message: `Book "${book.title}" reserved successfully. Please pick it up on/or before ${reservedUntil.toLocaleDateString()}.`,
@@ -535,6 +548,18 @@ export class ReservationService {
         },
       });
 
+      await tx.notification.create({
+        data: {
+          userId,
+          type: NotificationType.BOOK_PICKED_UP,
+          title: `Book Picked Up.`,
+          message: `Your book; ${reservation.book.title} has been picked up. Please ensure to return the book before the due date(${dueDate.toLocaleDateString()}).`,
+          bookId: bookId,
+          reservationId: reservation.id,
+          createdAt: new Date(),
+        },
+      });
+
       return {
         borrowedBook,
         message: `Book "${reservation.book.title}" checked out successfully. Due date: ${dueDate.toLocaleDateString()}.`,
@@ -619,6 +644,18 @@ export class ReservationService {
           },
         });
       }
+
+      await tx.notification.create({
+        data: {
+          userId,
+          type: NotificationType.BOOK_RETURNED,
+          title: `Book Returned`,
+          message: `The book; (${borrowedBook.book.title}) you reserved has been returned on(${new Date().toLocaleDateString()}).`,
+          bookId: bookId,
+          reservationId: reservation.id,
+          createdAt: new Date(),
+        },
+      });
 
       // Handle overdue books
       if (isOverdue) {
