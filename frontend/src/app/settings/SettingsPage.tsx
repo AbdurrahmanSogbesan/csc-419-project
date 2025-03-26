@@ -109,9 +109,7 @@ export default function ProfilePage() {
                     name="name"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel className="text-gray-700">
-                          Full Name
-                        </FormLabel>
+                        <FormLabel>Full Name</FormLabel>
                         <FormControl>
                           <Input placeholder="Enter your name" {...field} />
                         </FormControl>
@@ -125,7 +123,7 @@ export default function ProfilePage() {
                     name="email"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel className="text-gray-700">Email</FormLabel>
+                        <FormLabel>Email</FormLabel>
                         <FormControl>
                           <Input
                             type="email"
@@ -143,9 +141,7 @@ export default function ProfilePage() {
                     name="phone"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel className="text-gray-700">
-                          Phone Number
-                        </FormLabel>
+                        <FormLabel>Phone Number</FormLabel>
                         <FormControl>
                           <Input
                             type="tel"
@@ -192,9 +188,7 @@ export default function ProfilePage() {
                     name="currentPassword"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel className="text-gray-700">
-                          Current Password
-                        </FormLabel>
+                        <FormLabel>Current Password</FormLabel>
                         <FormControl>
                           <Input
                             type="password"
@@ -213,9 +207,7 @@ export default function ProfilePage() {
                       name="newPassword"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel className="text-gray-700">
-                            New Password
-                          </FormLabel>
+                          <FormLabel>New Password</FormLabel>
                           <FormControl>
                             <Input
                               type="password"
@@ -233,9 +225,7 @@ export default function ProfilePage() {
                       name="confirmPassword"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel className="text-gray-700">
-                            Confirm Password
-                          </FormLabel>
+                          <FormLabel>Confirm Password</FormLabel>
                           <FormControl>
                             <Input
                               type="password"
