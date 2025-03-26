@@ -70,6 +70,8 @@ export default function MainLayout({ children }: { children: ReactNode }) {
 
   const pathSegments = location.pathname.split("/").filter(Boolean);
   const isAdminRoute = pathSegments.includes("admin");
+  const isSettingsPage = location.pathname === "/settings";
+
   const isInnerPage = pathSegments.length > 1;
 
   const isAdminBooksPage = searchParams.get("tab") === "books";
@@ -210,171 +212,173 @@ export default function MainLayout({ children }: { children: ReactNode }) {
               <PlusIcon /> Add New {isAdminBooksPage ? "Book" : "User"}
             </Button>
           ) : (
-            <div className="flex w-full justify-end gap-2">
-              <Popover open={isFilterOpen} onOpenChange={setIsFilterOpen}>
-                <PopoverTrigger asChild>
-                  <Button
-                    variant="outline"
-                    className="p-2 text-slate-700"
-                    disabled={
-                      !allowFilterPages.some((p) =>
-                        location.pathname.endsWith(p),
-                      )
-                    }
-                  >
-                    <ListFilter size={24} />
-                    <span className="hidden md:block">Filter</span>
-                  </Button>
-                </PopoverTrigger>
-                <PopoverContent className="w-full p-0 py-6 sm:w-[512px]">
-                  <Form {...form}>
-                    <form onSubmit={form.handleSubmit(onSubmitFilters)}>
-                      <div className="flex flex-col gap-6 px-4 sm:px-6">
-                        <div className="flex flex-col gap-2">
-                          <p className="text-xs font-medium leading-[20px] text-slate-900">
-                            Book info
-                          </p>
+            !isSettingsPage && (
+              <div className="flex w-full justify-end gap-2">
+                <Popover open={isFilterOpen} onOpenChange={setIsFilterOpen}>
+                  <PopoverTrigger asChild>
+                    <Button
+                      variant="outline"
+                      className="p-2 text-slate-700"
+                      disabled={
+                        !allowFilterPages.some((p) =>
+                          location.pathname.endsWith(p),
+                        )
+                      }
+                    >
+                      <ListFilter size={24} />
+                      <span className="hidden md:block">Filter</span>
+                    </Button>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-full p-0 py-6 sm:w-[512px]">
+                    <Form {...form}>
+                      <form onSubmit={form.handleSubmit(onSubmitFilters)}>
+                        <div className="flex flex-col gap-6 px-4 sm:px-6">
+                          <div className="flex flex-col gap-2">
+                            <p className="text-xs font-medium leading-[20px] text-slate-900">
+                              Book info
+                            </p>
+                            <FormField
+                              control={form.control}
+                              name="availabilityStatus"
+                              render={({ field }) => (
+                                <FormItem>
+                                  <FormLabel>Status</FormLabel>
+                                  <FormControl>
+                                    <Select
+                                      onValueChange={field.onChange}
+                                      value={field.value}
+                                    >
+                                      <SelectTrigger>
+                                        <SelectValue placeholder="Select availability status" />
+                                      </SelectTrigger>
+                                      <SelectContent>
+                                        {availabilityStatusOptions.map(
+                                          (option) => (
+                                            <SelectItem
+                                              key={option.value}
+                                              value={option.value}
+                                            >
+                                              {option.label}
+                                            </SelectItem>
+                                          ),
+                                        )}
+                                      </SelectContent>
+                                    </Select>
+                                  </FormControl>
+                                </FormItem>
+                              )}
+                            />
+                          </div>
+
                           <FormField
                             control={form.control}
-                            name="availabilityStatus"
+                            name="author"
                             render={({ field }) => (
                               <FormItem>
-                                <FormLabel>Status</FormLabel>
+                                <FormLabel>Author</FormLabel>
                                 <FormControl>
-                                  <Select
-                                    onValueChange={field.onChange}
-                                    value={field.value}
-                                  >
-                                    <SelectTrigger>
-                                      <SelectValue placeholder="Select availability status" />
-                                    </SelectTrigger>
-                                    <SelectContent>
-                                      {availabilityStatusOptions.map(
-                                        (option) => (
-                                          <SelectItem
-                                            key={option.value}
-                                            value={option.value}
-                                          >
-                                            {option.label}
-                                          </SelectItem>
-                                        ),
-                                      )}
-                                    </SelectContent>
-                                  </Select>
+                                  <Input
+                                    placeholder="Enter author name"
+                                    {...field}
+                                  />
                                 </FormControl>
                               </FormItem>
                             )}
                           />
                         </div>
+                        <Separator className="mb-4 mt-6 h-[1px] text-slate-100" />
+                        <div className="flex flex-col gap-2 px-4 sm:px-6">
+                          <p className="text-xs font-medium leading-[20px] text-slate-900">
+                            {isHistoryPage ? "Date borrowed" : "Year published"}
+                          </p>
 
-                        <FormField
-                          control={form.control}
-                          name="author"
-                          render={({ field }) => (
-                            <FormItem>
-                              <FormLabel>Author</FormLabel>
-                              <FormControl>
-                                <Input
-                                  placeholder="Enter author name"
-                                  {...field}
-                                />
-                              </FormControl>
-                            </FormItem>
+                          {isHistoryPage ? (
+                            <div className="flex gap-6">
+                              <DatePicker
+                                control={form.control}
+                                name="startDate"
+                                label="From"
+                                className="flex-1"
+                                key={`startDate-${startDate?.toString()}`}
+                                calendarProps={{
+                                  disabled: (date) => {
+                                    return date > new Date();
+                                  },
+                                }}
+                              />
+                              <DatePicker
+                                control={form.control}
+                                name="endDate"
+                                label="To"
+                                className="flex-1"
+                                key={`endDate-${endDate?.toString()}`}
+                                calendarProps={{
+                                  disabled: (date) => {
+                                    return date < (startDate as Date);
+                                  },
+                                }}
+                              />
+                            </div>
+                          ) : (
+                            <div className="flex gap-6">
+                              <FormField
+                                control={form.control}
+                                name="publishedYearStart"
+                                render={({ field }) => (
+                                  <FormItem className="flex-1">
+                                    <FormLabel>From</FormLabel>
+                                    <FormControl>
+                                      <Input placeholder="Year" {...field} />
+                                    </FormControl>
+                                  </FormItem>
+                                )}
+                              />
+                              <FormField
+                                control={form.control}
+                                name="publishedYearEnd"
+                                render={({ field }) => (
+                                  <FormItem className="flex-1">
+                                    <FormLabel>To</FormLabel>
+                                    <FormControl>
+                                      <Input placeholder="Year" {...field} />
+                                    </FormControl>
+                                  </FormItem>
+                                )}
+                              />
+                            </div>
                           )}
-                        />
-                      </div>
-                      <Separator className="mb-4 mt-6 h-[1px] text-slate-100" />
-                      <div className="flex flex-col gap-2 px-4 sm:px-6">
-                        <p className="text-xs font-medium leading-[20px] text-slate-900">
-                          {isHistoryPage ? "Date borrowed" : "Year published"}
-                        </p>
+                        </div>
 
-                        {isHistoryPage ? (
-                          <div className="flex gap-6">
-                            <DatePicker
-                              control={form.control}
-                              name="startDate"
-                              label="From"
-                              className="flex-1"
-                              key={`startDate-${startDate?.toString()}`}
-                              calendarProps={{
-                                disabled: (date) => {
-                                  return date > new Date();
-                                },
-                              }}
-                            />
-                            <DatePicker
-                              control={form.control}
-                              name="endDate"
-                              label="To"
-                              className="flex-1"
-                              key={`endDate-${endDate?.toString()}`}
-                              calendarProps={{
-                                disabled: (date) => {
-                                  return date < (startDate as Date);
-                                },
-                              }}
-                            />
-                          </div>
-                        ) : (
-                          <div className="flex gap-6">
-                            <FormField
-                              control={form.control}
-                              name="publishedYearStart"
-                              render={({ field }) => (
-                                <FormItem className="flex-1">
-                                  <FormLabel>From</FormLabel>
-                                  <FormControl>
-                                    <Input placeholder="Year" {...field} />
-                                  </FormControl>
-                                </FormItem>
-                              )}
-                            />
-                            <FormField
-                              control={form.control}
-                              name="publishedYearEnd"
-                              render={({ field }) => (
-                                <FormItem className="flex-1">
-                                  <FormLabel>To</FormLabel>
-                                  <FormControl>
-                                    <Input placeholder="Year" {...field} />
-                                  </FormControl>
-                                </FormItem>
-                              )}
-                            />
-                          </div>
-                        )}
-                      </div>
-
-                      <div className="mt-6 flex items-center gap-2 px-4 sm:px-6">
-                        <Button
-                          variant="outline"
-                          className="flex-1"
-                          disabled={hasNoFilters}
-                          onClick={handleClearFilters}
-                          type="button"
-                        >
-                          Clear filters
-                        </Button>
-                        <Button
-                          className="flex-1"
-                          disabled={hasNoFilters || !form.formState.isValid}
-                          type="submit"
-                        >
-                          Apply
-                        </Button>
-                      </div>
-                    </form>
-                  </Form>
-                </PopoverContent>
-              </Popover>
-              <SearchBar
-                searchValue={searchValue}
-                onSearchValueChange={setSearchValue}
-                onEnterPressed={() => handleSearch(searchValue)}
-                onClear={handleClearSearch}
-              />
-            </div>
+                        <div className="mt-6 flex items-center gap-2 px-4 sm:px-6">
+                          <Button
+                            variant="outline"
+                            className="flex-1"
+                            disabled={hasNoFilters}
+                            onClick={handleClearFilters}
+                            type="button"
+                          >
+                            Clear filters
+                          </Button>
+                          <Button
+                            className="flex-1"
+                            disabled={hasNoFilters || !form.formState.isValid}
+                            type="submit"
+                          >
+                            Apply
+                          </Button>
+                        </div>
+                      </form>
+                    </Form>
+                  </PopoverContent>
+                </Popover>
+                <SearchBar
+                  searchValue={searchValue}
+                  onSearchValueChange={setSearchValue}
+                  onEnterPressed={() => handleSearch(searchValue)}
+                  onClear={handleClearSearch}
+                />
+              </div>
+            )
           )}
         </header>
         <div className="flex flex-1 flex-col gap-4 pb-6">

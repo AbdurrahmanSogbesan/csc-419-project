@@ -68,11 +68,18 @@ function MainRoutes() {
   return (
     <MainLayout>
       <Routes>
-        <Route path="/" element={<Navigate replace to="dashboard" />} />
-        <Route index path="dashboard/*" element={<DashboardRoutes />} />
-        <Route path="saved-books/*" element={<SavedBooksRoutes />} />
-        <Route path="notifications" element={<div>Notifications</div>} />
-        <Route path="history/*" element={<HistoryRoutes />} />
+        <Route
+          path="/"
+          element={<Navigate replace to={isAdmin ? "admin" : "dashboard"} />}
+        />
+        {!isAdmin && (
+          <>
+            <Route index path="dashboard/*" element={<DashboardRoutes />} />
+            <Route path="saved-books/*" element={<SavedBooksRoutes />} />
+            <Route path="notifications" element={<div>Notifications</div>} />
+            <Route path="history/*" element={<HistoryRoutes />} />
+          </>
+        )}
         <Route path="settings" element={<div>Settings</div>} />
         {isAdmin && <Route path="admin" element={<AdminLayout />} />}
         <Route path="*" element={<NotFound />} />

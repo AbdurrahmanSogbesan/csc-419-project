@@ -34,11 +34,6 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   const data = useMemo(() => {
     return {
       navMain: [
-        {
-          title: "Dashboard",
-          url: "/dashboard",
-          icon: LayoutDashboard,
-        },
         ...(user?.role === "ADMIN"
           ? [
               {
@@ -47,22 +42,29 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                 icon: Bot,
               },
             ]
-          : []),
-        {
-          title: "Saved",
-          url: "/saved-books",
-          icon: BookCheck,
-        },
-        {
-          title: "Inbox",
-          url: "/notifications",
-          icon: Inbox,
-        },
-        {
-          title: "History",
-          url: "/history",
-          icon: Clock,
-        },
+          : [
+              {
+                title: "Dashboard",
+                url: "/dashboard",
+                icon: LayoutDashboard,
+              },
+              {
+                title: "Saved",
+                url: "/saved-books",
+                icon: BookCheck,
+              },
+              {
+                title: "Inbox",
+                url: "/notifications",
+                icon: Inbox,
+              },
+              {
+                title: "History",
+                url: "/history",
+                icon: Clock,
+              },
+            ]),
+
         {
           title: "Profile",
           url: "/settings",
