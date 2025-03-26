@@ -1,5 +1,6 @@
 import { LoginForm, RegisterForm } from "@/app/auth/utils";
-import { apiPost } from "@/lib/api";
+import { SettingsPasswordForm } from "@/app/settings/utils";
+import { apiPatch, apiPost } from "@/lib/api";
 import { useAuthStore } from "@/lib/stores/auth";
 import { useMutation } from "@tanstack/react-query";
 import { useNavigate } from "react-router";
@@ -39,6 +40,24 @@ export function useLogin() {
     onSuccess: async (data) => {
       login(data);
       navigate("/");
+    },
+    onError: (error) => {
+      toast.error(error.message || "Something went wrong");
+      console.error(error);
+    },
+  });
+}
+
+export function useChangePassword() {
+  return useMutation({
+    mutationKey: ["changePassword"],
+    mutationFn: async (data: SettingsPasswordForm) => {
+      const { confirmPassword, ...rest } = data;
+      return await apiPatch<AuthResponse>("/auth/change-password", rest);
+    },
+    onSuccess: () => {
+      toast.success("Password changed successfully");
+      useAuthStore.getState().logout();
     },
     onError: (error) => {
       toast.error(error.message || "Something went wrong");
