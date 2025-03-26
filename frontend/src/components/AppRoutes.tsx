@@ -1,4 +1,4 @@
-import { ReactNode, useEffect } from "react";
+import { ReactNode, useEffect, useLayoutEffect } from "react";
 import { Link, Navigate, Route, Routes, useLocation } from "react-router";
 import MainLayout from "./MainLayout";
 import { AuthRoutes } from "@/app/auth";
@@ -88,6 +88,17 @@ function MainRoutes() {
   );
 }
 
+const Wrapper = ({ children }: { children: ReactNode }) => {
+  const location = useLocation();
+
+  useLayoutEffect(() => {
+    // Scroll to the top of the page when the route changes
+    window.scrollTo({ top: 0, left: 0, behavior: "instant" });
+  }, [location.pathname]);
+
+  return children;
+};
+
 export default function AppRoutes() {
   return (
     <Routes>
@@ -96,7 +107,9 @@ export default function AppRoutes() {
         path="/*"
         element={
           <RequireAuth>
-            <MainRoutes />
+            <Wrapper>
+              <MainRoutes />
+            </Wrapper>
           </RequireAuth>
         }
       />

@@ -1,6 +1,5 @@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useSearchParams } from "react-router";
-import { useRef } from "react";
 import UsersPage from "./UsersPage";
 import AdminDashboard from "./AdminDashboard";
 
@@ -25,7 +24,6 @@ export default function AdminLayout() {
   const [searchParams, setSearchParams] = useSearchParams();
   const activeTab = (searchParams.get("tab") as TabName) ?? "dashboard";
 
-  const tabRefs = useRef<Record<string, HTMLButtonElement | null>>({});
   const tabs = Object.entries(tabsMap);
 
   return (
@@ -41,11 +39,6 @@ export default function AdminLayout() {
               <TabsTrigger
                 key={key}
                 value={key}
-                ref={(el) => {
-                  if (el) {
-                    tabRefs.current[key] = el;
-                  }
-                }}
                 onClick={() => setSearchParams({ tab: key })}
                 className="relative h-8 rounded-none border-transparent bg-transparent px-0 text-xl font-normal capitalize text-gray-500 hover:text-slate-700 data-[state=active]:border-b-2 data-[state=active]:border-slate-900 data-[state=active]:bg-transparent data-[state=active]:text-slate-900 data-[state=active]:shadow-none"
               >

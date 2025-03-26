@@ -96,10 +96,6 @@ export default function BookDetailsPage() {
                       updatingBooks
                         ? undefined
                         : () => {
-                            window.scrollTo({
-                              top: 0,
-                              behavior: "smooth",
-                            });
                             navigate(`/dashboard/books/${book.id}`);
                           }
                     }

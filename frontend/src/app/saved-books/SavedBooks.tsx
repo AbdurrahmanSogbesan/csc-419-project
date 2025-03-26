@@ -62,10 +62,6 @@ export default function SavedBooks() {
                   updatingSavedBooks
                     ? undefined
                     : () => {
-                        window.scrollTo({
-                          top: 0,
-                          behavior: "smooth",
-                        });
                         navigate(`/saved-books/${savedBook.bookId}`);
                       }
                 }
