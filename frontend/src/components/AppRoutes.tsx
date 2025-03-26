@@ -12,6 +12,7 @@ import { Separator } from "./ui/separator";
 import { Button } from "./ui/button";
 import SavedBooks from "@/app/saved-books";
 import HistoryPage, { BookHistoryPage } from "@/app/history";
+import SettingsPage from "@/app/settings";
 
 // Our auth middleware component
 function RequireAuth({ children }: { children: ReactNode }) {
@@ -80,7 +81,7 @@ function MainRoutes() {
             <Route path="history/*" element={<HistoryRoutes />} />
           </>
         )}
-        <Route path="settings" element={<div>Settings</div>} />
+        <Route path="settings" element={<SettingsPage />} />
         {isAdmin && <Route path="admin" element={<AdminLayout />} />}
         <Route path="*" element={<NotFound />} />
       </Routes>
