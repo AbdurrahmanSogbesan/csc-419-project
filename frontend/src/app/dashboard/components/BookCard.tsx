@@ -33,11 +33,13 @@ export default function BookCard({
         )}
         onClick={onCardClick}
       >
-        <img
-          src={book.imageUrl || PlaceholderImage}
-          className="h-[320px] w-full rounded-[8px] object-cover"
-          alt="Book"
-        />
+        <div className="h-[320px] w-full overflow-hidden rounded-[8px]">
+          <img
+            src={book.imageUrl || PlaceholderImage}
+            className="h-full w-full object-cover transition-all duration-300 hover:scale-110"
+            alt={book.title}
+          />
+        </div>
         <div
           className={cn(
             "absolute right-3 top-3 flex size-8 cursor-pointer items-center justify-center rounded-full bg-gradient-to-r from-black/50 to-gray-500/50 backdrop-blur-sm transition-all duration-300 hover:scale-110",
