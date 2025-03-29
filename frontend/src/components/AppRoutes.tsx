@@ -13,6 +13,7 @@ import { Button } from "./ui/button";
 import SavedBooks from "@/app/saved-books";
 import HistoryPage, { BookHistoryPage } from "@/app/history";
 import SettingsPage from "@/app/settings";
+import NotificationsPage from "@/app/notifications";
 
 // Our auth middleware component
 function RequireAuth({ children }: { children: ReactNode }) {
@@ -77,7 +78,7 @@ function MainRoutes() {
           <>
             <Route index path="dashboard/*" element={<DashboardRoutes />} />
             <Route path="saved-books/*" element={<SavedBooksRoutes />} />
-            <Route path="notifications" element={<div>Notifications</div>} />
+            <Route path="notifications" element={<NotificationsPage />} />
             <Route path="history/*" element={<HistoryRoutes />} />
           </>
         )}

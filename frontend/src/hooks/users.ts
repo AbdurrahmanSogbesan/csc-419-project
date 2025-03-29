@@ -1,7 +1,7 @@
 import { SettingsProfileForm } from "@/app/settings";
 import { apiGet, apiPatch } from "@/lib/api";
 import { useAuthStore } from "@/lib/stores/auth";
-import { useMutation, useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 
 export const useGetUsers = (params: GetUsersParams) => {
@@ -45,6 +45,33 @@ export const useUpdateUser = (userId: string, onSuccess?: VoidFunction) => {
     onError: (error) => {
       console.log(error);
       toast.error("Failed to update profile");
+    },
+  });
+};
+
+export const useGetNotifications = (params: GetNotificationsParams) => {
+  return useQuery({
+    queryKey: ["getNotifications", params],
+    queryFn: () =>
+      apiGet<GetNotificationsResponse>("/notifications", { params }),
+  });
+};
+
+export const useMarkNotificationAsRead = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationKey: ["markNotificationAsRead"],
+    mutationFn: (notificationId: number) =>
+      apiPatch(`/notifications/${notificationId}/read`),
+    onSuccess: () => {
+      toast.success("Notification marked as read");
+      queryClient.refetchQueries({
+        queryKey: ["getNotifications"],
+      });
+    },
+    onError: () => {
+      toast.error("Failed to mark notification as read");
     },
   });
 };
