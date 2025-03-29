@@ -14,7 +14,7 @@ export default function AuthLayout() {
         </p>
       </div>
 
-      <div className="flex flex-col items-center justify-center gap-4 px-6 py-8 md:p-0">
+      <div className="flex flex-col items-center justify-center gap-4 px-6 py-8 md:py-0">
         <Logo className="size-10" />
 
         <div className="w-full max-w-[unset] sm:max-w-[560px]">

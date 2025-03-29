@@ -2,6 +2,7 @@ import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { Bookmark } from "lucide-react";
 import SavedIcon from "@/assets/icons/saved.svg";
+import PlaceholderImage from "@/assets/images/placeholder-image.png";
 
 export default function BookCard({
   book,
@@ -33,7 +34,7 @@ export default function BookCard({
         onClick={onCardClick}
       >
         <img
-          src={book.imageUrl || "https://placehold.co/100x100"}
+          src={book.imageUrl || PlaceholderImage}
           className="h-[320px] w-full rounded-[8px] object-cover"
           alt="Book"
         />
