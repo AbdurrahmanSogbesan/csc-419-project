@@ -137,3 +137,37 @@ export function createHistoryTab(tabItem: string, items: Reservation[]) {
     value: tabItem.toLowerCase(),
   };
 }
+
+export const USER_STATUS = {
+  ALL: "all",
+  ACTIVE: "active",
+  RESTRICTED: "restricted",
+} as const;
+
+export type UserStatus = keyof typeof USER_STATUS;
+
+export const USER_STATUS_LABELS: Record<UserStatus, string> = {
+  ALL: "All",
+  ACTIVE: "Active",
+  RESTRICTED: "Restricted",
+};
+
+export const isUserRestricted = (user: User) => !!user.restrictedUntil;
+
+export const filterUsersByStatus = (users: User[], status: string) => {
+  switch (status.toUpperCase() as UserStatus) {
+    case "ACTIVE":
+      return users.filter((user) => !isUserRestricted(user));
+    case "RESTRICTED":
+      return users.filter(isUserRestricted);
+    default:
+      return users;
+  }
+};
+
+export const createUserStatusTabs = (users: User[]) =>
+  Object.entries(USER_STATUS).map(([key, value]) => ({
+    label: USER_STATUS_LABELS[key as UserStatus],
+    value,
+    count: filterUsersByStatus(users, value).length,
+  }));

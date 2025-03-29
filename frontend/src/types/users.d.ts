@@ -5,6 +5,7 @@ type User = {
   phone: string;
   name: string;
   role: UserRole;
+  restrictedUntil: string | null;
   createdAt: string;
   borrowedBooks?: BorrowedBook[];
   reservations?: Reservation[];
@@ -34,6 +35,7 @@ type GetUsersParams = {
   page?: number;
   pageSize?: number;
   role?: UserRole;
+  search?: string;
 };
 
 type NotificationType =
