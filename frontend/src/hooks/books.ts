@@ -1,4 +1,5 @@
-import { apiDelete, apiGet, apiPost } from "@/lib/api";
+import { BookFormValues } from "@/app/admin/utils";
+import { apiDelete, apiGet, apiPatch, apiPost } from "@/lib/api";
 import {
   useMutation,
   useQuery,
@@ -117,6 +118,78 @@ export const useDeleteBook = (onSuccess?: VoidFunction) => {
     onError(error) {
       console.log(error);
       toast.error("Failed to delete book");
+    },
+  });
+};
+
+export const useUploadImage = (
+  onSuccess?: (data: UploadImageResponse) => void,
+) => {
+  return useMutation({
+    mutationKey: ["uploadImage"],
+    mutationFn: async (image: File) => {
+      const formData = new FormData();
+      formData.append("file", image);
+
+      const response = await apiPost<UploadImageResponse>(`/upload`, formData, {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      });
+
+      return response;
+    },
+    onSuccess: (data) => {
+      toast.success("Image uploaded successfully");
+      onSuccess?.(data);
+    },
+    onError(error) {
+      console.log(error);
+      toast.error("Failed to upload image");
+    },
+  });
+};
+
+export const useCreateBook = (onSuccess?: (data: Book) => void) => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationKey: ["createBook"],
+    mutationFn: (book: BookFormValues) =>
+      apiPost<Book>(`/books`, {
+        books: [book],
+      }),
+    onSuccess: (data) => {
+      queryClient.refetchQueries({ queryKey: ["getBooks"] });
+      toast.success("Book created successfully");
+      onSuccess?.(data);
+    },
+    onError(error) {
+      console.log(error);
+      toast.error("Failed to create book");
+    },
+  });
+};
+
+export const useUpdateBook = (onSuccess?: (data: Book) => void) => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationKey: ["updateBook"],
+    mutationFn: ({
+      data,
+      bookId,
+    }: {
+      data: Partial<BookFormValues>;
+      bookId: string;
+    }) => apiPatch<Book>(`/books/${bookId}`, data),
+    onSuccess: (data) => {
+      queryClient.refetchQueries({ queryKey: ["getBooks"] });
+      queryClient.refetchQueries({ queryKey: ["getBookDetails"] });
+      toast.success("Book updated successfully");
+      onSuccess?.(data);
+    },
+    onError(error) {
+      console.log(error);
+      toast.error("Failed to update book");
     },
   });
 };

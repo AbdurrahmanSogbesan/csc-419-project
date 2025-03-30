@@ -7,7 +7,7 @@ import DashboardPage, {
   SearchBooksPage,
 } from "@/app/dashboard";
 import { useAuthStore } from "@/lib/stores/auth";
-import AdminLayout from "@/app/admin";
+import AdminLayout, { EditBookPage } from "@/app/admin";
 import { Separator } from "./ui/separator";
 import { Button } from "./ui/button";
 import SavedBooks from "@/app/saved-books";
@@ -66,8 +66,8 @@ function AdminRoutes() {
   return (
     <Routes>
       <Route index element={<AdminLayout />} />
-      <Route path="books/create" element={<div>Create Book</div>} />
-      <Route path="books/:id" element={<div>Edit Book</div>} />
+      <Route path="books/create" element={<EditBookPage />} />
+      <Route path="books/:id" element={<EditBookPage />} />
       <Route path="*" element={<Navigate replace to="/admin" />} />
     </Routes>
   );

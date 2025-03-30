@@ -76,6 +76,7 @@ export default function AdminDashboard() {
   const { isLoading: loadingUsers, data: usersData } = useGetUsers({
     // need all users for aggregated stats
     pageSize: 1000,
+    role: "MEMBER",
   });
 
   const userChartData = useMemo(() => {

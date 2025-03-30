@@ -21,7 +21,6 @@ class CreateABookDto {
 
   @IsOptional()
   @IsString()
-  @IsNotEmpty()
   imageUrl?: string;
 
   @IsString()
@@ -33,20 +32,36 @@ class CreateABookDto {
   @IsOptional()
   category?: string[];
 
+  @IsString()
+  @IsOptional()
+  language?: string;
+
   @IsInt()
   @Min(0)
   @IsOptional()
   copiesBorrowed?: number;
 
   @IsInt()
+  @Type(() => Number)
   @Min(0)
   @IsOptional()
   copiesAvailable?: number;
 
   @IsInt()
+  @Type(() => Number)
   @Min(1000)
   @IsOptional()
   publishedYear: number;
+
+  @IsInt()
+  @Type(() => Number)
+  @Min(0)
+  @IsOptional()
+  pages?: number;
+
+  @IsString()
+  @IsOptional()
+  description?: string;
 }
 
 export class CreateBooksDto {
@@ -69,4 +84,5 @@ export class BookResponseDto {
   copiesBorrowed: number;
   publishedYear: number;
   createdAt: Date;
+  language: string;
 }

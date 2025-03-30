@@ -40,7 +40,6 @@ export default function UsersPage() {
   const debouncedSearch = useDebounce(search, 500);
 
   const { data: userData, isLoading } = useGetUsers({
-    page: 1,
     // :-((, needed cuz UI constraints
     pageSize: 1000,
     role: "MEMBER",

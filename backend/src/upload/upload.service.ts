@@ -1,6 +1,5 @@
-import { Injectable, Logger } from '@nestjs/common';
+import { Injectable, Logger, BadRequestException } from '@nestjs/common';
 import { UTApi } from 'uploadthing/server';
-import { Express } from 'express';
 
 @Injectable()
 export class UploadService {
@@ -16,7 +15,7 @@ export class UploadService {
 
   async uploadFile(file: Express.Multer.File) {
     if (!file) {
-      throw new Error('No file uploaded');
+      throw new BadRequestException('No file uploaded');
     }
 
     this.logger.log(
@@ -33,7 +32,7 @@ export class UploadService {
 
     if (result.error) {
       console.error('Upload error:', result.error);
-      throw result.error;
+      throw new BadRequestException(result.error);
     }
 
     // Extract details

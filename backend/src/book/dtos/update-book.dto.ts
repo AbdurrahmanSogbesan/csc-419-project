@@ -1,11 +1,5 @@
-import {
-  IsString,
-  IsOptional,
-  IsInt,
-  Min,
-  IsArray,
-  IsNotEmpty,
-} from 'class-validator';
+import { Type } from 'class-transformer';
+import { IsString, IsOptional, IsInt, Min, IsArray } from 'class-validator';
 
 export class UpdateBookDto {
   @IsString()
@@ -17,7 +11,6 @@ export class UpdateBookDto {
   author?: string;
 
   @IsString()
-  @IsNotEmpty()
   @IsOptional()
   imageUrl?: string;
 
@@ -28,14 +21,27 @@ export class UpdateBookDto {
 
   @IsString()
   @IsOptional()
-  description?: string;
+  language?: string;
 
   @IsString()
   @IsOptional()
-  pages?: number;
+  description?: string;
 
   @IsInt()
+  @Type(() => Number)
   @Min(0)
   @IsOptional()
   copiesAvailable?: number;
+
+  @IsInt()
+  @Type(() => Number)
+  @Min(1000)
+  @IsOptional()
+  publishedYear?: number;
+
+  @IsInt()
+  @Type(() => Number)
+  @Min(0)
+  @IsOptional()
+  pages?: number;
 }

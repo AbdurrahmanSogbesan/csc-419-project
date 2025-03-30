@@ -95,7 +95,7 @@ export default function BooksPage() {
           return categories.length > 0 ? (
             <CustomTooltip
               trigger={
-                <p className="max-w-[200px] truncate">
+                <p className="max-w-[200px] truncate capitalize">
                   {categories.join(", ")}
                 </p>
               }

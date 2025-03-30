@@ -29,3 +29,9 @@ type MonthData = {
   month: string;
   [key: string]: string | number;
 };
+
+type UploadImageResponse = {
+  url: string;
+  name: string;
+  size: number;
+};
