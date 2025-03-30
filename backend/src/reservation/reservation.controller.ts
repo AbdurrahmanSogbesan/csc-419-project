@@ -1,7 +1,16 @@
-import { Controller, Get, Param, Post, Query, Request } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Param,
+  Post,
+  Query,
+  Request,
+  UseGuards,
+} from '@nestjs/common';
 import { ReservationService } from './reservation.service';
 import { Public } from 'src/common/decorators/public.decorator';
 import { ReservationQueryDto } from './dtos/reservation-query.dto';
+import { IsAdminGuard } from 'src/common/guards/is-admin.guard';
 
 @Controller('reservation')
 export class ReservationController {
@@ -62,13 +71,21 @@ export class ReservationController {
     return await this.reservationService.reserveBook(req.user.userId, id);
   }
 
-  @Post(':bookId/pickUp')
-  async pickUpBook(@Request() req, @Param('bookId') id: bigint) {
-    return await this.reservationService.pickupBook(req.user.userId, id);
+  @UseGuards(IsAdminGuard)
+  @Post(':bookId/pickUp/:userId')
+  async pickUpBook(
+    @Param('bookId') id: bigint,
+    @Param('userId') userId: bigint,
+  ) {
+    return await this.reservationService.pickupBook(userId, id);
   }
 
-  @Post(':bookId/return')
-  async returnBook(@Request() req, @Param('bookId') id: bigint) {
-    return await this.reservationService.returnBook(req.user.userId, id);
+  @UseGuards(IsAdminGuard)
+  @Post(':bookId/return/:userId')
+  async returnBook(
+    @Param('bookId') id: bigint,
+    @Param('userId') userId: bigint,
+  ) {
+    return await this.reservationService.returnBook(userId, id);
   }
 }

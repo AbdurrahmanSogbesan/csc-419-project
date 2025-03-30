@@ -79,7 +79,7 @@ export default function BooksPage() {
       },
       {
         header: "Copies Borrowed",
-        accessorKey: "copiesBorrowed",
+        accessorKey: "borrowCount",
       },
       {
         header: "Copies Available",

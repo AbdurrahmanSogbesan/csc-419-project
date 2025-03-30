@@ -135,7 +135,7 @@ export default function EditBookPage() {
                 name="author"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Author</FormLabel>
+                    <FormLabel>Author(s)</FormLabel>
                     <FormControl>
                       <Input placeholder="Enter author name" {...field} />
                     </FormControl>

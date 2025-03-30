@@ -137,7 +137,10 @@ export default function HistoryPage() {
         <TabsFilter
           tabs={tabs}
           selectedTab={selectedTab}
-          onTabClick={setSelectedTab}
+          onTabClick={(tab) => {
+            setSelectedTab(tab);
+            setPage(1);
+          }}
         />
 
         <DataTable

@@ -89,3 +89,14 @@ type GetBooksResponse = {
   pagination: Pagination;
   data: Book[];
 };
+
+type ReturnBookResponse = {
+  message: string;
+  fine: Fine;
+  returnedBook: BorrowedBook;
+};
+
+type PickupBookResponse = {
+  message: string;
+  borrowedBook: BorrowedBook;
+};

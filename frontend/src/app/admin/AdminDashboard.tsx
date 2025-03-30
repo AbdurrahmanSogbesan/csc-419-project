@@ -94,7 +94,7 @@ export default function AdminDashboard() {
     () => [
       {
         name: "lended",
-        value: statsData?.totalLendedBooks || 0,
+        value: statsData?.currentlyLendedBooks || 0,
         fill: "var(--color-lended)",
       },
       {

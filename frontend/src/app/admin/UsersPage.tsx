@@ -164,6 +164,7 @@ export default function UsersPage() {
     <div className="flex flex-col gap-6">
       <SearchBar
         className="md:max-w-[506px]"
+        placeholder="Search by name or email"
         searchValue={search}
         onSearchValueChange={setSearch}
         onClear={() => setSearch("")}
@@ -172,7 +173,10 @@ export default function UsersPage() {
       <TabsFilter
         tabs={tabs}
         selectedTab={selectedStatus}
-        onTabClick={setSelectedStatus}
+        onTabClick={(tab) => {
+          setPage(1);
+          setSelectedStatus(tab);
+        }}
       />
 
       <DataTable

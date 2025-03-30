@@ -3,11 +3,16 @@ import { useSearchParams } from "react-router";
 import UsersPage from "./UsersPage";
 import AdminDashboard from "./AdminDashboard";
 import BooksPage from "./BooksPage";
+import BookStatusPage from "./BookStatusPage";
 
 const tabsMap = {
   dashboard: {
     title: "Dashboard",
     element: <AdminDashboard />,
+  },
+  status: {
+    title: "Status",
+    element: <BookStatusPage />,
   },
   users: {
     title: "Users Management",

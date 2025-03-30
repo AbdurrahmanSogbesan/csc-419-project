@@ -35,3 +35,18 @@ type UploadImageResponse = {
   name: string;
   size: number;
 };
+
+type FineStatus = "UNPAID" | "PAID";
+
+type Fine = {
+  id: string;
+  uuid: string;
+  user: User;
+  userId?: string;
+  book?: Book;
+  bookId?: string;
+  status: FineStatus;
+  createdAt: string;
+  paidAt?: string;
+  amount: number;
+};

@@ -17,7 +17,7 @@ export default function CustomTooltip({
     <TooltipProvider>
       <Tooltip>
         <TooltipTrigger asChild>{trigger}</TooltipTrigger>
-        <TooltipContent>{content}</TooltipContent>
+        <TooltipContent className="capitalize">{content}</TooltipContent>
       </Tooltip>
     </TooltipProvider>
   );

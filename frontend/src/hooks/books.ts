@@ -160,6 +160,7 @@ export const useCreateBook = (onSuccess?: (data: Book) => void) => {
       }),
     onSuccess: (data) => {
       queryClient.refetchQueries({ queryKey: ["getBooks"] });
+      queryClient.refetchQueries({ queryKey: ["getLibraryStats"] });
       toast.success("Book created successfully");
       onSuccess?.(data);
     },
@@ -190,6 +191,46 @@ export const useUpdateBook = (onSuccess?: (data: Book) => void) => {
     onError(error) {
       console.log(error);
       toast.error("Failed to update book");
+    },
+  });
+};
+
+export const usePickupBook = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationKey: ["pickupBook"],
+    mutationFn: ({ bookId, userId }: { bookId: string; userId: string }) =>
+      apiPost<PickupBookResponse>(`/reservation/${bookId}/pickUp/${userId}`),
+    onSuccess: (data) => {
+      queryClient.refetchQueries({ queryKey: ["getReservedBooks"] });
+      queryClient.refetchQueries({ queryKey: ["getBooks"] });
+      queryClient.refetchQueries({ queryKey: ["getLibraryStats"] });
+      toast.success(data.message || "Book picked up successfully");
+    },
+    onError(error) {
+      console.log(error);
+      toast.error("Failed to pickup book");
+    },
+  });
+};
+
+export const useReturnBook = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationKey: ["returnBook"],
+    mutationFn: ({ bookId, userId }: { bookId: string; userId: string }) =>
+      apiPost<ReturnBookResponse>(`/reservation/${bookId}/return/${userId}`),
+    onSuccess: (data) => {
+      queryClient.refetchQueries({ queryKey: ["getReservedBooks"] });
+      queryClient.refetchQueries({ queryKey: ["getBooks"] });
+      queryClient.refetchQueries({ queryKey: ["getLibraryStats"] });
+      toast.success(data.message || "Book returned successfully");
+    },
+    onError(error) {
+      console.log(error);
+      toast.error("Failed to return book");
     },
   });
 };
