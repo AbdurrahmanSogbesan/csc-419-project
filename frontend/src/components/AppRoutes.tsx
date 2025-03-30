@@ -62,6 +62,17 @@ function HistoryRoutes() {
   );
 }
 
+function AdminRoutes() {
+  return (
+    <Routes>
+      <Route index element={<AdminLayout />} />
+      <Route path="books/create" element={<div>Create Book</div>} />
+      <Route path="books/:id" element={<div>Edit Book</div>} />
+      <Route path="*" element={<Navigate replace to="/admin" />} />
+    </Routes>
+  );
+}
+
 function MainRoutes() {
   const user = useAuthStore((s) => s.user);
 
@@ -83,8 +94,8 @@ function MainRoutes() {
           </>
         )}
         <Route path="settings" element={<SettingsPage />} />
-        {isAdmin && <Route path="admin" element={<AdminLayout />} />}
-        <Route path="*" element={<NotFound />} />
+        {isAdmin && <Route path="admin/*" element={<AdminRoutes />} />}
+        <Route path="*" element={<NotFound isAdmin={isAdmin} />} />
       </Routes>
     </MainLayout>
   );
@@ -119,7 +130,7 @@ export default function AppRoutes() {
   );
 }
 
-function NotFound() {
+function NotFound({ isAdmin }: { isAdmin: boolean }) {
   return (
     <div className="flex min-h-screen flex-col items-center justify-center gap-6">
       <h1 className="text-6xl font-bold text-foreground">404</h1>
@@ -129,7 +140,7 @@ function NotFound() {
         The page you're looking for doesn't exist or has been moved.
       </p>
       <Button asChild size="lg">
-        <Link to="/dashboard">Go Home</Link>
+        <Link to={isAdmin ? "/admin" : "/dashboard"}>Go Home</Link>
       </Button>
     </div>
   );

@@ -2,6 +2,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useSearchParams } from "react-router";
 import UsersPage from "./UsersPage";
 import AdminDashboard from "./AdminDashboard";
+import BooksPage from "./BooksPage";
 
 const tabsMap = {
   dashboard: {
@@ -14,7 +15,7 @@ const tabsMap = {
   },
   books: {
     title: "Books Management",
-    element: <div>Books</div>,
+    element: <BooksPage />,
   },
 };
 

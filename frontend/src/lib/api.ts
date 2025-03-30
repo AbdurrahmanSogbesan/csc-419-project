@@ -1,6 +1,7 @@
 import axios, { Axios, AxiosError } from "axios";
 import { API_BASE_URL } from "./constants";
 import { convertArrayToString, tokenManager } from "./utils";
+import { useAuthStore } from "./stores/auth";
 
 const api = axios.create({
   baseURL: API_BASE_URL,
@@ -43,18 +44,21 @@ api.interceptors.response.use(
       error.message = message;
 
       // Handle authentication errors
-      // if (error.response?.status === 401) {
-      //   handleAuthError();
-      // }
+      if (
+        error.response?.status === 401 &&
+        error.response?.data?.message === "Unauthorized"
+      ) {
+        handleAuthError();
+      }
     }
 
     throw error;
   },
 );
 
-// function handleAuthError() {
-//   useAuthStore.getState().logout();
-// }
+function handleAuthError() {
+  useAuthStore.getState().logout();
+}
 
 export const apiGet = <T = unknown>(...args: Parameters<Axios["get"]>) =>
   api.get<T>(...args).then((r) => r.data);

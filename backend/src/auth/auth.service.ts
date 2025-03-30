@@ -181,7 +181,30 @@ export class AuthService {
           role: true,
           createdAt: true,
           phone: true,
-          borrowedBooks: true,
+          restrictedUntil: true,
+          borrowedBooks: {
+            select: {
+              id: true,
+              bookId: true,
+              dueDate: true,
+              returnDate: true,
+            },
+          },
+          reservations: {
+            select: {
+              id: true,
+              bookId: true,
+              status: true,
+              reservationDate: true,
+            },
+          },
+          savedBooks: {
+            select: {
+              id: true,
+              bookId: true,
+              createdAt: true,
+            },
+          },
         },
       }),
       this.prisma.user.count({ where }),
@@ -276,7 +299,9 @@ export class AuthService {
       where: { copiesAvailable: { gt: 0 } },
     });
 
-    const totalUsers = await this.prisma.user.count();
+    const totalUsers = await this.prisma.user.count({
+      where: { role: 'MEMBER' },
+    });
 
     const overdueBooks = await this.prisma.borrowedBook.count({
       where: {

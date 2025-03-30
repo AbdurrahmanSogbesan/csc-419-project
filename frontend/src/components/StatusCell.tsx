@@ -5,7 +5,9 @@ export type Status =
   | "overdue"
   | "reserved"
   | "borrowed"
-  | "cancelled";
+  | "cancelled"
+  | "active"
+  | "restricted";
 
 const statusMap: Record<Status, { text: string; style: string }> = {
   reserved: {
@@ -24,6 +26,14 @@ const statusMap: Record<Status, { text: string; style: string }> = {
   cancelled: {
     text: "Cancelled",
     style: "bg-gray-200 border-gray-300",
+  },
+  active: {
+    text: "Active",
+    style: "bg-badge-greenBg border-badge-greenBorder",
+  },
+  restricted: {
+    text: "Restricted",
+    style: "bg-badge-redBg border-badge-redBorder",
   },
 };
 
