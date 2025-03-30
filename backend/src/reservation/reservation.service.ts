@@ -5,7 +5,7 @@ import {
   Logger,
   NotFoundException,
 } from '@nestjs/common';
-import { Cron, CronExpression } from '@nestjs/schedule';
+// import { Cron, CronExpression } from '@nestjs/schedule';
 import {
   FineStatus,
   NotificationType,
@@ -25,7 +25,7 @@ export class ReservationService {
   constructor(private prisma: PrismaService) {}
 
   // Run every day at midnight to check for expired pickup deadlines
-  @Cron(CronExpression.EVERY_DAY_AT_MIDNIGHT)
+  // @Cron(CronExpression.EVERY_DAY_AT_MIDNIGHT)
   async handlePickupDeadlines() {
     this.logger.log('Checking for expired pickup deadlines...');
     try {
@@ -76,7 +76,7 @@ export class ReservationService {
   }
 
   // Run every day at 9:00 AM to check for overdue books
-  @Cron(CronExpression.EVERY_DAY_AT_9AM)
+  // @Cron(CronExpression.EVERY_DAY_AT_9AM)
   async checkOverdueBooks() {
     this.logger.log('Checking for overdue books...');
     try {
@@ -140,7 +140,7 @@ export class ReservationService {
   }
 
   // Clean up reservations that were notified but not picked up
-  @Cron(CronExpression.EVERY_DAY_AT_3AM)
+  // @Cron(CronExpression.EVERY_DAY_AT_3AM)
   async cleanupOldReservations() {
     this.logger.log('Cleaning up expired reservations...');
     const now = new Date();
@@ -196,7 +196,7 @@ export class ReservationService {
     }
   }
 
-  @Cron(CronExpression.EVERY_DAY_AT_MIDNIGHT)
+  // @Cron(CronExpression.EVERY_DAY_AT_MIDNIGHT)
   async sendDueSoonNotifications() {
     try {
       const { startOfDay, endOfDay } = getStartAndEndOfDay(3);
@@ -233,7 +233,7 @@ export class ReservationService {
     }
   }
 
-  @Cron(CronExpression.EVERY_DAY_AT_MIDNIGHT)
+  // @Cron(CronExpression.EVERY_DAY_AT_MIDNIGHT)
   async sendOverdueNotifications() {
     try {
       const { startOfDay } = getStartAndEndOfDay(0);
@@ -274,7 +274,7 @@ export class ReservationService {
     }
   }
 
-  @Cron(CronExpression.MONDAY_TO_FRIDAY_AT_10AM)
+  // @Cron(CronExpression.MONDAY_TO_FRIDAY_AT_10AM)
   async notifyReservationAvailable() {
     const availableReservations = await this.prisma.reservation.findMany({
       where: {
