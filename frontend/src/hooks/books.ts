@@ -101,3 +101,21 @@ export const useGetReservedBooks = (params: GetReservedBooksQueryParams) => {
       }),
   });
 };
+
+export const useDeleteBook = (onSuccess?: VoidFunction) => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationKey: ["deleteBook"],
+    mutationFn: (bookId: string) => apiDelete<Book>(`/books/${bookId}`),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["getBooks"], exact: false });
+      queryClient.refetchQueries({ queryKey: ["getLibraryStats"] });
+      toast.success("Book deleted successfully");
+      onSuccess?.();
+    },
+    onError(error) {
+      console.log(error);
+      toast.error("Failed to delete book");
+    },
+  });
+};

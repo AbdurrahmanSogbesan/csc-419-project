@@ -74,7 +74,7 @@ export class AuthController {
   }
 
   @Delete(':id/delete')
-  @UseGuards(IsMineGuard)
+  @UseGuards(IsAdminGuard)
   async deleteUser(@Param('id') id: number) {
     return await this.authService.deleteUser(+id);
   }
