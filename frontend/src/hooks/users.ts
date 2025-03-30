@@ -54,6 +54,7 @@ export const useGetNotifications = (params: GetNotificationsParams) => {
     queryKey: ["getNotifications", params],
     queryFn: () =>
       apiGet<GetNotificationsResponse>("/notifications", { params }),
+    refetchInterval: 5 * 60 * 1000, // 5 mins,
   });
 };
 

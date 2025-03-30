@@ -82,6 +82,7 @@ export const useReserveBook = (
       queryClient.refetchQueries({ queryKey: ["getBooks"] });
       queryClient.refetchQueries({ queryKey: ["getSavedBooks"] });
       queryClient.refetchQueries({ queryKey: ["getReservedBooks"] });
+      queryClient.refetchQueries({ queryKey: ["getNotifications"] });
       toast.success(data.message || "Book reserved successfully");
       onSuccess?.(data);
     },
