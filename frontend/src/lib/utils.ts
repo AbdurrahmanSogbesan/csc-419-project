@@ -122,6 +122,7 @@ export const historyTabLabels = [
   "Borrowed",
   "Reserved",
   "Returned",
+  "Overdue",
   "Cancelled",
 ] as const;
 

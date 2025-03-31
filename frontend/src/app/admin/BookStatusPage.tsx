@@ -4,6 +4,7 @@ import SearchBar from "@/components/SearchBar";
 import { Status } from "@/components/StatusCell";
 import { StatusCell } from "@/components/StatusCell";
 import TabsFilter from "@/components/TabsFilter";
+import CustomTooltip from "@/components/tooltip";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -77,9 +78,14 @@ export default function BookStatusPage() {
   const reservedBookColumns = useMemo<ColumnDef<Reservation>[]>(
     () => [
       {
-        header: "User ID",
-        accessorKey: "user.id",
-        size: 100,
+        header: "User",
+        accessorKey: "user.name",
+        cell: ({ row }) => (
+          <CustomTooltip
+            trigger={<p>{row.original.user?.name.split(" ")[0]}</p>}
+            content={row.original.user?.name}
+          />
+        ),
       },
       {
         header: "Title",

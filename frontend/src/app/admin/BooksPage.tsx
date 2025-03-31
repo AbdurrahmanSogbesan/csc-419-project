@@ -36,10 +36,8 @@ export default function BooksPage() {
   const debouncedSearch = useDebounce(search, 500);
 
   const { data: books, isLoading } = useGetBooks({
-    page: 1,
     pageSize: 1000,
     search: debouncedSearch,
-    popularBooks: true,
   });
 
   const closeModal = () => {
@@ -169,9 +167,7 @@ export default function BooksPage() {
 
       <ConfirmModal
         title={`Delete Book - ${bookModalData?.data?.title}?`}
-        description={
-          "This action cannot be undone. This will permanently delete the book and remove it from our servers."
-        }
+        description="This action cannot be undone. This will permanently delete the book and remove it from our servers."
         onConfirm={() => {
           deleteBook(bookModalData?.data?.id ?? "");
         }}
