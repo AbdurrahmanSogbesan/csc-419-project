@@ -233,7 +233,7 @@ export default function MainLayout({ children }: { children: ReactNode }) {
                         <span className="hidden md:block">Filter</span>
                       </Button>
                     </PopoverTrigger>
-                    <PopoverContent className="w-full p-0 py-6 sm:w-[512px]">
+                    <PopoverContent className="w-screen p-0 py-6 sm:w-[512px]">
                       <Form {...form}>
                         <form onSubmit={form.handleSubmit(onSubmitFilters)}>
                           <div className="flex flex-col gap-6 px-4 sm:px-6">
@@ -247,28 +247,31 @@ export default function MainLayout({ children }: { children: ReactNode }) {
                                 render={({ field }) => (
                                   <FormItem>
                                     <FormLabel>Status</FormLabel>
-                                    <FormControl>
-                                      <Select
-                                        onValueChange={field.onChange}
-                                        value={field.value}
-                                      >
+                                    <Select
+                                      onValueChange={(value) => {
+                                        field.onChange(value);
+                                        form.trigger("availabilityStatus");
+                                      }}
+                                      value={field.value}
+                                    >
+                                      <FormControl>
                                         <SelectTrigger>
                                           <SelectValue placeholder="Select availability status" />
                                         </SelectTrigger>
-                                        <SelectContent>
-                                          {availabilityStatusOptions.map(
-                                            (option) => (
-                                              <SelectItem
-                                                key={option.value}
-                                                value={option.value}
-                                              >
-                                                {option.label}
-                                              </SelectItem>
-                                            ),
-                                          )}
-                                        </SelectContent>
-                                      </Select>
-                                    </FormControl>
+                                      </FormControl>
+                                      <SelectContent>
+                                        {availabilityStatusOptions.map(
+                                          (option) => (
+                                            <SelectItem
+                                              key={option.value}
+                                              value={option.value}
+                                            >
+                                              {option.label}
+                                            </SelectItem>
+                                          ),
+                                        )}
+                                      </SelectContent>
+                                    </Select>
                                   </FormItem>
                                 )}
                               />
@@ -299,7 +302,7 @@ export default function MainLayout({ children }: { children: ReactNode }) {
                             </p>
 
                             {isHistoryPage ? (
-                              <div className="flex gap-6">
+                              <div className="flex flex-col gap-2 md:flex-row md:gap-6">
                                 <DatePicker
                                   control={form.control}
                                   name="startDate"
@@ -326,7 +329,7 @@ export default function MainLayout({ children }: { children: ReactNode }) {
                                 />
                               </div>
                             ) : (
-                              <div className="flex gap-6">
+                              <div className="flex flex-col gap-2 md:flex-row md:gap-6">
                                 <FormField
                                   control={form.control}
                                   name="publishedYearStart"
