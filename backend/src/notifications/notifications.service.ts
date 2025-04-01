@@ -211,4 +211,25 @@ export class NotificationsService {
       return fine;
     });
   }
+
+  async waiveFine(fineId: bigint, userId: bigint) {
+    return this.prisma.$transaction(async (tx) => {
+      const fine = await tx.fine.update({
+        where: { id: fineId, userId },
+        data: { status: FineStatus.PAID },
+      });
+
+      await tx.notification.create({
+        data: {
+          type: NotificationType.FINE_PAID,
+          title: 'Fine waived',
+          message: `A fine of ${fine.amount.toFixed(2)} has been waived.`,
+          userId,
+          bookId: fine.bookId,
+        },
+      });
+
+      return fine;
+    });
+  }
 }

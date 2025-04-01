@@ -67,6 +67,12 @@ export class NotificationsController {
     );
   }
 
+  @Post('waive-fine')
+  @UseGuards(IsAdminGuard)
+  async waiveFine(@Body() data: { userId: bigint; fineId: bigint }) {
+    return await this.notificationsService.waiveFine(data.userId, data.fineId);
+  }
+
   @Get(':id')
   async getNotification(@Param('id') id: bigint, @Request() req) {
     return await this.notificationsService.findOne(id, req.user.userId);
