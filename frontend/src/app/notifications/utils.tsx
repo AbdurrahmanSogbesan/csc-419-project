@@ -10,6 +10,8 @@ import {
   Clock,
   CreditCard,
   Info,
+  Lock,
+  Unlock,
 } from "lucide-react";
 
 export const getNotificationIcon = (
@@ -35,6 +37,10 @@ export const getNotificationIcon = (
       return <Book className={cn(className)} />;
     case "BOOK_RETURNED":
       return <CheckCircle2 className={cn(className)} />;
+    case "ACCOUNT_RESTRICTED":
+      return <Lock className={cn(className)} />;
+    case "ACCOUNT_UNRESTRICTED":
+      return <Unlock className={cn(className)} />;
     default:
       return <Bell className={cn(className)} />;
   }
@@ -45,18 +51,20 @@ export const getNotificationColor = (type: NotificationType) => {
     case "RESERVATION_AVAILABLE":
     case "BOOK_PICKED_UP":
     case "BOOK_RETURNED":
-      return "from-emerald-500 to-teal-600";
+    case "ACCOUNT_UNRESTRICTED":
+      return "from-emerald-400 to-teal-600";
     case "BOOK_DUE_SOON":
     case "FINE_PAYMENT_REMINDER":
     case "BOOK_RESERVED":
       return "from-amber-500 to-orange-600";
     case "BOOK_OVERDUE":
     case "FINE_ISSUED":
-      return "from-rose-500 to-red-600";
+    case "ACCOUNT_RESTRICTED":
+      return "from-rose-400 to-red-600";
     case "SYSTEM_ANNOUNCEMENT":
-      return "from-blue-500 to-indigo-600";
+      return "from-blue-400 to-indigo-600";
     default:
-      return "from-violet-500 to-purple-600";
+      return "from-violet-400 to-purple-600";
   }
 };
 
