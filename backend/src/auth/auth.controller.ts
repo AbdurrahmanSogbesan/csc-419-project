@@ -41,6 +41,12 @@ export class AuthController {
     return await this.authService.findOne(+req.user.userId);
   }
 
+  @Public()
+  @Post('trigger-restriction-expiry')
+  async triggerRestrictionExpiry() {
+    return await this.authService.handleRestrictionExpiry();
+  }
+
   @Patch('change-password')
   async changePassword(@Request() req, @Body() body) {
     return await this.authService.changePassword(req.user.userId, body);
