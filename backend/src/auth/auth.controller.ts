@@ -78,4 +78,19 @@ export class AuthController {
   async deleteUser(@Param('id') id: number) {
     return await this.authService.deleteUser(+id);
   }
+
+  @Patch(':id/restrict')
+  @UseGuards(IsAdminGuard)
+  async restrictUser(
+    @Param('id') id: bigint,
+    @Body() body: { restrictionDate?: string },
+  ) {
+    return await this.authService.restrictUser(id, body.restrictionDate);
+  }
+
+  @Patch(':id/unrestrict')
+  @UseGuards(IsAdminGuard)
+  async unrestrictUser(@Param('id') id: bigint) {
+    return await this.authService.unrestrictUser(id);
+  }
 }

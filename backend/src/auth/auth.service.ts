@@ -1,4 +1,5 @@
 import {
+  BadRequestException,
   ConflictException,
   HttpException,
   Injectable,
@@ -12,7 +13,7 @@ import { CreateUserDto } from './dtos/create-user.dto';
 import { comparePasswords, hashPassword } from 'src/utils/helpers';
 import { AuthResponse, UserPayload } from './interfaces/users-login.interfaces';
 import { LoginUserDto } from './dtos/login-user.dto';
-import { Prisma } from '@prisma/client';
+import { NotificationType, Prisma } from '@prisma/client';
 import { UpdateUserDto } from './dtos/update-user.dto';
 import { GetUsersDto } from './dtos/get-users.dto';
 
@@ -318,5 +319,83 @@ export class AuthService {
       totalUsers,
       overdueBooks,
     };
+  }
+
+  async restrictUser(userId: bigint, restrictionDate?: string) {
+    const user = await this.prisma.user.findUnique({
+      where: { id: userId },
+    });
+
+    if (!user) {
+      throw new NotFoundException('User not found');
+    }
+    if (user.isRestricted || user.restrictedUntil) {
+      throw new ConflictException('User is already restricted');
+    }
+
+    let parsedDate: Date | null = null;
+    if (restrictionDate) {
+      parsedDate = new Date(restrictionDate);
+      if (isNaN(parsedDate.getTime())) {
+        throw new BadRequestException('Invalid restriction date format');
+      }
+    }
+
+    return this.prisma.$transaction(async (tx) => {
+      const updatedUser = await tx.user.update({
+        where: { id: userId },
+        data: {
+          restrictedUntil: parsedDate,
+          isRestricted: true,
+        },
+      });
+
+      // Format date nicely for notification
+      const dateMessage = parsedDate
+        ? `Your account has been restricted until ${parsedDate.toLocaleDateString()}`
+        : 'Your account has been restricted indefinitely';
+
+      await tx.notification.create({
+        data: {
+          userId,
+          title: 'Account Restricted',
+          message: dateMessage,
+          type: NotificationType.ACCOUNT_RESTRICTED,
+        },
+      });
+
+      return updatedUser;
+    });
+  }
+
+  async unrestrictUser(userId: bigint) {
+    const user = await this.prisma.user.findUnique({
+      where: { id: userId },
+    });
+
+    if (!user) {
+      throw new NotFoundException('User not found');
+    }
+
+    return this.prisma.$transaction(async (tx) => {
+      const updatedUser = await this.prisma.user.update({
+        where: { id: userId },
+        data: {
+          isRestricted: false,
+          restrictedUntil: null,
+        },
+      });
+
+      await tx.notification.create({
+        data: {
+          userId,
+          title: 'Account Unrestricted',
+          message: `Your account has been unrestricted`,
+          type: NotificationType.ACCOUNT_UNRESTRICTED,
+        },
+      });
+
+      return updatedUser;
+    });
   }
 }
