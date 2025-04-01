@@ -120,7 +120,7 @@ export class ReservationService {
 
           await tx.user.update({
             where: { id: overdue.userId },
-            data: { restrictedUntil },
+            data: { restrictedUntil, isRestricted: true },
           });
 
           this.logger.log(
@@ -325,7 +325,10 @@ export class ReservationService {
         throw new NotFoundException('User not found');
       }
 
-      if (user.restrictedUntil && user.restrictedUntil > new Date()) {
+      if (
+        (user.restrictedUntil && user.restrictedUntil > new Date()) ||
+        user.isRestricted
+      ) {
         throw new ForbiddenException(
           `You are restricted from reserving until ${user.restrictedUntil.toLocaleDateString()}`,
         );
@@ -670,7 +673,7 @@ export class ReservationService {
 
         await tx.user.update({
           where: { id: userId },
-          data: { restrictedUntil },
+          data: { restrictedUntil, isRestricted: true },
         });
 
         restrictionMessage = ` Your borrowing privileges are suspended until ${restrictedUntil.toLocaleDateString()}.`;
