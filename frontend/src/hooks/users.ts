@@ -2,6 +2,7 @@ import { SettingsProfileForm } from "@/app/settings";
 import { apiGet, apiPatch } from "@/lib/api";
 import { useAuthStore } from "@/lib/stores/auth";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { AxiosError } from "axios";
 import { toast } from "sonner";
 
 export const useGetUsers = (params: GetUsersParams) => {
@@ -73,6 +74,56 @@ export const useMarkNotificationAsRead = () => {
     },
     onError: () => {
       toast.error("Failed to mark notification as read");
+    },
+  });
+};
+
+export const useRestrictUser = (onSuccess?: VoidFunction) => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationKey: ["restrictUser"],
+    mutationFn: ({
+      userId,
+      restrictionDate,
+    }: {
+      userId: string;
+      restrictionDate?: string;
+    }) =>
+      apiPatch<User>(`/auth/${userId}/restrict`, {
+        restrictionDate,
+      }),
+    onSuccess: () => {
+      toast.success("User restricted successfully");
+      queryClient.refetchQueries({
+        queryKey: ["getUsers"],
+      });
+      onSuccess?.();
+    },
+    onError: (error: AxiosError<{ message: string }>) => {
+      toast.error(error?.response?.data?.message || "Failed to restrict user");
+    },
+  });
+};
+
+export const useUnrestrictUser = (onSuccess?: VoidFunction) => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationKey: ["unrestrictUser"],
+    mutationFn: (userId: string) =>
+      apiPatch<User>(`/auth/${userId}/unrestrict`),
+    onSuccess: () => {
+      toast.success("User unrestricted successfully");
+      queryClient.refetchQueries({
+        queryKey: ["getUsers"],
+      });
+      onSuccess?.();
+    },
+    onError: (error: AxiosError<{ message: string }>) => {
+      toast.error(
+        error?.response?.data?.message || "Failed to unrestrict user",
+      );
     },
   });
 };

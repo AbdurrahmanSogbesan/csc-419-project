@@ -2,7 +2,7 @@ import { DataTable } from "@/components/DataTable";
 import SearchBar from "@/components/SearchBar";
 import TabsFilter from "@/components/TabsFilter";
 import { useDebounce } from "@/hooks/use-debounce";
-import { useGetUsers } from "@/hooks/users";
+import { useGetUsers, useRestrictUser, useUnrestrictUser } from "@/hooks/users";
 import { ColumnDef } from "@tanstack/react-table";
 import { format } from "date-fns";
 import { useEffect, useMemo, useState } from "react";
@@ -22,6 +22,25 @@ import {
 import { Button } from "@/components/ui/button";
 import { MoreHorizontal } from "lucide-react";
 import { ConfirmModal } from "@/components/confirm-modal";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
+import { DatePicker } from "@/components/ui/date-picker";
+import { z } from "zod";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useForm } from "react-hook-form";
+import { Form } from "@/components/ui/form";
+
+const restrcitionSchema = z.object({
+  restrictedUntil: z.date().optional(),
+});
 
 const PAGE_SIZE = 15;
 
@@ -34,7 +53,12 @@ export default function UsersPage() {
   const [userModalData, setUserModalData] = useState<{
     isOpen: boolean;
     data: User | null;
-    type: "delete" | "restrict" | "unrestrict" | null;
+  }>({ isOpen: false, data: null });
+
+  const [restrictUserModalData, setRestrictUserModalData] = useState<{
+    isOpen: boolean;
+    data: User | null;
+    type: "restrict" | "unrestrict" | null;
   }>({ isOpen: false, data: null, type: null });
 
   const debouncedSearch = useDebounce(search, 500);
@@ -88,14 +112,19 @@ export default function UsersPage() {
         accessorKey: "restrictedUntil",
         cell: ({ row }) => (
           <StatusCell
-            status={row.original.restrictedUntil ? "restricted" : "active"}
+            status={
+              row.original.restrictedUntil || row.original.isRestricted
+                ? "restricted"
+                : "active"
+            }
           />
         ),
       },
       {
         id: "actions",
         cell: ({ row }) => {
-          const isRestricted = !!row.original.restrictedUntil;
+          const isRestricted =
+            !!row.original.restrictedUntil || row.original.isRestricted;
           return (
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
@@ -109,13 +138,22 @@ export default function UsersPage() {
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end">
                 <DropdownMenuLabel>Actions</DropdownMenuLabel>
-                <DropdownMenuItem disabled={!isRestricted}>
+                <DropdownMenuItem
+                  disabled={!isRestricted}
+                  onClick={() => {
+                    setRestrictUserModalData({
+                      isOpen: true,
+                      data: row.original,
+                      type: "unrestrict",
+                    });
+                  }}
+                >
                   Unrestrict User
                 </DropdownMenuItem>
                 <DropdownMenuItem
                   disabled={isRestricted}
                   onClick={() => {
-                    setUserModalData({
+                    setRestrictUserModalData({
                       isOpen: true,
                       data: row.original,
                       type: "restrict",
@@ -130,7 +168,6 @@ export default function UsersPage() {
                     setUserModalData({
                       isOpen: true,
                       data: row.original,
-                      type: "delete",
                     })
                   }
                 >
@@ -145,6 +182,31 @@ export default function UsersPage() {
     [],
   );
 
+  const { mutate: restrictUser, isPending: isRestricting } = useRestrictUser(
+    () => closeRestrictUserModal(),
+  );
+
+  const { mutate: unrestrictUser, isPending: isUnrestricting } =
+    useUnrestrictUser(() => closeRestrictUserModal());
+
+  const togglingRestriction = isRestricting || isUnrestricting;
+
+  const restrictionForm = useForm<z.infer<typeof restrcitionSchema>>({
+    resolver: zodResolver(restrcitionSchema),
+    defaultValues: {
+      restrictedUntil: undefined,
+    },
+  });
+
+  const closeRestrictUserModal = () => {
+    setRestrictUserModalData((prev) => ({
+      isOpen: !prev?.isOpen,
+      data: prev?.isOpen ? null : prev?.data,
+      type: prev?.isOpen ? null : prev?.type,
+    }));
+    restrictionForm.reset();
+  };
+
   const tabs = useMemo(
     () => createUserStatusTabs(userData?.data ?? []),
     [userData?.data],
@@ -154,6 +216,17 @@ export default function UsersPage() {
     () => filterUsersByStatus(userData?.data ?? [], selectedStatus),
     [userData?.data, selectedStatus],
   );
+
+  function toggleUserRestriction(data: z.infer<typeof restrcitionSchema>) {
+    if (restrictUserModalData?.type === "restrict") {
+      restrictUser({
+        userId: restrictUserModalData?.data?.id as string,
+        restrictionDate: data.restrictedUntil?.toISOString(),
+      });
+    } else {
+      unrestrictUser(restrictUserModalData?.data?.id as string);
+    }
+  }
 
   // Reset pagination when search changes
   useEffect(() => {
@@ -193,13 +266,9 @@ export default function UsersPage() {
       />
 
       <ConfirmModal
-        title={`${userModalData?.type === "delete" ? "Delete" : userModalData?.type === "restrict" ? "Restrict" : "Unrestrict"} User - ${userModalData?.data?.name}?`}
+        title={`Delete User - ${userModalData?.data?.name}?`}
         description={
-          userModalData?.type === "delete"
-            ? "This action cannot be undone. This will permanently delete the user and remove their data from our servers."
-            : userModalData?.type === "restrict"
-              ? "This action cannot be undone. This will restrict the user from borrowing books."
-              : "This action cannot be undone. This will allow the user to borrow books again."
+          "This action cannot be undone. This will permanently delete the user and remove their data from our servers."
         }
         onConfirm={() => {}}
         open={userModalData?.isOpen}
@@ -207,10 +276,69 @@ export default function UsersPage() {
           setUserModalData((prev) => ({
             isOpen: !prev?.isOpen,
             data: prev?.isOpen ? null : prev?.data,
-            type: prev?.type ? null : prev?.type,
           }))
         }
       />
+
+      <AlertDialog
+        open={restrictUserModalData?.isOpen}
+        onOpenChange={() => {
+          closeRestrictUserModal();
+        }}
+      >
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>
+              {restrictUserModalData?.type === "restrict"
+                ? "Restrict User"
+                : "Unrestrict User"}{" "}
+              - {restrictUserModalData?.data?.name}
+            </AlertDialogTitle>
+            <AlertDialogDescription>
+              This will permanently restrict the user's account from reserving
+              or borrowing books.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+
+          <div>
+            <Form {...restrictionForm}>
+              <form className="space-y-4">
+                {restrictUserModalData?.type === "restrict" && (
+                  <DatePicker
+                    control={restrictionForm.control}
+                    name="restrictedUntil"
+                    label="Restricted Until Date"
+                    className="flex-1"
+                    calendarProps={{
+                      disabled: (date) => {
+                        return date < new Date();
+                      },
+                    }}
+                  />
+                )}
+
+                <AlertDialogFooter>
+                  <AlertDialogCancel
+                    type="button"
+                    disabled={togglingRestriction}
+                  >
+                    Cancel
+                  </AlertDialogCancel>
+                  <AlertDialogAction
+                    type="button"
+                    disabled={togglingRestriction}
+                    onClick={restrictionForm.handleSubmit(
+                      toggleUserRestriction,
+                    )}
+                  >
+                    Continue
+                  </AlertDialogAction>
+                </AlertDialogFooter>
+              </form>
+            </Form>
+          </div>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }

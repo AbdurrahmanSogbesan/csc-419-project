@@ -153,7 +153,8 @@ export const USER_STATUS_LABELS: Record<UserStatus, string> = {
   RESTRICTED: "Restricted",
 };
 
-export const isUserRestricted = (user: User) => !!user.restrictedUntil;
+export const isUserRestricted = (user: User) =>
+  !!user.restrictedUntil || user.isRestricted;
 
 export const filterUsersByStatus = (users: User[], status: string) => {
   switch (status.toUpperCase() as UserStatus) {

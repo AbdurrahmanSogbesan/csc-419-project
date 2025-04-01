@@ -238,6 +238,7 @@ export class AuthService {
           createdAt: true,
           phone: true,
           restrictedUntil: true,
+          isRestricted: true,
           borrowedBooks: {
             select: {
               id: true,

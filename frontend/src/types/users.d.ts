@@ -6,6 +6,7 @@ type User = {
   name: string;
   role: UserRole;
   restrictedUntil: string | null;
+  isRestricted: boolean;
   createdAt: string;
   borrowedBooks?: BorrowedBook[];
   reservations?: Reservation[];
@@ -47,7 +48,10 @@ type NotificationType =
   | "SYSTEM_ANNOUNCEMENT"
   | "BOOK_PICKED_UP"
   | "BOOK_RESERVED"
-  | "BOOK_RETURNED";
+  | "BOOK_RETURNED"
+  | "FINE_PAID"
+  | "ACCOUNT_RESTRICTED"
+  | "ACCOUNT_UNRESTRICTED";
 
 type UserNotification = {
   id: number;
