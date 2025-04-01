@@ -6,6 +6,7 @@ import {
   useQueryClient,
   UseQueryOptions,
 } from "@tanstack/react-query";
+import { AxiosError } from "axios";
 import { toast } from "sonner";
 
 export const useGetBooks = (
@@ -87,9 +88,10 @@ export const useReserveBook = (
       toast.success(data.message || "Book reserved successfully");
       onSuccess?.(data);
     },
-    onError(error) {
+    onError(error: AxiosError<{ message: string }>) {
+      console.log("error", error);
       console.log(error);
-      toast.error("Failed to reserve book");
+      toast.error(error?.response?.data?.message || "Failed to reserve book");
     },
   });
 };
