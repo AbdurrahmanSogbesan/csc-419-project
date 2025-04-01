@@ -1,7 +1,9 @@
 import {
+  BadRequestException,
   ConflictException,
   HttpException,
   Injectable,
+  Logger,
   NotFoundException,
   UnauthorizedException,
 } from '@nestjs/common';
@@ -12,12 +14,14 @@ import { CreateUserDto } from './dtos/create-user.dto';
 import { comparePasswords, hashPassword } from 'src/utils/helpers';
 import { AuthResponse, UserPayload } from './interfaces/users-login.interfaces';
 import { LoginUserDto } from './dtos/login-user.dto';
-import { Prisma } from '@prisma/client';
+import { NotificationType, Prisma } from '@prisma/client';
 import { UpdateUserDto } from './dtos/update-user.dto';
 import { GetUsersDto } from './dtos/get-users.dto';
+import { Cron, CronExpression } from '@nestjs/schedule';
 
 @Injectable()
 export class AuthService {
+  private readonly logger = new Logger(AuthService.name);
   constructor(
     private prisma: PrismaService,
     private jwtService: JwtService,
@@ -54,6 +58,58 @@ export class AuthService {
       user: userWithoutPassword,
       access_token,
     };
+  }
+
+  @Cron(CronExpression.EVERY_DAY_AT_9AM)
+  async handleRestrictionExpiry() {
+    try {
+      const currentDate = new Date();
+
+      const expiredRestrictions = await this.prisma.user.findMany({
+        where: {
+          isRestricted: true,
+          restrictedUntil: {
+            lt: currentDate,
+            not: null,
+          },
+        },
+      });
+
+      if (!expiredRestrictions.length) {
+        this.logger.log('No users with expired restrictions found');
+        return;
+      }
+
+      for (const user of expiredRestrictions) {
+        await this.prisma.$transaction(async (tx) => {
+          await tx.user.update({
+            where: { id: user.id },
+            data: {
+              isRestricted: false,
+              restrictedUntil: null,
+            },
+          });
+
+          await tx.notification.create({
+            data: {
+              userId: user.id,
+              type: NotificationType.ACCOUNT_UNRESTRICTED,
+              title: 'Account Restriction Removed',
+              message:
+                'Your account restriction has been lifted. You can now use the library services normally.',
+              createdAt: new Date(),
+            },
+          });
+        });
+      }
+
+      this.logger.log(
+        `Removed restrictions for ${expiredRestrictions.length} users`,
+      );
+    } catch (error) {
+      this.logger.error('Error handling restriction expiry', error);
+      throw error;
+    }
   }
 
   async registerUser(createUserDto: CreateUserDto): Promise<AuthResponse> {
@@ -318,5 +374,83 @@ export class AuthService {
       totalUsers,
       overdueBooks,
     };
+  }
+
+  async restrictUser(userId: bigint, restrictionDate?: string) {
+    const user = await this.prisma.user.findUnique({
+      where: { id: userId },
+    });
+
+    if (!user) {
+      throw new NotFoundException('User not found');
+    }
+    if (user.isRestricted || user.restrictedUntil) {
+      throw new ConflictException('User is already restricted');
+    }
+
+    let parsedDate: Date | null = null;
+    if (restrictionDate) {
+      parsedDate = new Date(restrictionDate);
+      if (isNaN(parsedDate.getTime())) {
+        throw new BadRequestException('Invalid restriction date format');
+      }
+    }
+
+    return this.prisma.$transaction(async (tx) => {
+      const updatedUser = await tx.user.update({
+        where: { id: userId },
+        data: {
+          restrictedUntil: parsedDate,
+          isRestricted: true,
+        },
+      });
+
+      // Format date nicely for notification
+      const dateMessage = parsedDate
+        ? `Your account has been restricted until ${parsedDate.toLocaleDateString()}`
+        : 'Your account has been restricted indefinitely';
+
+      await tx.notification.create({
+        data: {
+          userId,
+          title: 'Account Restricted',
+          message: dateMessage,
+          type: NotificationType.ACCOUNT_RESTRICTED,
+        },
+      });
+
+      return updatedUser;
+    });
+  }
+
+  async unrestrictUser(userId: bigint) {
+    const user = await this.prisma.user.findUnique({
+      where: { id: userId },
+    });
+
+    if (!user) {
+      throw new NotFoundException('User not found');
+    }
+
+    return this.prisma.$transaction(async (tx) => {
+      const updatedUser = await this.prisma.user.update({
+        where: { id: userId },
+        data: {
+          isRestricted: false,
+          restrictedUntil: null,
+        },
+      });
+
+      await tx.notification.create({
+        data: {
+          userId,
+          title: 'Account Unrestricted',
+          message: `Your account has been unrestricted`,
+          type: NotificationType.ACCOUNT_UNRESTRICTED,
+        },
+      });
+
+      return updatedUser;
+    });
   }
 }

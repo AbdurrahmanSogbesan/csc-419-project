@@ -41,6 +41,12 @@ export class AuthController {
     return await this.authService.findOne(+req.user.userId);
   }
 
+  @Public()
+  @Post('trigger-restriction-expiry')
+  async triggerRestrictionExpiry() {
+    return await this.authService.handleRestrictionExpiry();
+  }
+
   @Patch('change-password')
   async changePassword(@Request() req, @Body() body) {
     return await this.authService.changePassword(req.user.userId, body);
@@ -77,5 +83,20 @@ export class AuthController {
   @UseGuards(IsAdminGuard)
   async deleteUser(@Param('id') id: number) {
     return await this.authService.deleteUser(+id);
+  }
+
+  @Patch(':id/restrict')
+  @UseGuards(IsAdminGuard)
+  async restrictUser(
+    @Param('id') id: bigint,
+    @Body() body: { restrictionDate?: string },
+  ) {
+    return await this.authService.restrictUser(id, body.restrictionDate);
+  }
+
+  @Patch(':id/unrestrict')
+  @UseGuards(IsAdminGuard)
+  async unrestrictUser(@Param('id') id: bigint) {
+    return await this.authService.unrestrictUser(id);
   }
 }

@@ -42,11 +42,14 @@ enum NotificationType {
   BOOK_DUE_SOON
   BOOK_OVERDUE
   FINE_ISSUED
+  FINE_PAID
   FINE_PAYMENT_REMINDER
   SYSTEM_ANNOUNCEMENT
   BOOK_PICKED_UP
   BOOK_RESERVED
   BOOK_RETURNED
+  ACCOUNT_RESTRICTED
+  ACCOUNT_UNRESTRICTED
 }
 
 
@@ -59,6 +62,7 @@ model User {
   phone     String?  
   role      Role     @default(MEMBER)
   restrictedUntil DateTime? 
+  isRestricted Boolean @default(false)
   createdAt DateTime @default(now()) @db.Timestamptz(3)
 
   borrowedBooks BorrowedBook[]
