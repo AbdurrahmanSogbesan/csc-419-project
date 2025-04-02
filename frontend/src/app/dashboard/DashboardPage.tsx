@@ -130,44 +130,52 @@ export default function DashboardPage() {
         journey.
       </p>
 
-      <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
-        {isLoading ? (
-          Array.from({ length: 4 }).map((_, index) => (
-            <BookCardSkeleton key={index} />
-          ))
-        ) : books && books.data.length > 0 ? (
-          books.data.map((book) => {
-            const isSaved = book.savedBooks?.some(
-              (savedBook) => savedBook.userId === user?.id,
-            );
-            const isReserved = checkIfBookIsReserved(
-              book.reservations ?? [],
-              user?.id as string,
-            );
-            return (
-              <BookCard
-                key={book.id}
-                book={{ ...book, isSaved, isReserved }}
-                onReserve={() => reserveBook(book.id)}
-                onSave={() =>
-                  isSaved ? deleteSavedBook(book.id) : saveBook(book.id)
-                }
-                disabled={updatingBooks}
-                onCardClick={
-                  updatingBooks
-                    ? undefined
-                    : () => {
-                        navigate(`/dashboard/books/${book.id}`);
-                      }
-                }
-              />
-            );
-          })
-        ) : (
-          <p className="col-span-full my-20 text-center text-gray-600">
-            No books found
-          </p>
-        )}
+      <div className="flex flex-col gap-2">
+        <p
+          className="w-fit cursor-pointer self-end text-sm font-semibold hover:underline md:text-base"
+          onClick={() => navigate("/dashboard/search")}
+        >
+          View All Books
+        </p>
+        <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
+          {isLoading ? (
+            Array.from({ length: 4 }).map((_, index) => (
+              <BookCardSkeleton key={index} />
+            ))
+          ) : books && books.data.length > 0 ? (
+            books.data.map((book) => {
+              const isSaved = book.savedBooks?.some(
+                (savedBook) => savedBook.userId === user?.id,
+              );
+              const isReserved = checkIfBookIsReserved(
+                book.reservations ?? [],
+                user?.id as string,
+              );
+              return (
+                <BookCard
+                  key={book.id}
+                  book={{ ...book, isSaved, isReserved }}
+                  onReserve={() => reserveBook(book.id)}
+                  onSave={() =>
+                    isSaved ? deleteSavedBook(book.id) : saveBook(book.id)
+                  }
+                  disabled={updatingBooks}
+                  onCardClick={
+                    updatingBooks
+                      ? undefined
+                      : () => {
+                          navigate(`/dashboard/books/${book.id}`);
+                        }
+                  }
+                />
+              );
+            })
+          ) : (
+            <p className="col-span-full my-20 text-center text-gray-600">
+              No books found
+            </p>
+          )}
+        </div>
       </div>
 
       <div className="mt-4 flex flex-col gap-6">

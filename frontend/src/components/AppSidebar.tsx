@@ -31,10 +31,12 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
 
   const { state, isMobile } = useSidebar();
 
+  const isAdmin = user?.role === "ADMIN";
+
   const data = useMemo(() => {
     return {
       navMain: [
-        ...(user?.role === "ADMIN"
+        ...(isAdmin
           ? [
               {
                 title: "Admin",
@@ -72,7 +74,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         },
       ],
     };
-  }, [user?.role]);
+  }, [isAdmin]);
 
   return (
     <Sidebar collapsible="icon" {...props}>
@@ -87,7 +89,9 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
             "cursor-pointer transition-all duration-200 ease-in-out",
             state === "collapsed" && !isMobile ? "size-6" : "size-10",
           )}
-          onClick={() => navigate("/dashboard")}
+          onClick={() =>
+            isAdmin ? navigate("/admin") : navigate("/dashboard")
+          }
         />
       </SidebarHeader>
       <SidebarContent>

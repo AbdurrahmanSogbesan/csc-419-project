@@ -205,7 +205,7 @@ export default function MainLayout({ children }: { children: ReactNode }) {
 
           {isAdminRoute
             ? !searchParams.get("tab") ||
-              (searchParams.get("tab") !== "dashboard" && (
+              (searchParams.get("tab") === "books" && (
                 <Button
                   onClick={() => {
                     navigate(
