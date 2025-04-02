@@ -78,6 +78,24 @@ export const useMarkNotificationAsRead = () => {
   });
 };
 
+export const useMarkAllNotificationsAsRead = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationKey: ["markAllNotificationsAsRead"],
+    mutationFn: () => apiPatch("/notifications/read-all"),
+    onSuccess: () => {
+      toast.success("All notifications marked as read");
+      queryClient.refetchQueries({
+        queryKey: ["getNotifications"],
+      });
+    },
+    onError: () => {
+      toast.error("Failed to mark all notifications as read");
+    },
+  });
+};
+
 export const useRestrictUser = (onSuccess?: VoidFunction) => {
   const queryClient = useQueryClient();
 

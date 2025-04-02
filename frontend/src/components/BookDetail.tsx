@@ -82,6 +82,10 @@ function BookDetails({ book }: { book: Book }) {
       value: book.ISBN,
     },
     {
+      label: "Genres",
+      value: book.category.join(", ") || "N/A",
+    },
+    {
       label: "Reviews",
       value: BookRating,
     },
@@ -113,7 +117,7 @@ function BookDetails({ book }: { book: Book }) {
           {productDetails.map(({ label, value }) => (
             <div key={label} className="flex items-baseline gap-2">
               <p className="text-gray-600">{label}:</p>
-              <div className="font-medium text-gray-800">
+              <div className="font-medium capitalize text-gray-800">
                 {typeof value === "string"
                   ? value
                   : value({

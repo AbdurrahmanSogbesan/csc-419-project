@@ -3,7 +3,7 @@ type Book = {
   ISBN: string;
   title: string;
   author: string;
-  category: string | string[];
+  category: string[];
   copiesAvailable: number;
   copiesBorrowed: number;
   publishedYear: number;

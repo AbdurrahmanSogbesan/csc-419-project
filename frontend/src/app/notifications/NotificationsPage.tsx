@@ -1,6 +1,10 @@
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
-import { useGetNotifications, useMarkNotificationAsRead } from "@/hooks/users";
+import {
+  useGetNotifications,
+  useMarkAllNotificationsAsRead,
+  useMarkNotificationAsRead,
+} from "@/hooks/users";
 import { cn } from "@/lib/utils";
 import {
   getNotificationColor,
@@ -22,6 +26,15 @@ export default function NotificationsPage() {
   const { mutate: markNotificationAsRead, isPending: isMarkingAsRead } =
     useMarkNotificationAsRead();
 
+  const {
+    mutate: markAllNotificationsAsRead,
+    isPending: isMarkingAllNotificationsAsRead,
+  } = useMarkAllNotificationsAsRead();
+
+  const hasUnreadNotifications = data?.data.some(
+    (notification) => !notification.isRead,
+  );
+
   return (
     <div className="flex flex-1 flex-col gap-6">
       <p className="mt-2 text-sm text-gray-600 md:text-base">
@@ -36,7 +49,23 @@ export default function NotificationsPage() {
           ))}
         </div>
       ) : data && data.data.length > 0 ? (
-        <div className="mx-auto w-full max-w-2xl space-y-4">
+        <div className="mx-auto flex w-full max-w-2xl flex-col space-y-4">
+          {hasUnreadNotifications && (
+            <Badge
+              className={cn(
+                "cursor-pointer self-end px-4 py-1 text-sm font-normal",
+                isMarkingAllNotificationsAsRead &&
+                  "cursor-not-allowed opacity-50",
+              )}
+              onClick={() => {
+                if (!isMarkingAllNotificationsAsRead) {
+                  markAllNotificationsAsRead();
+                }
+              }}
+            >
+              Mark all as read
+            </Badge>
+          )}
           {data.data.map((notification) => (
             <NotificationCard
               key={notification.id}
