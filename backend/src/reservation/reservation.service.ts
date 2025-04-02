@@ -330,7 +330,7 @@ export class ReservationService {
         user.isRestricted
       ) {
         throw new ForbiddenException(
-          `You are restricted from reserving until ${user.restrictedUntil.toLocaleDateString()}`,
+          `You are restricted from reserving until ${user.restrictedUntil?.toLocaleDateString()}`,
         );
       }
 
