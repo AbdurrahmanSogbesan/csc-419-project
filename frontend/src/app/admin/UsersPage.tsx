@@ -295,8 +295,11 @@ export default function UsersPage() {
               - {restrictUserModalData?.data?.name}
             </AlertDialogTitle>
             <AlertDialogDescription>
-              This will permanently restrict the user's account from reserving
-              or borrowing books.
+              This will{" "}
+              {restrictUserModalData?.type === "restrict"
+                ? "restrict"
+                : "unrestrict"}
+              the user's account from reserving or borrowing books.
             </AlertDialogDescription>
           </AlertDialogHeader>
 
